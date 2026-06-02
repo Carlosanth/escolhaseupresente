@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lista de Casamento</title>
+    <link rel="stylesheet" href="Style.css" />
+  </head>
+  <body>
+    
+    <div class="tela-boas-vindas">
+        <div class="conteudo-boas-vindas">
+            <h1>Sejam Bem-Vindos ao Nosso Sonho!</h1>
+            <p>Ficamos muito felizes em compartilhar este momento tão especial com você. Navegue pela nossa lista e nos ajude a montar o nosso novo lar!</p>
+            <button class="btn-acessar" onclick="rolarParaLista()">Acessar Lista de Presentes</button>
+        </div>
+    </div>
+    
+    <div class="wrapper-produtos">
+        <div id="lista-produtos"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script src="script.js"></script>
+
+    <script>
+      function rolarParaLista() {
+          const elementoLista = document.querySelector('.wrapper-produtos');
+          if (elementoLista) {
+              elementoLista.scrollIntoView({ behavior: 'smooth' });
+          }
+      }
+    </script>
+
+    <div id="modal-nome" class="modal-container">
+      <div class="modal-conteudo">
+        <h3>Falta bem pouquinho!</h3>
+        <p>Para organizarmos os presentes, informe o seu nome e sobrenome:</p>
+            
+        <input type="text" id="nome-convidado" placeholder="Digite seu nome completo aqui..." required />
+            
+        <div class="modal-botoes">
+          <button id="btn-cancelar-modal" class="botao">Voltar</button>
+          <button id="btn-confirmar-modal" class="botao primario">Confirmar Presente</button>
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
