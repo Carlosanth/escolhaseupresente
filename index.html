@@ -307,7 +307,7 @@
     const auth = getAuth(app);
 
     const IMGBB_API_KEY = "e797ef41a3250b8611e3621390e0f89c"; 
-    const URL_BASE_GITHUB = "https://carlosanth.github.io/escolhaseupresente/";
+    const URL_BASE_GITHUB = "https://carlosanth.github.io/escolhaseupresente/lista.html";
 
     let modoAutenticacao = "login";
     let usuarioAtualUid = null;
@@ -349,7 +349,7 @@
                 }
                 querySnapshot.forEach((docSnap) => {
                     const prod = docSnap.data();
-                    const idDoDocumento = docSnap.id;
+                    const idDoDocumento = docSnap.id; // Pegando o ID do documento para poder deletar depois
                     
                     const itemHtml = `
                         <div class="produto-card">
@@ -391,10 +391,12 @@
         if (e.target.classList.contains('btn-excluir-badge')) {
             const idDoc = e.target.getAttribute('data-id');
             
+            // Janela de confirmação nativa do navegador
             const confirmar = confirm("Tem certeza absoluta que deseja excluir este item da sua lista?");
             
             if (confirmar) {
                 try {
+                    // Executa a deleção no Firebase Firestore usando o ID correto
                     await deleteDoc(doc(db, "produtos_teste", idDoc));
                     alert("Item removido com sucesso!");
                 } catch (error) {
@@ -461,7 +463,7 @@
         }
     });
 
-    // Executar Autenticação (ALTERADO COM O RASTREADOR DE ERROS)
+    // Executar Autenticação
     document.getElementById('authForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const msg = document.getElementById('loginMensagem');
@@ -475,13 +477,7 @@
                 await signInWithEmailAndPassword(auth, email, senha);
             }
         } catch (error) {
-            console.error(error);
-            // Janela do navegador que vai pular no celular com o erro real descritivo
-            alert("Erro Detectado pelo Firebase:\n" + error.message);
-            
-            // Texto em vermelho na tela contendo detalhes técnicos
-            msg.style.color = "red"; 
-            msg.innerText = "Falha na requisição. Código: " + error.code;
+            msg.style.color = "red"; msg.innerText = "Erro: Credenciais inválidas ou senha menor que 6 dígitos.";
         }
     });
 
@@ -542,4 +538,9 @@
             document.getElementById('cadastroForm').reset();
         } catch (error) {
             console.error(error);
-            msgDiv.style.color = "red"; msgDiv.innerText = "Erro ao processar o cadastro do 
+            msgDiv.style.color = "red"; msgDiv.innerText = "Erro ao processar o cadastro do item.";
+        }
+    });
+</script>
+</body>
+</html>
