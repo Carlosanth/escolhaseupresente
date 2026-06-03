@@ -116,6 +116,18 @@ const firebaseConfig = {
         listaContainer.appendChild(mainConteudo);
       });
 
+      // ==========================================
+      // LÓGICA PARA ALTERNAR A VISUALIZAÇÃO
+      // ==========================================
+      const btnAlternar = document.getElementById('btn-alternar-layout');
+      const listaProdutos = document.getElementById('lista-produtos');
+
+      if (btnAlternar && listaProdutos) {
+        btnAlternar.addEventListener('click', () => {
+          listaProdutos.classList.toggle('visualizacao-vertical');
+        });
+      }
+
       document.querySelectorAll('.botao-presentear').forEach(botao => {
         botao.addEventListener('click', function() {
           produtoAtualId = this.dataset.id;
