@@ -1,12 +1,12 @@
 (function Harvey(){
-const firebaseConfig = {    
+const firebaseConfig = {
     apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
     authDomain: "escolhaseupresente-35d3d.firebaseapp.com",
     projectId: "escolhaseupresente-35d3d",
     storageBucket: "escolhaseupresente-35d3d.firebasestorage.app",
     messagingSenderId: "374767023277",
     appId: "1:374767023277:web:0a6d45cb62136ba4040224",
-     measurementId: "G-DJZFYZSGMV"
+    measurementId: "G-DJZFYZSGMV"
   };
 
   firebase.initializeApp(firebaseConfig);
@@ -17,13 +17,19 @@ const firebaseConfig = {
   let produtoAtualId = "";
   let produtoAtualTitulo = "";
 
+  // =========================================================================
+  // MODIFICAÇÃO 1: Captura o ID do usuário/noivo direto da URL (?id=...)
+  // =========================================================================
+  const urlParams = new URLSearchParams(window.location.search);
+  const idNoivo = urlParams.get('id');
+
   async function enviarEmailNotificacao(nomeConvidado, nomeProduto, linkPagamento) {
     try {
       await fetch(URL_FORMSPREE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mensagem: `Olá Carlos! O(a) convidado(a) ${nomeConvidado} escolheu o presente: ${nomeProduto}. O link de pagamento gerado foi: ${linkPagamento}`
+          mensagem: `Olá! O(a) convidado(a) ${nomeConvidado} escolheu o presente: ${nomeProduto}. O link de pagamento gerado foi: ${linkPagamento}`
         })
       });
     } catch (error) {
@@ -41,8 +47,28 @@ const firebaseConfig = {
       return;
     }
 
-    db.collection("produtos").onSnapshot((snapshot) => {
+    // =========================================================================
+    // MODIFICAÇÃO 2 e 3: Define onde buscar e aplica o filtro do usuário
+    // =========================================================================
+    let consultaBanco;
+
+    if (idNoivo) {
+      // Se tiver ID na URL, busca na tabela multiusuário filtrando pelo dono do link
+      consultaBanco = db.collection("produtos_teste").where("usuario_id", "==", idNoivo);
+    } else {
+      // Se NÃO tiver ID na URL (caso acesse o link antigo puro), puxa sua lista original
+      // Isso garante que o seu site ATUAL continue funcionando de forma idêntica!
+      consultaBanco = db.collection("produtos");
+    }
+
+    // O leitor em tempo real passa a escutar a consulta inteligente configurada acima
+    consultaBanco.onSnapshot((snapshot) => {
       listaContainer.innerHTML = "";
+
+      if (snapshot.empty) {
+        listaContainer.innerHTML = "<p style='text-align:center; grid-column: 1/-1; color:#888;'>Nenhum produto cadastrado para esta lista.</p>";
+        return;
+      }
 
       snapshot.forEach((doc) => {
         const produto = doc.data();
@@ -61,29 +87,27 @@ const firebaseConfig = {
         mainConteudo.innerHTML = `
           <section class="cartao-produto">
             <div class="imagem-produto">
-              <img src="${produto.imagem}" alt="${produto.titulo}" />
+              <img src="${produto.imagem || 'https://via.placeholder.com/150'}" alt="${produto.titulo}" />
             </div>
 
-            <div class="detalhes-produto">
-              <div class="titulo-produto">${produto.titulo}</div>
+            <div class="titulo-produto">${produto.titulo}</div>
 
-              <div class="rodape-produto">
-                <div class="caixa-preco">
-                  <div class="rotulo-preco">Valor:</div>
-                  <div class="preco">${produto.preco}</div>
-                  <div class="disponibilidade ${classeDisponibilidade}">${textoDisponibilidade}</div>
-                </div>
+            <div class="rodape-produto">
+              <div class="caixa-preco">
+                <div class="rotulo-preco">Valor:</div>
+                <div class="preco">${produto.preco}</div>
+                <div class="disponibilidade ${classeDisponibilidade}">${textoDisponibilidade}</div>
+              </div>
 
-                <div class="acoes">
-                  ${produto.disponivel 
-                    ? `<button class="botao primario botao-presentear" 
-                                 data-id="${id}" 
-                                 data-titulo="${produto.titulo}">
+              <div class="acoes">
+                ${produto.disponivel 
+                  ? `<button class="botao primario botao-presentear" 
+                               data-id="${id}" 
+                               data-titulo="${produto.titulo}">
                         <span class="texto-presentear">😊 Presentear 😊</span>
-                      </button>`
-                    : `<button class="botao" disabled style="background-color: #ccc; cursor: not-allowed;">😍 Ganhamos! 😍</button>`
-                  }
-                </div>
+                    </button>`
+                  : `<button class="botao" disabled style="background-color: #ccc; cursor: not-allowed;">😍 Ganhamos! 😍</button>`
+                }
               </div>
             </div>
           </section>
@@ -91,18 +115,6 @@ const firebaseConfig = {
 
         listaContainer.appendChild(mainConteudo);
       });
-
-      // ==========================================
-      // LÓGICA PARA ALTERNAR A VISUALIZAÇÃO
-      // ==========================================
-      const btnAlternar = document.getElementById('btn-alternar-layout');
-      const listaProdutos = document.getElementById('lista-produtos');
-
-      if (btnAlternar && listaProdutos) {
-        btnAlternar.addEventListener('click', () => {
-          listaProdutos.classList.toggle('visualizacao-vertical');
-        });
-      }
 
       document.querySelectorAll('.botao-presentear').forEach(botao => {
         botao.addEventListener('click', function() {
@@ -152,7 +164,8 @@ const firebaseConfig = {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             produtoId: produtoAtualId,
-            nomeConvidado: nomeConvidado
+            nomeConvidado: nomeConvidado,
+            colecao: idNoivo ? "produtos_teste" : "produtos" // Envia para o Make saber qual tabela atualizar
           })
         });
 
