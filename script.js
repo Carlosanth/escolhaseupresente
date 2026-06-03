@@ -1,11 +1,12 @@
 (function Harvey(){
-  const firebaseConfig = {
-    apiKey: "AIzaSyD-VWgC9Z8R9IgjlnYRNmGxG8YrEFTlzMM",
-    authDomain: "lista-casamento-8c482.firebaseapp.com",
-    projectId: "lista-casamento-8c482",
-    storageBucket: "lista-casamento-8c482.firebasestorage.app",
-    messagingSenderId: "873428866016",
-    appId: "1:873428866016:web:985b96d66a18ff399ed185"
+const firebaseConfig = {
+    apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
+    authDomain: "escolhaseupresente-35d3d.firebaseapp.com",
+    projectId: "escolhaseupresente-35d3d",
+    storageBucket: "escolhaseupresente-35d3d.firebasestorage.app",
+    messagingSenderId: "374767023277",
+    appId: "1:374767023277:web:0a6d45cb62136ba4040224",
+    measurementId: "G-DJZFYZSGMV"
   };
 
   firebase.initializeApp(firebaseConfig);
