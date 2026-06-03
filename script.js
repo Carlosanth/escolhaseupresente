@@ -1,12 +1,12 @@
 (function Harvey(){
-const firebaseConfig = {
+const firebaseConfig = {    
     apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
     authDomain: "escolhaseupresente-35d3d.firebaseapp.com",
     projectId: "escolhaseupresente-35d3d",
     storageBucket: "escolhaseupresente-35d3d.firebasestorage.app",
     messagingSenderId: "374767023277",
     appId: "1:374767023277:web:0a6d45cb62136ba4040224",
-    measurementId: "G-DJZFYZSGMV"
+     measurementId: "G-DJZFYZSGMV"
   };
 
   firebase.initializeApp(firebaseConfig);
