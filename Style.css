@@ -153,7 +153,7 @@ body {
    🔄 REGRA MÁGICA: QUANDO A VISUALIZAÇÃO VERTICAL FOR ATIVADA
    ========================================================== */
 #lista-produtos.visualizacao-vertical {
-  gap: 15px; /* Reduzido para os cartões ficarem bem próximos */
+  gap: 15px;
 }
 
 #lista-produtos.visualizacao-vertical .cartao-produto {
@@ -345,7 +345,7 @@ body {
   gap: 12px;
 }
 
-/* RESPONSIVIDADE */
+/* RESPONSIVIDADE MOBILE */
 @media (max-width:450px) {
   .conteudo {
     width: 100%; 
