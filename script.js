@@ -17,9 +17,6 @@ const firebaseConfig = {
   let produtoAtualId = "";
   let produtoAtualTitulo = "";
 
-  // =========================================================================
-  // MODIFICAÇÃO 1: Captura o ID do usuário/noivo direto da URL (?id=...)
-  // =========================================================================
   const urlParams = new URLSearchParams(window.location.search);
   const idNoivo = urlParams.get('id');
 
@@ -47,21 +44,14 @@ const firebaseConfig = {
       return;
     }
 
-    // =========================================================================
-    // MODIFICAÇÃO 2 e 3: Define onde buscar e aplica o filtro do usuário
-    // =========================================================================
     let consultaBanco;
 
     if (idNoivo) {
-      // Se tiver ID na URL, busca na tabela multiusuário filtrando pelo dono do link
       consultaBanco = db.collection("produtos_teste").where("usuario_id", "==", idNoivo);
     } else {
-      // Se NÃO tiver ID na URL (caso acesse o link antigo puro), puxa sua lista original
-      // Isso garante que o seu site ATUAL continue funcionando de forma idêntica!
       consultaBanco = db.collection("produtos");
     }
 
-    // O leitor em tempo real passa a escutar a consulta inteligente configurada acima
     consultaBanco.onSnapshot((snapshot) => {
       listaContainer.innerHTML = "";
 
@@ -74,14 +64,22 @@ const firebaseConfig = {
         const produto = doc.data();
         const id = doc.id;
 
-        // Ajuste de propriedades: lê do formato correto gerado pelo cadastro
         const tituloProduto = produto.nome || produto.titulo || "Item sem nome";
         const imagemProduto = produto.urlImagem || produto.imagem || "https://via.placeholder.com/150";
         
-        // Tratamento do Preço: se for o formato numérico novo, formata como R$; caso contrário, mantém a string antiga
-        const precoProduto = typeof produto.preco === "number" 
-          ? produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) 
-          : (produto.preco || "R$ 0,00");
+        // =========================================================================
+        // ALTERAÇÃO AQUI: Lê 'preco_centavos', divide por 100 e formata como R$
+        // =========================================================================
+        let precoProduto = "R$ 0,00";
+        if (produto.preco_centavos !== undefined) {
+          const valorReais = Number(produto.preco_centavos) / 100;
+          precoProduto = valorReais.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        } else if (produto.preco) {
+          // Mantém compatibilidade caso exista algum item com a chave antiga
+          precoProduto = typeof produto.preco === "number" 
+            ? produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) 
+            : produto.preco;
+        }
 
         const textoDisponibilidade = produto.disponivel ? "Disponível" : "Indisponível";
         const classeDisponibilidade = produto.disponivel ? "disponivel" : "indisponivel";
@@ -156,7 +154,7 @@ const firebaseConfig = {
       btnConfirmar.addEventListener('click', async () => {
         const nome = inputNome ? inputNome.value.trim() : "";
         if (nome === "") {
-          alert("Por favor, digite o seu nome para continuing.");
+          alert("Por favor, digite o seu nome para continuar.");
           return;
         }
         const m = document.getElementById('modal-nome');
@@ -174,7 +172,7 @@ const firebaseConfig = {
           body: JSON.stringify({
             produtoId: produtoAtualId,
             nomeConvidado: nomeConvidado,
-            colecao: idNoivo ? "produtos_teste" : "produtos" // Envia para o Make saber qual tabela atualizar
+            colecao: idNoivo ? "produtos_teste" : "produtos"
           })
         });
 
