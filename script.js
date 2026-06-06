@@ -17,6 +17,9 @@ const firebaseConfig = {
   let produtoAtualId = "";
   let produtoAtualTitulo = "";
 
+  // =========================================================================
+  // MODIFICAÇÃO 1: Captura o ID do usuário/noivo direto da URL (?id=...)
+  // =========================================================================
   const urlParams = new URLSearchParams(window.location.search);
   const idNoivo = urlParams.get('id');
 
@@ -44,14 +47,21 @@ const firebaseConfig = {
       return;
     }
 
+    // =========================================================================
+    // MODIFICAÇÃO 2 e 3: Define onde buscar e aplica o filtro do usuário
+    // =========================================================================
     let consultaBanco;
 
     if (idNoivo) {
+      // Se tiver ID na URL, busca na tabela multiusuário filtrando pelo dono do link
       consultaBanco = db.collection("produtos_teste").where("usuario_id", "==", idNoivo);
     } else {
+      // Se NÃO tiver ID na URL (caso acesse o link antigo puro), puxa sua lista original
+      // Isso garante que o seu site ATUAL continue funcionando de forma idêntica!
       consultaBanco = db.collection("produtos");
     }
 
+    // O leitor em tempo real passa a escutar a consulta inteligente configurada acima
     consultaBanco.onSnapshot((snapshot) => {
       listaContainer.innerHTML = "";
 
@@ -63,23 +73,6 @@ const firebaseConfig = {
       snapshot.forEach((doc) => {
         const produto = doc.data();
         const id = doc.id;
-
-        const tituloProduto = produto.nome || produto.titulo || "Item sem nome";
-        const imagemProduto = produto.urlImagem || produto.imagem || "https://via.placeholder.com/150";
-        
-        // =========================================================================
-        // ALTERAÇÃO AQUI: Lê 'preco_centavos', divide por 100 e formata como R$
-        // =========================================================================
-        let precoProduto = "R$ 0,00";
-        if (produto.preco_centavos !== undefined) {
-          const valorReais = Number(produto.preco_centavos) / 100;
-          precoProduto = valorReais.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        } else if (produto.preco) {
-          // Mantém compatibilidade caso exista algum item com a chave antiga
-          precoProduto = typeof produto.preco === "number" 
-            ? produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) 
-            : produto.preco;
-        }
 
         const textoDisponibilidade = produto.disponivel ? "Disponível" : "Indisponível";
         const classeDisponibilidade = produto.disponivel ? "disponivel" : "indisponivel";
@@ -94,15 +87,15 @@ const firebaseConfig = {
         mainConteudo.innerHTML = `
           <section class="cartao-produto">
             <div class="imagem-produto">
-              <img src="${imagemProduto}" alt="${tituloProduto}" />
+              <img src="${produto.imagem || 'https://via.placeholder.com/150'}" alt="${produto.titulo}" />
             </div>
 
-            <div class="titulo-produto">${tituloProduto}</div>
+            <div class="titulo-produto">${produto.titulo}</div>
 
             <div class="rodape-produto">
               <div class="caixa-preco">
                 <div class="rotulo-preco">Valor:</div>
-                <div class="preco">${precoProduto}</div>
+                <div class="preco">${produto.preco}</div>
                 <div class="disponibilidade ${classeDisponibilidade}">${textoDisponibilidade}</div>
               </div>
 
@@ -110,7 +103,7 @@ const firebaseConfig = {
                 ${produto.disponivel 
                   ? `<button class="botao primario botao-presentear" 
                                data-id="${id}" 
-                               data-titulo="${tituloProduto}">
+                               data-titulo="${produto.titulo}">
                         <span class="texto-presentear">😊 Presentear 😊</span>
                     </button>`
                   : `<button class="botao" disabled style="background-color: #ccc; cursor: not-allowed;">😍 Ganhamos! 😍</button>`
@@ -172,7 +165,7 @@ const firebaseConfig = {
           body: JSON.stringify({
             produtoId: produtoAtualId,
             nomeConvidado: nomeConvidado,
-            colecao: idNoivo ? "produtos_teste" : "produtos"
+            colecao: idNoivo ? "produtos_teste" : "produtos" // Envia para o Make saber qual tabela atualizar
           })
         });
 
