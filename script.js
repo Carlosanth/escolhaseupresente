@@ -74,6 +74,15 @@ const firebaseConfig = {
         const produto = doc.data();
         const id = doc.id;
 
+        // Ajuste de propriedades: lê do formato correto gerado pelo cadastro
+        const tituloProduto = produto.nome || produto.titulo || "Item sem nome";
+        const imagemProduto = produto.urlImagem || produto.imagem || "https://via.placeholder.com/150";
+        
+        // Tratamento do Preço: se for o formato numérico novo, formata como R$; caso contrário, mantém a string antiga
+        const precoProduto = typeof produto.preco === "number" 
+          ? produto.preco.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) 
+          : (produto.preco || "R$ 0,00");
+
         const textoDisponibilidade = produto.disponivel ? "Disponível" : "Indisponível";
         const classeDisponibilidade = produto.disponivel ? "disponivel" : "indisponivel";
         
@@ -87,15 +96,15 @@ const firebaseConfig = {
         mainConteudo.innerHTML = `
           <section class="cartao-produto">
             <div class="imagem-produto">
-              <img src="${produto.imagem || 'https://via.placeholder.com/150'}" alt="${produto.titulo}" />
+              <img src="${imagemProduto}" alt="${tituloProduto}" />
             </div>
 
-            <div class="titulo-produto">${produto.titulo}</div>
+            <div class="titulo-produto">${tituloProduto}</div>
 
             <div class="rodape-produto">
               <div class="caixa-preco">
                 <div class="rotulo-preco">Valor:</div>
-                <div class="preco">${produto.preco}</div>
+                <div class="preco">${precoProduto}</div>
                 <div class="disponibilidade ${classeDisponibilidade}">${textoDisponibilidade}</div>
               </div>
 
@@ -103,7 +112,7 @@ const firebaseConfig = {
                 ${produto.disponivel 
                   ? `<button class="botao primario botao-presentear" 
                                data-id="${id}" 
-                               data-titulo="${produto.titulo}">
+                               data-titulo="${tituloProduto}">
                         <span class="texto-presentear">😊 Presentear 😊</span>
                     </button>`
                   : `<button class="botao" disabled style="background-color: #ccc; cursor: not-allowed;">😍 Ganhamos! 😍</button>`
@@ -147,7 +156,7 @@ const firebaseConfig = {
       btnConfirmar.addEventListener('click', async () => {
         const nome = inputNome ? inputNome.value.trim() : "";
         if (nome === "") {
-          alert("Por favor, digite o seu nome para continuar.");
+          alert("Por favor, digite o seu nome para continuing.");
           return;
         }
         const m = document.getElementById('modal-nome');
