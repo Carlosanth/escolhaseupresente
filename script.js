@@ -17,9 +17,7 @@ const firebaseConfig = {
   let produtoAtualId = "";
   let produtoAtualTitulo = "";
 
-  // =========================================================================
-  // MODIFICAÇÃO 1: Captura o ID do usuário/noivo direto da URL (?id=...)
-  // =========================================================================
+  // Captura o ID do usuário direto da URL (?id=...)
   const urlParams = new URLSearchParams(window.location.search);
   const idNoivo = urlParams.get('id');
 
@@ -48,19 +46,17 @@ const firebaseConfig = {
     }
 
     // =========================================================================
-    // MODIFICAÇÃO 2 e 3: Define onde buscar e aplica o filtro do usuário
+    // MODIFICAÇÃO: Bloqueado para procurar APENAS em 'produtos_teste'
     // =========================================================================
-    let consultaBanco;
-
-    if (idNoivo) {
-      // Se tiver ID na URL, busca na tabela multiusuário filtrando pelo dono do link
-      consultaBanco = db.collection("produtos_teste").where("usuario_id", "==", idNoivo);
-    } else {
-      // Se NÃO tiver ID na URL (caso acesse o link antigo puro), puxa sua lista original
-      consultaBanco = db.collection("produtos");
+    if (!idNoivo) {
+      listaContainer.innerHTML = "<p style='text-align:center; grid-column: 1/-1; color:#ff3333;'>Erro: Nenhuma lista foi especificada na URL.</p>";
+      return; // Interrompe o script se não houver ID na URL, pois agora é obrigatório
     }
 
-    // O leitor em tempo real passa a escutar a consulta inteligente configurada acima
+    // Busca exclusivamente na tabela multiusuário filtrando pelo dono do link
+    const consultaBanco = db.collection("produtos_teste").where("usuario_id", "==", idNoivo);
+
+    // O leitor em tempo real escuta a consulta focada em produtos_teste
     consultaBanco.onSnapshot((snapshot) => {
       listaContainer.innerHTML = "";
 
@@ -73,14 +69,10 @@ const firebaseConfig = {
         const produto = doc.data();
         const id = doc.id;
 
-        // =========================================================================
-        // AJUSTE CRUCIAL: Tratamento de Fallback para compatibilidade de campos
-        // =========================================================================
-        const tituloExibir = produto.titulo || produto.nome || "Sem título";
+        const tituloExibir = produto.titulo || "Sem título";
         const precoExibir = produto.preco || "R$ 0,00";
-        const imagemExibir = produto.imagem || produto.urlImagem || 'https://via.placeholder.com/150';
+        const imagemExibir = produto.imagem || 'https://via.placeholder.com/150';
         
-        // Garante que se 'disponivel' não for explicitamente falso, ele conta como disponível
         const isDisponivel = produto.disponivel !== false;
 
         const textoDisponibilidade = isDisponivel ? "Disponível" : "Indisponível";
@@ -125,7 +117,6 @@ const firebaseConfig = {
         listaContainer.appendChild(mainConteudo);
       });
 
-      // Vincula novamente os eventos de clique aos botões recém-gerados
       document.querySelectorAll('.botao-presentear').forEach(botao => {
         botao.addEventListener('click', function() {
           produtoAtualId = this.dataset.id;
@@ -143,7 +134,6 @@ const firebaseConfig = {
         });
       });
     }, (error) => {
-        // Exibe no console caso falte a criação de algum índice composto no Firestore
         console.error("Erro ao escutar banco de dados: ", error);
     });
 
@@ -178,7 +168,7 @@ const firebaseConfig = {
           body: JSON.stringify({
             produtoId: produtoAtualId,
             nomeConvidado: nomeConvidado,
-            colecao: idNoivo ? "produtos_teste" : "produtos" 
+            colecao: "produtos_teste" // Sempre avisa ao Make que é na produtos_teste
           })
         });
 
