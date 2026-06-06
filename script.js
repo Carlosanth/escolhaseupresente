@@ -57,7 +57,6 @@ const firebaseConfig = {
       consultaBanco = db.collection("produtos_teste").where("usuario_id", "==", idNoivo);
     } else {
       // Se NÃO tiver ID na URL (caso acesse o link antigo puro), puxa sua lista original
-      // Isso garante que o seu site ATUAL continue funcionando de forma idêntica!
       consultaBanco = db.collection("produtos");
     }
 
@@ -74,36 +73,46 @@ const firebaseConfig = {
         const produto = doc.data();
         const id = doc.id;
 
-        const textoDisponibilidade = produto.disponivel ? "Disponível" : "Indisponível";
-        const classeDisponibilidade = produto.disponivel ? "disponivel" : "indisponivel";
+        // =========================================================================
+        // AJUSTE CRUCIAL: Tratamento de Fallback para compatibilidade de campos
+        // =========================================================================
+        const tituloExibir = produto.titulo || produto.nome || "Sem título";
+        const precoExibir = produto.preco || "R$ 0,00";
+        const imagemExibir = produto.imagem || produto.urlImagem || 'https://via.placeholder.com/150';
+        
+        // Garante que se 'disponivel' não for explicitamente falso, ele conta como disponível
+        const isDisponivel = produto.disponivel !== false;
+
+        const textoDisponibilidade = isDisponivel ? "Disponível" : "Indisponível";
+        const classeDisponibilidade = isDisponivel ? "disponivel" : "indisponivel";
         
         const mainConteudo = document.createElement('main');
         mainConteudo.className = 'conteudo';
         
-        if (!produto.disponivel) {
+        if (!isDisponivel) {
           mainConteudo.classList.add('item-esgotado');
         }
 
         mainConteudo.innerHTML = `
           <section class="cartao-produto">
             <div class="imagem-produto">
-              <img src="${produto.imagem || 'https://via.placeholder.com/150'}" alt="${produto.titulo}" />
+              <img src="${imagemExibir}" alt="${tituloExibir}" />
             </div>
 
-            <div class="titulo-produto">${produto.titulo}</div>
+            <div class="titulo-produto">${tituloExibir}</div>
 
             <div class="rodape-produto">
               <div class="caixa-preco">
                 <div class="rotulo-preco">Valor:</div>
-                <div class="preco">${produto.preco}</div>
+                <div class="preco">${precoExibir}</div>
                 <div class="disponibilidade ${classeDisponibilidade}">${textoDisponibilidade}</div>
               </div>
 
               <div class="acoes">
-                ${produto.disponivel 
+                ${isDisponivel 
                   ? `<button class="botao primario botao-presentear" 
                                data-id="${id}" 
-                               data-titulo="${produto.titulo}">
+                               data-titulo="${tituloExibir}">
                         <span class="texto-presentear">😊 Presentear 😊</span>
                     </button>`
                   : `<button class="botao" disabled style="background-color: #ccc; cursor: not-allowed;">😍 Ganhamos! 😍</button>`
@@ -116,6 +125,7 @@ const firebaseConfig = {
         listaContainer.appendChild(mainConteudo);
       });
 
+      // Vincula novamente os eventos de clique aos botões recém-gerados
       document.querySelectorAll('.botao-presentear').forEach(botao => {
         botao.addEventListener('click', function() {
           produtoAtualId = this.dataset.id;
@@ -132,6 +142,9 @@ const firebaseConfig = {
           }
         });
       });
+    }, (error) => {
+        // Exibe no console caso falte a criação de algum índice composto no Firestore
+        console.error("Erro ao escutar banco de dados: ", error);
     });
 
     const btnCancelar = document.getElementById('btn-cancelar-modal');
@@ -165,7 +178,7 @@ const firebaseConfig = {
           body: JSON.stringify({
             produtoId: produtoAtualId,
             nomeConvidado: nomeConvidado,
-            colecao: idNoivo ? "produtos_teste" : "produtos" // Envia para o Make saber qual tabela atualizar
+            colecao: idNoivo ? "produtos_teste" : "produtos" 
           })
         });
 
