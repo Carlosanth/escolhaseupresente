@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600;700&display=swap');
 
 * {
   box-sizing: border-box;
@@ -80,15 +80,17 @@ body {
   width: 320px;
 }
 
-/* CARTÃO DO PRODUTO (PADRÃO DEITADO) */
+/* CARTÃO DO PRODUTO (PADRÃO DEITADO - AJUSTADO PARA GRID) */
 .cartao-produto {
   background: #fff; 
   border-radius: 12px; 
   box-shadow: 0 14px 30px rgba(0,0,0,0.12); 
   overflow: hidden;
   transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
+  
+  /* Alterado para Grid para controlar o posicionamento do título */
+  display: grid;
+  grid-template-columns: 1fr 1.2fr; 
   gap: 16px;
   width: 100%;
   padding: 18px 24px; 
@@ -115,12 +117,11 @@ body {
 
 /* LADO ESQUERDO: IMAGEM */
 .imagem-produto {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0; 
-  max-width: 45%; 
+  width: 100%; 
 } 
 
 .imagem-produto img {
@@ -132,7 +133,6 @@ body {
 
 /* LADO DIREITO: CONTEÚDO */
 .detalhes-produto {
-  flex: 1.2;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -140,8 +140,10 @@ body {
   width: 100%;
 }
 
+/* CORREÇÃO AQUI: Força o título a ocupar todo o topo do cartão */
 .titulo-produto {
-  text-align: center; 
+  grid-column: 1 / -1; 
+  text-align: left; 
   margin: 0 0 4px 0;
   height: auto;      
   font-size: 1.2rem;  
@@ -153,24 +155,24 @@ body {
    🔄 REGRA MÁGICA: QUANDO A VISUALIZAÇÃO VERTICAL FOR ATIVADA
    ========================================================== */
 #lista-produtos.visualizacao-vertical {
-  gap: 15px; /* Reduzido para os cartões ficarem bem próximos */
+  gap: 15px;
 }
 
 #lista-produtos.visualizacao-vertical .cartao-produto {
+  display: flex; /* Retorna para flex no modo vertical */
   flex-direction: column; 
   padding: 18px;
-  text-align: center;
+}
+
+#lista-produtos.visualizacao-vertical .titulo-produto {
+  text-align: center; 
+  margin: 1px 0 10px;
 }
 
 #lista-produtos.visualizacao-vertical .imagem-produto {
   max-width: 100%; 
   width: 100%;
   padding: 8px 6px 14px;
-}
-
-#lista-produtos.visualizacao-vertical .titulo-produto {
-  text-align: center; 
-  margin: 1px 0 10px;
 }
 
 /* RODAPÉ DO CARTÃO */
@@ -345,7 +347,7 @@ body {
   gap: 12px;
 }
 
-/* RESPONSIVIDADE */
+/* RESPONSIVIDADE CORRIGIDA */
 @media (max-width:450px) {
   .conteudo {
     width: 100%; 
@@ -365,8 +367,10 @@ body {
     padding: 8px 30px !important; 
   }
 
+  /* No mobile, força a voltar para flex column para empilhar tudo ordenadamente */
   .cartao-produto {
-    flex-direction: row !important; 
+    display: flex !important;
+    flex-direction: column !important; 
     gap: 12px;
     padding: 12px;
   }
@@ -376,13 +380,14 @@ body {
   }
   
   .imagem-produto {
-    max-width: 40%;
+    max-width: 100%;
   }
   #lista-produtos.visualizacao-vertical .imagem-produto {
     max-width: 100%;
   }
   .titulo-produto {
     font-size: 16px !important;
+    text-align: center; /* Centraliza o título no mobile */
   }
   .botao {
     font-size: 14px !important; 
