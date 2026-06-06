@@ -17,7 +17,9 @@ const firebaseConfig = {
   let produtoAtualId = "";
   let produtoAtualTitulo = "";
 
-  // Captura o ID do usuário direto da URL (?id=...)
+  // =========================================================================
+  // MODIFICAÇÃO 1: Captura o ID do usuário/noivo direto da URL (?id=...)
+  // =========================================================================
   const urlParams = new URLSearchParams(window.location.search);
   const idNoivo = urlParams.get('id');
 
@@ -46,17 +48,20 @@ const firebaseConfig = {
     }
 
     // =========================================================================
-    // MODIFICAÇÃO: Bloqueado para procurar APENAS em 'produtos_teste'
+    // MODIFICAÇÃO 2 e 3: Define onde buscar e aplica o filtro do usuário
     // =========================================================================
-    if (!idNoivo) {
-      listaContainer.innerHTML = "<p style='text-align:center; grid-column: 1/-1; color:#ff3333;'>Erro: Nenhuma lista foi especificada na URL.</p>";
-      return; // Interrompe o script se não houver ID na URL, pois agora é obrigatório
+    let consultaBanco;
+
+    if (idNoivo) {
+      // Se tiver ID na URL, busca na tabela multiusuário filtrando pelo dono do link
+      consultaBanco = db.collection("produtos_teste").where("usuario_id", "==", idNoivo);
+    } else {
+      // Se NÃO tiver ID na URL (caso acesse o link antigo puro), puxa sua lista original
+      // Isso garante que o seu site ATUAL continue funcionando de forma idêntica!
+      consultaBanco = db.collection("produtos");
     }
 
-    // Busca exclusivamente na tabela multiusuário filtrando pelo dono do link
-    const consultaBanco = db.collection("produtos_teste").where("usuario_id", "==", idNoivo);
-
-    // O leitor em tempo real escuta a consulta focada em produtos_teste
+    // O leitor em tempo real passa a escutar a consulta inteligente configurada acima
     consultaBanco.onSnapshot((snapshot) => {
       listaContainer.innerHTML = "";
 
@@ -69,42 +74,36 @@ const firebaseConfig = {
         const produto = doc.data();
         const id = doc.id;
 
-        const tituloExibir = produto.titulo || "Sem título";
-        const precoExibir = produto.preco || "R$ 0,00";
-        const imagemExibir = produto.imagem || 'https://via.placeholder.com/150';
-        
-        const isDisponivel = produto.disponivel !== false;
-
-        const textoDisponibilidade = isDisponivel ? "Disponível" : "Indisponível";
-        const classeDisponibilidade = isDisponivel ? "disponivel" : "indisponivel";
+        const textoDisponibilidade = produto.disponivel ? "Disponível" : "Indisponível";
+        const classeDisponibilidade = produto.disponivel ? "disponivel" : "indisponivel";
         
         const mainConteudo = document.createElement('main');
         mainConteudo.className = 'conteudo';
         
-        if (!isDisponivel) {
+        if (!produto.disponivel) {
           mainConteudo.classList.add('item-esgotado');
         }
 
         mainConteudo.innerHTML = `
           <section class="cartao-produto">
             <div class="imagem-produto">
-              <img src="${imagemExibir}" alt="${tituloExibir}" />
+              <img src="${produto.imagem || 'https://via.placeholder.com/150'}" alt="${produto.titulo}" />
             </div>
 
-            <div class="titulo-produto">${tituloExibir}</div>
+            <div class="titulo-produto">${produto.titulo}</div>
 
             <div class="rodape-produto">
               <div class="caixa-preco">
                 <div class="rotulo-preco">Valor:</div>
-                <div class="preco">${precoExibir}</div>
+                <div class="preco">${produto.preco}</div>
                 <div class="disponibilidade ${classeDisponibilidade}">${textoDisponibilidade}</div>
               </div>
 
               <div class="acoes">
-                ${isDisponivel 
+                ${produto.disponivel 
                   ? `<button class="botao primario botao-presentear" 
                                data-id="${id}" 
-                               data-titulo="${tituloExibir}">
+                               data-titulo="${produto.titulo}">
                         <span class="texto-presentear">😊 Presentear 😊</span>
                     </button>`
                   : `<button class="botao" disabled style="background-color: #ccc; cursor: not-allowed;">😍 Ganhamos! 😍</button>`
@@ -116,6 +115,18 @@ const firebaseConfig = {
 
         listaContainer.appendChild(mainConteudo);
       });
+
+      // ==========================================
+      // LÓGICA PARA ALTERNAR A VISUALIZAÇÃO
+      // ==========================================
+      const btnAlternar = document.getElementById('btn-alternar-layout');
+      const listaProdutos = document.getElementById('lista-produtos');
+
+      if (btnAlternar && listaProdutos) {
+        btnAlternar.addEventListener('click', () => {
+          listaProdutos.classList.toggle('visualizacao-vertical');
+        });
+      }
 
       document.querySelectorAll('.botao-presentear').forEach(botao => {
         botao.addEventListener('click', function() {
@@ -133,8 +144,6 @@ const firebaseConfig = {
           }
         });
       });
-    }, (error) => {
-        console.error("Erro ao escutar banco de dados: ", error);
     });
 
     const btnCancelar = document.getElementById('btn-cancelar-modal');
@@ -168,7 +177,7 @@ const firebaseConfig = {
           body: JSON.stringify({
             produtoId: produtoAtualId,
             nomeConvidado: nomeConvidado,
-            colecao: "produtos_teste" // Sempre avisa ao Make que é na produtos_teste
+            colecao: idNoivo ? "produtos_teste" : "produtos" // Envia para o Make saber qual tabela atualizar
           })
         });
 
