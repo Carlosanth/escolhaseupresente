@@ -1,9 +1,6 @@
-(async function Harvey() {
-  // Importa as ferramentas modernas do Firebase mantendo a estrutura limpa
-  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
-  const { getFirestore, collection, query, where, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
-
-  // Dados do seu NOVO banco de dados (Modificado aqui)
+(function Harvey() {
+  // CONFIGURAÇÃO DO SEU NOVO BANCO DE DADOS (escolhaseupresente-35d3d)
+  // Mantido na versão V8 para não conflitar com o seu HTML atual da lista
   const firebaseConfig = {
     apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
     authDomain: "escolhaseupresente-35d3d.firebaseapp.com",
@@ -14,13 +11,16 @@
     measurementId: "G-DJZFYZSGMV"
   };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
+  // Inicialização clássica que o seu HTML já aceita e reconhece
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const db = firebase.firestore();
+  
   const URL_FORMSPREE = "https://formspree.io/f/mgoqprpl";
   const URL_WEBHOOK_MAKE = "https://hook.us2.make.com/gox07mdkwq2hsjlegc7666l929evnjnb";
 
-  // Captura o ID do usuário que vem no link compartilhado (?id=...)
+  // Captura o ID do usuário direto da URL (?id=...)
   const parametrosUrl = new URLSearchParams(window.location.search);
   const usuarioDonoDaListaUid = parametrosUrl.get('id');
 
@@ -56,96 +56,99 @@
       return;
     }
 
-    // Aponta para a nova coleção 'produtos_teste' filtrando pelo seu ID de usuário
-    const colecaoProdutos = collection(db, "produtos_teste");
-    const consultaFiltrada = query(colecaoProdutos, where("usuario_id", "==", usuarioDonoDaListaUid));
+    // BUSCA CONECTADA: Entra em 'produtos_teste' e filtra usando o formato clássico (.where)
+    db.collection("produtos_teste")
+      .where("usuario_id", "==", usuarioDonoDaListaUid)
+      .onSnapshot((snapshot) => {
+        listaContainer.innerHTML = "";
 
-    onSnapshot(consultaFiltrada, (snapshot) => {
-      listaContainer.innerHTML = "";
-
-      snapshot.forEach((doc) => {
-        const produto = doc.data();
-        const id = doc.id;
-
-        const textoDisponibilidade = produto.disponivel ? "Disponível" : "Indisponível";
-        const classeDisponibilidade = produto.disponivel ? "disponivel" : "indisponivel";
-        
-        const mainConteudo = document.createElement('main');
-        mainConteudo.className = 'conteudo';
-        
-        if (!produto.disponivel) {
-          mainConteudo.classList.add('item-esgotado');
+        if (snapshot.empty) {
+          listaContainer.innerHTML = `<p style="padding: 20px; text-align: center; opacity: 0.7;">Nenhum produto encontrado para este usuário.</p>`;
+          return;
         }
 
-        // Proteção para garantir que se a imagem falhar, use uma padrão e não quebre o layout flexbox
-        const urlImagem = produto.imagem || 'https://i.ibb.co/FqHbGwfs/189697.png';
+        snapshot.forEach((doc) => {
+          const produto = doc.data();
+          const id = doc.id;
 
-        // SEU LAYOUT IDENTICO E SEM ALTERAÇÃO DE CLASSE
-        mainConteudo.innerHTML = `
-          <section class="cartao-produto">
-            <div class="imagem-produto">
-              <img src="${urlImagem}" alt="${produto.titulo}" />
-            </div>
+          const textoDisponibilidade = produto.disponivel ? "Disponível" : "Indisponível";
+          const classeDisponibilidade = produto.disponivel ? "disponivel" : "indisponivel";
+          
+          const mainConteudo = document.createElement('main');
+          mainConteudo.className = 'conteudo';
+          
+          if (!produto.disponivel) {
+            mainConteudo.classList.add('item-esgotado');
+          }
 
-            <div class="detalhes-produto">
-              <div class="titulo-produto">${produto.titulo}</div>
+          // SEU LAYOUT ORIGINAL TOTALMENTE PRESERVADO
+          mainConteudo.innerHTML = `
+            <section class="cartao-produto">
+              <div class="imagem-produto">
+                <img src="${produto.imagem}" alt="${produto.titulo}" />
+              </div>
 
-              <div class="rodape-produto">
-                <div class="caixa-preco">
-                  <div class="rotulo-preco">Valor:</div>
-                  <div class="preco">${produto.preco}</div>
-                  <div class="disponibilidade ${classeDisponibilidade}">${textoDisponibilidade}</div>
-                </div>
+              <div class="detalhes-produto">
+                <div class="titulo-produto">${produto.titulo}</div>
 
-                <div class="acoes">
-                  ${produto.disponivel 
-                    ? `<button class="botao primario botao-presentear" 
-                                 data-id="${id}" 
-                                 data-titulo="${produto.titulo}">
-                        <span class="texto-presentear">😊 Presentear 😊</span>
-                      </button>`
-                    : `<button class="botao" disabled style="background-color: #ccc; cursor: not-allowed;">😍 Ganhamos! 😍</button>`
-                  }
+                <div class="rodape-produto">
+                  <div class="caixa-preco">
+                    <div class="rotulo-preco">Valor:</div>
+                    <div class="preco">${produto.preco}</div>
+                    <div class="disponibilidade ${classeDisponibilidade}">${textoDisponibilidade}</div>
+                  </div>
+
+                  <div class="acoes">
+                    ${produto.disponivel 
+                      ? `<button class="botao primario botao-presentear" 
+                                   data-id="${id}" 
+                                   data-titulo="${produto.titulo}">
+                          <span class="texto-presentear">😊 Presentear 😊</span>
+                        </button>`
+                      : `<button class="botao" disabled style="background-color: #ccc; cursor: not-allowed;">😍 Ganhamos! 😍</button>`
+                    }
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
-        `;
+            </section>
+          `;
 
-        listaContainer.appendChild(mainConteudo);
-      });
-
-      // LÓGICA PARA ALTERNAR A VISUALIZAÇÃO
-      const btnAlternar = document.getElementById('btn-alternar-layout');
-      const listaProdutos = document.getElementById('lista-produtos');
-
-      if (btnAlternar && listaProdutos) {
-        // Evita duplicação de cliques no modo de tempo real
-        const novoBtn = btnAlternar.cloneNode(true);
-        btnAlternar.parentNode.replaceChild(novoBtn, btnAlternar);
-
-        novoBtn.addEventListener('click', () => {
-          listaProdutos.classList.toggle('visualizacao-vertical');
+          listaContainer.appendChild(mainConteudo);
         });
-      }
 
-      document.querySelectorAll('.botao-presentear').forEach(botao => {
-        botao.addEventListener('click', function() {
-          produtoAtualId = this.dataset.id;
-          produtoAtualTitulo = this.dataset.titulo;
+        // LÓGICA PARA ALTERNAR A VISUALIZAÇÃO
+        const btnAlternar = document.getElementById('btn-alternar-layout');
+        const listaProdutos = document.getElementById('lista-produtos');
 
-          const m = document.getElementById('modal-nome');
-          if(m) {
-            if(inputNome) inputNome.value = "";
-            m.classList.add('mostrar');
-            if(inputNome) inputNome.focus();
-          } else {
-            const nomeBackup = prompt("Digite seu nome completo para confirmar o presente:");
-            if(nomeBackup) finalizarCompra(nomeBackup);
-          }
+        if (btnAlternar && listaProdutos) {
+          // Remove ouvintes antigos para evitar travamento de cliques no tempo real
+          const novoBtn = btnAlternar.cloneNode(true);
+          btnAlternar.parentNode.replaceChild(novoBtn, btnAlternar);
+          
+          novoBtn.addEventListener('click', () => {
+            listaProdutos.classList.toggle('visualizacao-vertical');
+          });
+        }
+
+        document.querySelectorAll('.botao-presentear').forEach(botao => {
+          botao.addEventListener('click', function() {
+            produtoAtualId = this.dataset.id;
+            produtoAtualTitulo = this.dataset.titulo;
+
+            const m = document.getElementById('modal-nome');
+            if(m) {
+              if(inputNome) inputNome.value = "";
+              m.classList.add('mostrar');
+              if(inputNome) inputNome.focus();
+            } else {
+              const nomeBackup = prompt("Digite seu nome completo para confirmar o presente:");
+              if(nomeBackup) finalizarCompra(nomeBackup);
+            }
+          });
         });
+      }, (erro) => {
+        console.error("Erro ao ler dados do Firebase:", erro);
       });
-    });
 
     const btnCancelar = document.getElementById('btn-cancelar-modal');
     if(btnCancelar) {
@@ -178,7 +181,7 @@
           body: JSON.stringify({
             produtoId: produtoAtualId,
             nomeConvidado: nomeConvidado,
-            donoListaId: usuarioDonoDaListaUid // Passa o ID do dono para o webhook processar corretamente
+            donoListaId: usuarioDonoDaListaUid
           })
         });
 
