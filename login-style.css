@@ -1,0 +1,115 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+/* =======================================================
+   COMO ERA:
+   O body tinha apenas 'background-color: #ffffff;' (branco).
+   
+   COMO FICOU:
+   Movemos o gradiente para o 'body' e garantimos que ele ocupe 
+   100% da altura da tela sem repetir o desenho.
+   ======================================================= */
+html, body {
+    width: 100%;
+    height: 100%;
+    /* O gradiente agora cobre o fundo do site inteiro: */
+    background: linear-gradient(
+        180deg,
+        rgba(62, 14, 255, 0.85) 0%,
+        rgba(220, 211, 255, 0.98) 36%,
+        #fbfaff 54%,
+        white 100%
+    );
+    background-attachment: fixed; /* Mantém o gradiente fixo mesmo se houver rolagem */
+    overflow-x: hidden;
+}
+
+.flex-tela {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100vh; /* Garante o alinhamento vertical no centro da tela */
+}
+
+.login {
+    position: relative;
+    width: 380px;
+    padding: 50px 40px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+h1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 38px;
+    height: 44px;
+    color: #222;
+    
+}
+
+.form-block {
+    display: block;
+    margin-bottom: 15px;
+}
+
+.formbox {
+    margin-bottom: 15px;
+}
+
+.form1 {
+    display: block;
+    width: 100%;
+    padding: 20px 15px; /* Ajustado para um visual mais limpo */
+    border-radius: 50px;
+    border: 1px solid #ddd;
+    outline: none;
+    font-size: 15px;
+    
+}
+
+button.submit-button {
+    width: 100%;
+    border-radius: 50px;
+    padding: 12px;
+    background: linear-gradient( to right, #7c3aed, #3b82f6);
+    border: none;
+    margin-top: 10px;
+    font-size: larger;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.10s ease;
+    
+}
+
+button.submit-button:hover {
+    background: rgba(62, 14, 255, 1);
+    transform: translateY(-5px);
+}
+
+p {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+    margin-bottom: 2px;
+    font-size: 18px;
+    border-bottom: 1px solid #ddd
+    
+}

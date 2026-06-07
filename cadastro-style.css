@@ -1,0 +1,249 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        180deg,
+        rgba(62, 14, 255, 0.85) 0%,
+        rgba(142, 117, 241, 0.877) 36%,
+        #856fdd75 54%,
+        white 100%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+}
+
+.cartao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    min-height: 100vh; /* Mudado para min-height para aceitar rolagem se a tela for pequena */
+    padding: 20px 0;
+}
+
+.box {
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3); 
+    border-radius: 20px;
+    width: 100%;
+    max-width: 500px; /* Garante que no celular fique ótimo e no PC não estique muito */
+}
+
+h1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.campo-formulario {
+    display: block;
+    width: 100%;
+    padding: 15px 20px;
+    border-radius: 50px;
+    border: 1px solid #ddd;
+    outline: none;
+    font-size: 15px;
+}
+
+.nome {
+    font-size: 16px; /* Diminuído um pouco para ficar proporcional */
+    font-weight: bold;
+    margin-bottom: 5px;
+    margin-top: 15px;
+}
+
+.nome span {
+    font-size: 11px;
+
+}
+
+.arquivo {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    outline: none;
+    font-size: 15px;
+}
+
+/* CORRIGIDO AQUI: Removido as tags HTML de dentro do CSS */
+.itenscadastrados {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px; 
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    background: rgba(255, 255, 255, 0.15); /* Ajustado o fundo para combinar com o app */
+    margin-top: 20px;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+}
+
+
+.base {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    padding: 10px;
+    box-sizing: border-box;
+    gap: 100px;
+    
+}
+
+.salva-it {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.int {
+    font-size: 18px;
+    padding: 12px 25px;
+    border-radius: 50px;
+    border: none;
+    font-weight: 700;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    background: linear-gradient(135deg, #5b1ebd 0%, #3532d1 100%); /* Ajustado para um gradiente moderno e limpo */
+    color: white;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.int:active {
+    transform: scale(0.50);
+}
+
+h3 {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+
+.base img {
+    width: 70px; /* Reduzi um pouco para ficar mais delicado e responsivo no mobile */
+    height: 70px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.disponibilidade {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.base-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.disp {
+    padding: 4px 10px;
+    background-color: #e8f5e9;
+    color: #017D01;
+    border-radius: 50px;
+    min-width: 90px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+}
+
+.excl {
+    padding: 4px 10px;
+    border-radius: 50px;
+    background-color: #ffa6a62a;
+    color: #FB1C1C;
+    min-width: 90px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    transition: background-color 0.5s;
+
+}
+
+.excl:hover{
+    background-color: rgba(204, 38, 38, 0.384);
+}
+
+.T-Produtos {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    font: ;
+}
+
+.comp-qr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    border-top: 1px dashed rgba(95, 95, 95, 0.438);
+    padding: 30px 0px 5px;
+
+}
+
+.compartilhar {
+    font-size: 16px;
+    padding: 10px 10px;
+    border-radius: 50px;
+    border: none;
+    font-weight: 700;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    background: linear-gradient(135deg, #5b1ebd 0%, #3532d1 100%); /* Ajustado para um gradiente moderno e limpo */
+    color: white;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+}
+
+.compartilhar:active {
+    transform: scale(0.50);
+}
+
+.qrcode {
+    font-size: 16px;
+    padding: 10px 10px;
+    border-radius: 50px;
+    border: none;
+    font-weight: 700;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+    background: linear-gradient(135deg, #22123b 0%, #7b7acc 100%); /* Ajustado para um gradiente moderno e limpo */
+    color: white;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    width: 152px;
+}
+
+.qrcode:active {
+    transform: scale(0.50);
+}
