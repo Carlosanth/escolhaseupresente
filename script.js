@@ -1,5 +1,10 @@
-(function Harvey(){
-const firebaseConfig = {
+(async function Harvey() {
+  // 1. IMPORTANDO AS BIBLIOTECAS DO FIREBASE (Mesma versão v10 usada no seu painel)
+  const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
+  const { getFirestore, collection, query, where, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+
+  // CONFIGURAÇÃO DO FIREBASE (Apontando exatamente para o projeto "escolhaseupresente-35d3d")
+  const firebaseConfig = {
     apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
     authDomain: "escolhaseupresente-35d3d.firebaseapp.com",
     projectId: "escolhaseupresente-35d3d",
@@ -9,27 +14,29 @@ const firebaseConfig = {
     measurementId: "G-DJZFYZSGMV"
   };
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+  // Inicializa o Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // CONFIGURAÇÕES DE INTEGRAÇÃO EXTERNA (Formspree e Make)
   const URL_FORMSPREE = "https://formspree.io/f/mgoqprpl";
   const URL_WEBHOOK_MAKE = "https://hook.us2.make.com/gox07mdkwq2hsjlegc7666l929evnjnb";
+
+  // CAPTURA O ID DO DONO DA LISTA VIA URL (Ex: lista.html?id=374767...)
+  const parametrosUrl = new URLSearchParams(window.location.search);
+  const usuarioDonoDaListaUid = parametrosUrl.get('id');
 
   let produtoAtualId = "";
   let produtoAtualTitulo = "";
 
-  // =========================================================================
-  // MODIFICAÇÃO 1: Captura o ID do usuário/noivo direto da URL (?id=...)
-  // =========================================================================
-  const urlParams = new URLSearchParams(window.location.search);
-  const idNoivo = urlParams.get('id');
-
+  // Função para enviar notificação por e-mail via Formspree
   async function enviarEmailNotificacao(nomeConvidado, nomeProduto, linkPagamento) {
     try {
       await fetch(URL_FORMSPREE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          mensagem: `Olá! O(a) convidado(a) ${nomeConvidado} escolheu o presente: ${nomeProduto}. O link de pagamento gerado foi: ${linkPagamento}`
+          mensagem: `Olá Carlos! O(a) convidado(a) ${nomeConvidado} escolheu o presente: ${nomeProduto}. O link de pagamento gerado foi: ${linkPagamento}`
         })
       });
     } catch (error) {
@@ -37,6 +44,7 @@ const firebaseConfig = {
     }
   }
 
+  // Executa assim que a estrutura da página estiver pronta
   window.addEventListener('DOMContentLoaded', () => {
     const listaContainer = document.getElementById('lista-produtos');
     const modal = document.getElementById('modal-nome');
@@ -47,32 +55,28 @@ const firebaseConfig = {
       return;
     }
 
-    // =========================================================================
-    // MODIFICAÇÃO 2 e 3: Define onde buscar e aplica o filtro do usuário
-    // =========================================================================
-    let consultaBanco;
-
-    if (idNoivo) {
-      // Se tiver ID na URL, busca na tabela multiusuário filtrando pelo dono do link
-      consultaBanco = db.collection("produtos_teste").where("usuario_id", "==", idNoivo);
-    } else {
-      // Se NÃO tiver ID na URL (caso acesse o link antigo puro), puxa sua lista original
-      // Isso garante que o seu site ATUAL continue funcionando de forma idêntica!
-      consultaBanco = db.collection("produtos");
+    // Se o link não tiver o "?id=...", avisa o usuário
+    if (!usuarioDonoDaListaUid) {
+      listaContainer.innerHTML = `<p style="padding: 20px; color: red; font-weight: bold; text-align: center;">Erro: Esta lista é inválida ou o link de compartilhamento está incompleto (falta o ID do usuário).</p>`;
+      return;
     }
 
-    // O leitor em tempo real passa a escutar a consulta inteligente configurada acima
-    consultaBanco.onSnapshot((snapshot) => {
+    // 2. CONSULTA FILTRADA: Busca apenas os produtos onde 'usuario_id' é igual ao ID do dono da lista
+    const colecaoProdutos = collection(db, "produtos_teste");
+    const consultaFiltrada = query(colecaoProdutos, where("usuario_id", "==", usuarioDonoDaListaUid));
+
+    // Escuta em tempo real as mudanças nos seus produtos cadastrados
+    onSnapshot(consultaFiltrada, (snapshot) => {
       listaContainer.innerHTML = "";
 
       if (snapshot.empty) {
-        listaContainer.innerHTML = "<p style='text-align:center; grid-column: 1/-1; color:#888;'>Nenhum produto cadastrado para esta lista.</p>";
+        listaContainer.innerHTML = `<p style="padding: 20px; text-align: center; opacity: 0.7;">Nenhum produto cadastrado ou disponível nesta lista ainda.</p>`;
         return;
       }
 
-      snapshot.forEach((doc) => {
-        const produto = doc.data();
-        const id = doc.id;
+      snapshot.forEach((docSnap) => {
+        const produto = docSnap.data();
+        const id = docSnap.id;
 
         const textoDisponibilidade = produto.disponivel ? "Disponível" : "Indisponível";
         const classeDisponibilidade = produto.disponivel ? "disponivel" : "indisponivel";
@@ -84,30 +88,34 @@ const firebaseConfig = {
           mainConteudo.classList.add('item-esgotado');
         }
 
+        // Renderiza o produto usando os mesmos campos salvos pelo seu painel administrativo
         mainConteudo.innerHTML = `
           <section class="cartao-produto">
             <div class="imagem-produto">
-              <img src="${produto.imagem || 'https://via.placeholder.com/150'}" alt="${produto.titulo}" />
+              <img src="${produto.imagem || 'https://i.ibb.co/FqHbGwfs/189697.png'}" alt="${produto.titulo || 'Produto'}" />
             </div>
 
-            <div class="titulo-produto">${produto.titulo}</div>
+            <div class="detalhes-produto">
+              <div class="titulo-produto">${produto.titulo || "Sem nome"}</div>
+              <small style="display:block; font-size:11px; opacity:0.6; margin-bottom: 5px;">Categoria: ${produto.categoria || "Geral"}</small>
 
-            <div class="rodape-produto">
-              <div class="caixa-preco">
-                <div class="rotulo-preco">Valor:</div>
-                <div class="preco">${produto.preco}</div>
-                <div class="disponibilidade ${classeDisponibilidade}">${textoDisponibilidade}</div>
-              </div>
+              <div class="rodape-produto">
+                <div class="caixa-preco">
+                  <div class="rotulo-preco">Valor:</div>
+                  <div class="preco">${produto.preco || "R$ 0,00"}</div>
+                  <div class="disponibilidade ${classeDisponibilidade}">${textoDisponibilidade}</div>
+                </div>
 
-              <div class="acoes">
-                ${produto.disponivel 
-                  ? `<button class="botao primario botao-presentear" 
-                               data-id="${id}" 
-                               data-titulo="${produto.titulo}">
+                <div class="acoes">
+                  ${produto.disponivel 
+                    ? `<button class="botao primario botao-presentear" 
+                                 data-id="${id}" 
+                                 data-titulo="${produto.titulo}">
                         <span class="texto-presentear">😊 Presentear 😊</span>
-                    </button>`
-                  : `<button class="botao" disabled style="background-color: #ccc; cursor: not-allowed;">😍 Ganhamos! 😍</button>`
-                }
+                      </button>`
+                    : `<button class="botao" disabled style="background-color: #ccc; cursor: not-allowed;">😍 Ganhamos! 😍</button>`
+                  }
+                </div>
               </div>
             </div>
           </section>
@@ -116,18 +124,21 @@ const firebaseConfig = {
         listaContainer.appendChild(mainConteudo);
       });
 
-      // ==========================================
-      // LÓGICA PARA ALTERNAR A VISUALIZAÇÃO
-      // ==========================================
+      // Lógica para alternar layout de exibição (se o botão existir na página do convidado)
       const btnAlternar = document.getElementById('btn-alternar-layout');
       const listaProdutos = document.getElementById('lista-produtos');
 
       if (btnAlternar && listaProdutos) {
-        btnAlternar.addEventListener('click', () => {
+        // Remove ouvintes antigos para não duplicar eventos em atualizações em tempo real
+        const novoBtn = btnAlternar.cloneNode(true);
+        btnAlternar.parentNode.replaceChild(novoBtn, btnAlternar);
+        
+        novoBtn.addEventListener('click', () => {
           listaProdutos.classList.toggle('visualizacao-vertical');
         });
       }
 
+      // Adiciona o clique em todos os botões de presentear gerados na tela
       document.querySelectorAll('.botao-presentear').forEach(botao => {
         botao.addEventListener('click', function() {
           produtoAtualId = this.dataset.id;
@@ -146,6 +157,7 @@ const firebaseConfig = {
       });
     });
 
+    // Lógica para fechar o Modal do Nome
     const btnCancelar = document.getElementById('btn-cancelar-modal');
     if(btnCancelar) {
       btnCancelar.addEventListener('click', () => {
@@ -154,6 +166,7 @@ const firebaseConfig = {
       });
     }
 
+    // Lógica para confirmar o Nome no Modal e ir para o Pagamento
     const btnConfirmar = document.getElementById('btn-confirmar-modal');
     if(btnConfirmar) {
       btnConfirmar.addEventListener('click', async () => {
@@ -169,6 +182,7 @@ const firebaseConfig = {
       });
     }
 
+    // Envia os dados de compra para o Make.com e trata o link retornado
     async function finalizarCompra(nomeConvidado) {
       try {
         const resposta = await fetch(URL_WEBHOOK_MAKE, {
@@ -177,7 +191,7 @@ const firebaseConfig = {
           body: JSON.stringify({
             produtoId: produtoAtualId,
             nomeConvidado: nomeConvidado,
-            colecao: idNoivo ? "produtos_teste" : "produtos" // Envia para o Make saber qual tabela atualizar
+            donoListaId: usuarioDonoDaListaUid // Enviando também quem é o dono para o Make saber quem recebe
           })
         });
 
