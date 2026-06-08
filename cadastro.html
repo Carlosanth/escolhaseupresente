@@ -259,7 +259,7 @@
         btnAdicionar.value = "Salvando...";
         btnAdicionar.disabled = true;
 
-        let urlImagemFinal = 'https://i.ibb.co/Rk7RQ6sP/Vaziocss.png';
+        let urlImagemFinal = 'https://i.ibb.co/0jjSyNRG/logo.png';
 
         if (fotoArquivo) {
             urlImagemFinal = await fazerUploadImagemImgBB(fotoArquivo);
@@ -321,7 +321,7 @@
 
         const tituloExibição = produto.titulo || "Sem nome";
         const precoExibição = produto.preco || "R$ 0,00";
-        const imagemExibição = produto.imagem || 'https://i.ibb.co/Rk7RQ6sP/Vaziocss.png';
+        const imagemExibição = produto.imagem || 'https://i.ibb.co/0jjSyNRG/logo.png';
         const categoriaExibicao = produto.categoria || "Sem Categoria";
 
         const textoStatus = produto.disponivel !== false ? "Disponível" : "Indisponível";
