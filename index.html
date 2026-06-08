@@ -7,26 +7,52 @@
     <link rel="stylesheet" href="login-style.css">
 </head>
 <body>
-    <div class="flex-tela">
-        <div class="login">
 
-            <h1>Login</h1>
-
-            <div class="form-block">
-                <form id="loginForm" onsubmit="event.preventDefault();">
+    <div class="camera-3d">
+        <div id="cartao-rotativo" class="cartao">
             
-                    <div class="formbox">
-                        <input type="email" id="loginEmail" class="form1" placeholder="Email" required>
-                    </div>
+            <div id="container-login" class="flex-tela lado-frente">
+                <div id="box-login" class="login">
+                    <h1>Login</h1>
+                    <div class="form-block">
+                        <form id="loginForm" onsubmit="event.preventDefault();">
+                            <div class="formbox">
+                                <input type="email" id="loginEmail" class="form1" placeholder="Email@email.com.br" required>
+                            </div>
+                            <div class="formbox">
+                                <input type="password" id="loginSenha" class="form1" placeholder="Mínimo sete caracteres" required>
+                            </div>
+                            
+                            <div id="erro-login" class="mensagem-alerta"></div>
 
-                    <div class="formbox">
-                        <input type="password" id="loginSenha" class="form1" placeholder="Senha" required>
+                            <button type="button" id="btnEntrar" class="submit-button">Entrar</button>
+                            <p>Ainda não tem uma conta?</p>
+                            <button type="button" id="btnIrParaCadastro" class="submit-button">Cadastre-se</button>
+                        </form>
                     </div>
-                    
-                    <button type="button" id="btnEntrar" class="submit-button">Entrar</button>
-                    <p>Ainda não tem uma conta?</p>
-                    <button type="button" id="btnCadastrar" class="submit-button">Cadastre-se</button>
-                </form>
+                </div>
+            </div>
+
+            <div id="container-cadastro" class="flex-tela lado-verso">
+                <div id="box-cadastro" class="cadastra-se">
+                    <h1>Cadastro</h1>
+                    <div class="form-block">
+                        <form id="cadastroForm" onsubmit="event.preventDefault();">
+                            <div class="formbox">
+                                <input type="email" id="cadastroEmail" class="form1" placeholder="Email@email.com.br" required>
+                            </div>
+                            <div class="formbox">
+                                <input type="password" id="cadastroSenha" class="form1" placeholder="Mínimo sete caracteres" required>
+                            </div>
+
+                            <div id="erro-cadastro" class="mensagem-alerta"></div>
+
+                            <button type="button" id="btnCadastrarEfetivo" class="submit-button">Cadastre-se</button>
+                            <p>Já tem uma conta?</p>
+                            <button type="button" id="btnIrParaLogin" class="submit-button">Voltar para o Login</button>
+                        </form>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -36,7 +62,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Suas credenciais do Firebase
+        // Credenciais do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
             authDomain: "escolhaseupresente-35d3d.firebaseapp.com",
@@ -50,57 +76,138 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Elementos mapeados
-        const emailInput = document.getElementById('loginEmail');
-        const senhaInput = document.getElementById('loginSenha');
-        const btnEntrar = document.getElementById('btnEntrar');
-        const btnCadastrar = document.getElementById('btnCadastrar');
+        // Elementos de controle do Giro
+        const cartao = document.getElementById('cartao-rotativo');
+        const btnIrParaCadastro = document.getElementById('btnIrParaCadastro');
+        const btnIrParaLogin = document.getElementById('btnIrParaLogin');
 
-        // Nome do arquivo da sua tela de cadastro de itens
+        // Caixas de Login e Cadastro
+        const boxLogin = document.getElementById('box-login');
+        const boxCadastro = document.getElementById('box-cadastro');
+
+        // Divs de mensagens de erro
+        const erroLoginDiv = document.getElementById('erro-login');
+        const erroCadastroDiv = document.getElementById('erro-cadastro');
+
+        // Inputs e botões
+        const loginEmailInput = document.getElementById('loginEmail');
+        const loginSenhaInput = document.getElementById('loginSenha');
+        const btnEntrar = document.getElementById('btnEntrar');
+        const cadastroEmailInput = document.getElementById('cadastroEmail');
+        const cadastroSenhaInput = document.getElementById('cadastroSenha');
+        const btnCadastrarEfetivo = document.getElementById('btnCadastrarEfetivo');
+
         const PROXIMA_TELA = "cadastro.html"; 
 
-        // Função para Logar
+        // Rotação dos Cards (Limpa mensagens antigas ao alternar)
+        btnIrParaCadastro.addEventListener('click', () => { 
+            limparStatus();
+            cartao.classList.add('virado'); 
+        });
+        btnIrParaLogin.addEventListener('click', () => { 
+            limparStatus();
+            cartao.classList.remove('virado'); 
+        });
+
+        function limparStatus() {
+            boxLogin.className = "login";
+            boxCadastro.className = "cadastra-se";
+            erroLoginDiv.textContent = "";
+            erroCadastroDiv.textContent = "";
+        }
+
+        // Função para tratar e exibir os erros com animação sutil
+        function tratarErro(textoErro, box, divErro) {
+            limparStatus();
+            
+            divErro.textContent = textoErro;
+            box.classList.add('borda-erro', 'tremer');
+            
+            // Remove o efeito de tremor após 500ms, mas deixa a linha vermelha e o texto explicativo visíveis
+            setTimeout(() => {
+                box.classList.remove('tremer');
+            }, 500);
+        }
+
+        // Firebase: Logar
         btnEntrar.addEventListener('click', async () => {
-            const email = emailInput.value.trim();
-            const senha = senhaInput.value.trim();
+            const email = loginEmailInput.value.trim();
+            const senha = loginSenhaInput.value.trim();
 
             if (!email || !senha) {
-                alert('Preencha todos os campos.');
+                tratarErro("Por favor, preencha todos os campos.", boxLogin, erroLoginDiv);
                 return;
             }
 
             try {
                 await signInWithEmailAndPassword(auth, email, senha);
-                alert('Login realizado com sucesso!');
-                window.location.href = PROXIMA_TELA; // Redireciona para a tela de cadastro de itens
+                
+                // Sucesso sutil: Borda verde e muda o texto do botão
+                limparStatus();
+                boxLogin.classList.add('borda-sucesso');
+                btnEntrar.textContent = "Entrando...";
+                
+                setTimeout(() => {
+                    window.location.href = PROXIMA_TELA; 
+                }, 1500);
+
             } catch (error) {
-                console.error(error);
-                alert('Erro ao fazer login: Verifique seu e-mail e senha.');
+                console.error(error.code);
+                let mensagemFormatada = "E-mail ou senha incorretos.";
+                
+                // Identifica o motivo do erro do Firebase
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                    mensagemFormatada = "Usuário não cadastrado ou senha incorreta.";
+                } else if (error.code === 'auth/invalid-email') {
+                    mensagemFormatada = "O formato do e-mail digitado é inválido.";
+                } else if (error.code === 'auth/too-many-requests') {
+                    mensagemFormatada = "Muitas tentativas falhas. Tente mais tarde.";
+                }
+
+                tratarErro(mensagemFormatada, boxLogin, erroLoginDiv);
             }
         });
 
-        // Função para Cadastrar novo usuário caso clique em "Cadastre-se"
-        btnCadastrar.addEventListener('click', async () => {
-            const email = emailInput.value.trim();
-            const senha = senhaInput.value.trim();
+        // Firebase: Cadastrar
+        btnCadastrarEfetivo.addEventListener('click', async () => {
+            const email = cadastroEmailInput.value.trim();
+            const senha = cadastroSenhaInput.value.trim();
 
             if (!email || !senha) {
-                alert('Digite um e-mail e senha nos campos acima para se cadastrar.');
+                tratarErro("Por favor, preencha todos os campos.", boxCadastro, erroCadastroDiv);
                 return;
             }
 
             if (senha.length < 6) {
-                alert('A senha deve ter pelo menos 6 dígitos.');
+                tratarErro("A senha deve ter no mínimo 6 caracteres.", boxCadastro, erroCadastroDiv);
                 return;
             }
 
             try {
                 await createUserWithEmailAndPassword(auth, email, senha);
-                alert('Conta criada com sucesso! Redirecionando...');
-                window.location.href = PROXIMA_TELA;
+                
+                // Sucesso sutil: Borda verde e muda o texto do botão
+                limparStatus();
+                boxCadastro.classList.add('borda-sucesso');
+                btnCadastrarEfetivo.textContent = "Conta Criada! 🎉";
+                
+                setTimeout(() => {
+                    window.location.href = PROXIMA_TELA;
+                }, 1500);
+
             } catch (error) {
-                console.error(error);
-                alert('Erro ao criar conta. Certifique-se de que o e-mail é válido.');
+                console.error(error.code);
+                let mensagemFormatada = "Erro ao efetuar o cadastro.";
+
+                if (error.code === 'auth/email-already-in-use') {
+                    mensagemFormatada = "Este e-mail já está cadastrado em outra conta.";
+                } else if (error.code === 'auth/invalid-email') {
+                    mensagemFormatada = "Digite um endereço de e-mail válido.";
+                } else if (error.code === 'auth/weak-password') {
+                    mensagemFormatada = "A senha escolhida é muito fraca.";
+                }
+
+                tratarErro(mensagemFormatada, boxCadastro, erroCadastroDiv);
             }
         });
     </script>
