@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="cadastro-style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        /* Estilos para a caixinha flutuante (Modal) do QR Code */
+        .modal-qr {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center; align-items: center;
+            z-index: 1000;
+            font-family: sans-serif;
+        }
+        .modal-qr-content {
+            background: white; padding: 20px;
+            border-radius: 12px; text-align: center;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+            max-width: 300px; width: 90%;
+        }
+        .modal-qr-content h4 { margin-top: 0; color: #333; }
+        #canvas-qrcode { margin: 15px auto; display: flex; justify-content: center; }
+        .btn-qr-action {
+            background: #007bff; color: white; border: none;
+            padding: 8px 16px; border-radius: 6px;
+            cursor: pointer; font-weight: bold; margin: 5px;
+        }
+        .btn-qr-fechar { background: #6c757d; }
+    </style>
+</head>
+<body>
+    
+  <div class="cartao">
+      <div id="usuario-barra" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; margin-bottom: 15px; font-family: sans-serif; font-size: auto; color: #333; width: 404px; max-width: 500px; ">
+          <span id="userLogadoEmail" style="font-weight: bold;">Carregando usuário...</span>
+          <button id="btnSair" style="background: #ff4d4d; color: white; border: none; padding: 12px 12px; border-radius: 50px; cursor: pointer; font-weight: bold;">Sair</button>
+      </div>
+
+      <div class="cardbox">
+          <div class="box">
+              <h1> Cadastre seu itens</h1>
+              <div class="boxlabal">
+                  <div class="nomeitem">
+                    <div class="nome">Inserir nome do item</div>
+                    <input type="text" id="nomeProduto" class="campo-formulario" placeholder="Qual o nome do item?">
+                  </div>
+                  
+                  <div class="preço">
+                    <div class="nome">Inserir valor</div>
+                    <input type="tel" id="precoProduto" class="campo-formulario" placeholder="R$ 0,00">
+                  </div>
+                  
+                  <div class="categoria">
+                    <div class="nome">Inserir categoria <span>(Opcional)</span></div>
+                    <select id="selectCategoria" class="campo-formulario" style="width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 8px;">
+                        <option value="">Selecione uma categoria...</option>
+                        <option value="MANUAL">➕ Adicionar nova categoria (Manual)...</option>
+                    </select>
+                    <input type="text" id="categoriaManual" class="campo-formulario" placeholder="Digite a nova categoria aqui" style="display: none;">
+                  </div>
+                  
+                  <div class="Carregar-arquivo">
+                    <div class="nome">Inserir imagem do produto</div>
+                    <input type="file" id="fotoProduto" class="arquivo" accept="image/*">
+                  </div>
+              </div>
+              <div class="salva-it">
+                <input type="button" name="Savar" class="int" id="Savar" value="Adicionar item" />
+              </div>
+              <div class="comp-qr">
+                    <div class="compart-link">
+                        <input type="button" name="compartilhar" id="compartilhar" class="compartilhar" value="Compartilhar link">
+                    </div>
+                    
+                    <div class="qr">
+                        <input type="button" name="qrcode" id="qrcode" class="qrcode" value="Gerar QrCode">
+                    </div>
+                </div>
+          </div>
+          
+          <div class="itenscadastrados">
+              <h3>📋 Meus Itens Cadastrados</h3>
+              <div id="registros">
+                  </div>
+          </div>
+      </div>
+  </div>
+
+  <div id="modalQR" class="modal-qr">
+      <div class="modal-qr-content">
+          <h4>Seu QR Code da Lista</h4>
+          <div id="canvas-qrcode"></div>
+          <button id="btnBaixarQR" class="btn-qr-action">Baixar Imagem</button>
+          <button id="btnFecharQR" class="btn-qr-action btn-qr-fechar">Fechar</button>
+      </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, deleteDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
+        authDomain: "escolhaseupresente-35d3d.firebaseapp.com",
+        projectId: "escolhaseupresente-35d3d",
+        storageBucket: "escolhaseupresente-35d3d.firebasestorage.app",
+        messagingSenderId: "374767023277",
+        appId: "1:374767023277:web:0a6d45cb62136ba4040224",
+        measurementId: "G-DJZFYZSGMV"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const IMGBB_API_KEY = "a6dd2e7549451f9117ecd2a25dd8765d"; 
+    const URL_BASE_GITHUB = "https://carlosanth.github.io/escolhaseupresente/lista.html";
+
+    let usuarioAtualUid = null;
+    let unsubscribeProdutos = null;
+    let unsubscribeCategorias = null;
+
+    const btnAdicionar = document.getElementById('Savar');
+    const inputNome = document.getElementById('nomeProduto');
+    const inputPreco = document.getElementById('precoProduto');
+    const selectCategoria = document.getElementById('selectCategoria');
+    const inputCategoriaManual = document.getElementById('categoriaManual');
+    const inputFoto = document.getElementById('fotoProduto');
+    const containerRegistros = document.getElementById('registros');
+    const userLogadoEmail = document.getElementById('userLogadoEmail');
+    const btnSair = document.getElementById('btnSair');
+
+    // Elementos do Modal de QR Code
+    const modalQR = document.getElementById('modalQR');
+    const canvasQR = document.getElementById('canvas-qrcode');
+    const btnFecharQR = document.getElementById('btnFecharQR');
+    const btnBaixarQR = document.getElementById('btnBaixarQR');
+    let qrcodeInstancia = null;
+
+    // Máscara de preço em tempo real (Formato R$ 0,00)
+    inputPreco.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, ""); 
+        if (!value) {
+            e.target.value = "";
+            return;
+        }
+        value = (parseFloat(value) / 100).toFixed(2); 
+        e.target.value = "R$ " + value.replace(".", ",").replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+    });
+
+    selectCategoria.addEventListener('change', () => {
+        if (selectCategoria.value === 'MANUAL') {
+            inputCategoriaManual.style.display = 'block';
+            inputCategoriaManual.focus();
+        } else {
+            inputCategoriaManual.style.display = 'none';
+            inputCategoriaManual.value = '';
+        }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            usuarioAtualUid = user.uid;
+            userLogadoEmail.textContent = `Conectado como: ${user.email}`;
+            escutarProdutosDoBanco();
+            escutarCategoriasDoBanco(); 
+        } else {
+            usuarioAtualUid = null;
+            userLogadoEmail.textContent = "Não autenticado";
+            containerRegistros.innerHTML = '<p style="padding:10px;">Redirecionando...</p>';
+            if (unsubscribeProdutos) unsubscribeProdutos();
+            if (unsubscribeCategorias) unsubscribeCategorias();
+            window.location.href = "index.html"; 
+        }
+    });
+
+    btnSair.addEventListener('click', async () => {
+        if(confirm("Deseja realmente sair da sua conta?")) {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Erro ao deslogar:", error);
+            }
+        }
+    });
+
+    function escutarCategoriasDoBanco() {
+        try {
+            unsubscribeCategorias = onSnapshot(collection(db, "categorias"), (querySnapshot) => {
+                selectCategoria.innerHTML = '<option value="">Selecione uma categoria...</option><option value="MANUAL">➕ Adicionar nova categoria (Manual)...</option>';
+                querySnapshot.forEach((docSnap) => {
+                    const catData = docSnap.data();
+                    const nomeCategoria = catData.nome || docSnap.id; 
+                    if (nomeCategoria) {
+                        const novaOpcao = document.createElement('option');
+                        novaOpcao.value = nomeCategoria;
+                        novaOpcao.textContent = nomeCategoria;
+                        selectCategoria.insertBefore(novaOpcao, selectCategoria.lastElementChild);
+                    }
+                });
+            }, (error) => {
+                console.error("Erro ao buscar categorias do Firestore:", error);
+            });
+        } catch (err) {
+            console.error("Erro na execução do onSnapshot de categorias:", err);
+        }
+    }
+
+    async function fazerUploadImagemImgBB(arquivoObjeto) {
+        const formData = new FormData();
+        formData.append("image", arquivoObjeto);
+
+        try {
+            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+            if (data.success) {
+                return data.data.url;
+            } else {
+                throw new Error("Falha no upload do ImgBB");
+            }
+        } catch (error) {
+            console.error("Erro no upload da imagem:", error);
+            return 'https://i.ibb.co/FqHbGwfs/189697.png';
+        }
+    }
+
+    btnAdicionar.addEventListener('click', async () => {
+        const nome = inputNome.value.trim();
+        const precoRaw = inputPreco.value.trim();
+        const fotoArquivo = inputFoto.files[0];
+
+        let category = selectCategoria.value;
+        if (category === 'MANUAL') {
+            category = inputCategoriaManual.value.trim();
+        }
+
+        if (!usuarioAtualUid) {
+            alert('Você precisa estar logado para cadastrar itens.');
+            return;
+        }
+
+        if (!nome || !precoRaw) {
+            alert('Por favor, preencha o Nome e o Valor do item.');
+            return;
+        }
+
+        const precoNumerico = parseFloat(precoRaw.replace("R$ ", "").replace(/\./g, "").replace(",", "."));
+        const precoCentavos = Math.round(precoNumerico * 100);
+
+        btnAdicionar.value = "Salvando...";
+        btnAdicionar.disabled = true;
+
+        let urlImagemFinal = 'https://i.ibb.co/0jjSyNRG/logo.png';
+
+        if (fotoArquivo) {
+            urlImagemFinal = await fazerUploadImagemImgBB(fotoArquivo);
+        }
+
+        const categoriaLimpa = (category || "SemCategoria").replace(/[\/#\$\.\[\]]/g, "").trim();
+        const nomeLimpo = nome.replace(/[\/#\$\.\[\]]/g, "").trim();
+        
+        // ESTRUTURA DO DOCUMENTO: categoria-nomeProduto
+        const produtoId = `${categoriaLimpa}-${nomeLimpo}`;
+
+        try {
+            // Agora incluindo também o campo 'categoria' conforme solicitado
+            await setDoc(doc(db, "produtos_teste", produtoId), {
+                categoria: category || "Sem Categoria",
+                disponivel: true, 
+                imagem: urlImagemFinal,   
+                preco: precoRaw,          
+                preco_centavos: precoCentavos.toString(), 
+                titulo: nome,             
+                usuario_id: usuarioAtualUid
+            });
+
+            if (selectCategoria.value === 'MANUAL' && category) {
+                await setDoc(doc(db, "categorias", categoriaLimpa), { nome: category });
+            }
+
+            limparFormulario();
+        } catch (error) {
+            console.error("Erro ao salvar no Firestore:", error);
+            alert('Erro ao salvar o item no banco de dados.');
+        } finally {
+            btnAdicionar.value = "Adicionar item";
+            btnAdicionar.disabled = false;
+        }
+    });
+
+    function escutarProdutosDoBanco() {
+        const q = query(collection(db, "produtos_teste"), where("usuario_id", "==", usuarioAtualUid));
+
+        unsubscribeProdutos = onSnapshot(q, (querySnapshot) => {
+            containerRegistros.innerHTML = ''; 
+
+            if (querySnapshot.empty) {
+                containerRegistros.innerHTML = '<p style="padding:10px; opacity:0.7;">Nenhum item cadastrado ainda.</p>';
+                return;
+            }
+
+            querySnapshot.forEach((docSnap) => {
+                const produto = docSnap.data();
+                renderizarItemNaTela(produto, docSnap.id);
+            });
+        });
+    }
+
+    function renderizarItemNaTela(produto, documentoId) {
+        const novaBaseDiv = document.createElement('div');
+        novaBaseDiv.classList.add('base');
+
+        const tituloExibição = produto.titulo || "Sem nome";
+        const precoExibição = produto.preco || "R$ 0,00";
+        const imagemExibição = produto.imagem || 'https://i.ibb.co/0jjSyNRG/logo.png';
+        const categoriaExibicao = produto.categoria || "Sem Categoria";
+
+        const textoStatus = produto.disponivel !== false ? "Disponível" : "Indisponível";
+        const corStatus = produto.disponivel !== false ? "#28a745" : "#6c757d"; 
+
+        novaBaseDiv.innerHTML = `
+            <div class="base-card">
+                <img src="${imagemExibição}" alt="foto">
+                <div class="T-Produtos">
+                    <strong>${tituloExibição}</strong>
+                    <span>${precoExibição}</span>
+                    <small style="display:block; font-size:11px; opacity:0.6;">Cat: ${categoriaExibicao}</small>
+                </div>
+            </div>
+            <div class="disponibilidade">
+                <text class="disp" style="color: ${corStatus}; font-weight: bold;">${textoStatus}</text>
+                <text class="excl" style="cursor:pointer;">Excluir</text>
+            </div>
+        `;
+
+        novaBaseDiv.querySelector('.excl').addEventListener('click', async () => {
+            if (confirm(`Deseja realmente excluir "${tituloExibição}"?`)) {
+                try {
+                    await deleteDoc(doc(db, "produtos_teste", documentoId));
+                } catch (error) {
+                    console.error("Erro ao deletar item:", error);
+                    alert("Não foi possível excluir o item do banco de dados.");
+                }
+            }
+        });
+
+        containerRegistros.appendChild(novaBaseDiv);
+    }
+
+    function limparFormulario() {
+        inputNome.value = '';
+        inputPreco.value = '';
+        selectCategoria.value = '';
+        inputCategoriaManual.value = '';
+        inputCategoriaManual.style.display = 'none';
+        inputFoto.value = '';
+    }
+
+    // Compartilhamento Dinâmico Nativo do Aparelho (WhatsApp, etc.)
+    document.getElementById('compartilhar').addEventListener('click', async () => {
+        if (!usuarioAtualUid) return alert('Faça login primeiro.');
+        const linkLista = `${URL_BASE_GITHUB}?id=${usuarioAtualUid}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Minha Lista de Casamento',
+                    text: 'Escolha um presente especial para nós!',
+                    url: linkLista,
+                });
+            } catch (error) {
+                console.log('Compartilhamento cancelado ou falhou', error);
+            }
+        } else {
+            navigator.clipboard.writeText(linkLista);
+            alert('Opção nativa indisponível. O Link foi copiado para a área de transferência!');
+        }
+    });
+
+    // Geração Real do QR Code e Evento de Download da Imagem
+    document.getElementById('qrcode').addEventListener('click', () => {
+        if (!usuarioAtualUid) return alert('Faça login primeiro.');
+        const linkLista = `${URL_BASE_GITHUB}?id=${usuarioAtualUid}`;
+
+        canvasQR.innerHTML = ""; 
+        modalQR.style.display = "flex"; 
+
+        qrcodeInstancia = new QRCode(canvasQR, {
+            text: linkLista,
+            width: 180,
+            height: 180
+        });
+    });
+
+    btnFecharQR.addEventListener('click', () => {
+        modalQR.style.display = "none";
+    });
+
+    btnBaixarQR.addEventListener('click', () => {
+        const imgElement = canvasQR.querySelector('img');
+        if (imgElement && imgElement.src) {
+            const linkDownload = document.createElement('a');
+            linkDownload.href = imgElement.src;
+            linkDownload.download = 'qrcode-lista-presentes.png';
+            linkDownload.click();
+        } else {
+            alert('Aguarde o QR Code carregar totalmente para baixar.');
+        }
+    });
+  </script>
+</body>
+</html>
