@@ -81,12 +81,68 @@ background-color: #ffffff;
 
 @media (min-width: 595px) {
     .header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
-    text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
     }
 } 
 
+@media (max-width: 595px) {
+    .header {
+        width: 100%;
+        height: 100vh;
+        animation: animacao 5s ease infinite;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+    } 
+
+    .apresentacao {
+        font-size: 25px;
+        font-weight: bold;
+        text-align: center;
+        line-height: 0.9
+    }
+
+    .escolha {
+        font-family: Impact, sans-serif;
+        font-size: 40px;
+        margin: 30px 0;
+        letter-spacing: 1px;
+    }
+
+    .apre {
+        font-size: 20px;
+        margin-bottom: 25px;
+        line-height: 1.5;
+        text-align: justify;
+        line-height: 1.2
+    }
+
+
+        .acessar {
+        background-color: aliceblue;
+        color: #6e20ff;
+        padding: 5px 80px;
+        display: flex;
+        border-radius: 50px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.1s;
+        justify-content: center;
+        align-items: center;
+        font-size: 25px;
+    }
+
+        .link-acessar {
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+    } 
+    
+    
+} 
