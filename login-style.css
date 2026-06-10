@@ -223,46 +223,6 @@ h3 {
   flex-direction: column;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-@media (max-width: 400px) {
-    .camera-3d {
-        height: 520px;
-        width: 380px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: absolute;
-        top: 20%;
-        right: 10px;
-    }
-
-}
-  
-
-
-
 /* CABEÇALHO */
 
 .carousel {
