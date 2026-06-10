@@ -246,11 +246,17 @@ h3 {
 
 
 
-@media (max-width: 391px) {
-  
-  
-
-
+@media (max-width: 400px) {
+    .camera-3d {
+        height: 520px;
+        width: 380px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 20%;
+        right: 10px;
+    }
 
 }
   
