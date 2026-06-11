@@ -1,109 +1,137 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
 }
 
 html, body {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        180deg,
-        rgba(62, 14, 255, 0.85) 0%,
-        rgba(142, 117, 241, 0.877) 36%,
-        #856fdd75 54%,
-        white 100%);
-    background-attachment: fixed;
-    overflow-x: hidden;
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(180deg, rgba(62, 14, 255, 0.85) 0%, rgba(142, 117, 241, 0.877) 36%, #856fdd75 54%, white 100%);
+  background-attachment: fixed;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
-.cabecalho {
-  background-color: rgba(114, 0, 190, 0.712);
-  padding: 20px;
+/* === CARROSSEL === */
+.carousel { 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  opacity: 10;
+  overflow: hidden;
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-  color: aliceblue;
-  align-items: center;
-  margin-bottom: 60px;
-}
-
-.b-entrar  {
-  padding: 15px 50px;
-  border-radius: 50px;
-  border: solid 1px;
-  border-color: none;
-  font-size: 20px;
-  font-weight: bolder;
-  color: rgba(114, 0, 190, 0.712);
-  margin-right: 10px;
-}
-
-.entrada {
-  display:flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  margin-right: 30px;
+  gap: 20px;
+  overflow: hidden;
 }
 
+
+.carousel-track { 
+  display: flex; 
+  gap: 20px; 
+  animation: scroll 10s linear infinite;
+  height: 100%;
+  align-items: center;
+}
+
+@keyframes scroll { 
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.track-inverso {
+  animation: scroll-reverse 15s linear infinite; /* Faixa 2 */
+}
+
+@keyframes scroll-reverse { 
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.carousel-track img { 
+  border-radius: 30px; 
+  height: 200px; 
+}
+
+
+/* === CABEÇALHO === */
+.cabecalho {
+  width: 100%;
+  padding: 40px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 15px;
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
+  background-color: rgb(55 22 133 / 0%);
+  padding: 20px;
+  margin-bottom: 40px;
+  text-align: center;
+  color: aliceblue;
+}
+
+
+/* === CONTAINER PRINCIPAL (Flex) === */
 .container {
   display: flex;
+  justify-content: space-around;
+  align-content: flex-start;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 80vh;
+  min-height: 100vh;
+  padding: 0 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
 }
 
+
+/* === ESTILOS DOS CARDS (Login e Cadastro) === */
+.auth-wrapper {
+  width: 100%;
+  max-width: 320px;
+  position: relative;
+  min-height: 450px;
+}
 
 .login, .cadastra-se {
   width: 100%;
-  height: 100%;
-  padding: 40px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
+  padding: 40px 0;
+  backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  transition: border 0.4s ease, box-shadow 0.4s ease; 
-
-  /* alinhamento central */
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 0.0625em 0.0625em, rgba(0, 0, 0, 0.25) 0px 0.125em 0.5em, rgba(255, 255, 255, 0.1) 0px 0px 0px 1px inset;
   display: flex;
-  flex-direction: column;   /* mantém os elementos em coluna */
-  justify-content: center;  /* centraliza verticalmente */
-  align-items: center;      /* centraliza horizontalmente */
-}
-
-
-
-.e {
-  display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  margin-top: 10px;
+  transition: all 0.4s ease;
+}
+
+.hidden { display: none !important; }
+
+/* === FORMULÁRIOS === */
+.e {
   margin-bottom: 25px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 38px;
-  height: 44px;
-  color: #222;
+  color: #ffffff;
+  font-weight: bolder;
 }
 
-.form-block {
-  display: block;
-  margin-bottom: 15px;
-}
-
-.formbox {
-  margin-bottom: 15px;
+.a {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  text-align: center;
 }
 
 .form1 {
-  display: block;
-  width: 260px;
+  width: 100%; /* Agora ocupa o espaço do pai */
+  max-width: 320px;
   padding: 20px 15px;
+  margin-bottom: 15px;
   border-radius: 50px;
   border: 1px solid #ddd;
   outline: none;
@@ -112,145 +140,58 @@ html, body {
 
 button.submit-button {
   width: 100%;
-  border-radius: 50px;
+  max-width: 320px;
   padding: 12px;
   background: linear-gradient(to right, #7c3aed, #3b82f6);
   border: none;
-  margin-top: 10px;
   font-size: larger;
   color: white;
   font-weight: bold;
   cursor: pointer;
   transition: transform 0.2s ease;
-}
-
-button.submit-button:hover {
-  transform: translateY(-3px);
-}
-
-.camera-3d {
-  perspective: 1500px;
-  height: 520px;
-  width: 380px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: absolute;
-  top: 20%;
-  right: 50px;
-  margin-right: auto;
-}
-
-.cartao {
-  width: 380px;  
-  height: 520px;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-
-.lado-frente, .lado-verso {
-  position: absolute; /* Isso é o que sobrepõe um no outro */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden; /* Esconde o que está do outro lado */
-  display: flex;              /* Para manter o conteúdo centralizado */
-  align-items: center;
-  background: transparent;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 15px;
-
 }
 
-.lado-verso {
-  transform: rotateY(180deg);
+button.submit-button:hover { transform: translateY(-3px); }
+
+/* === UTILITÁRIOS (Erros e Animações) === */
+.borda-erro { 
+  border: 1.5px solid #ef4444 !important; 
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3) !important; 
 }
 
-.cartao.virado {
-  transform: rotateY(180deg);
+.borda-sucesso { border: 1.5px solid #10b981 !important; 
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3) !important; 
 }
 
-/* ==========================================================================
-   BORDAS INTELIGENTES, TEXTOS E ANIMAÇÃO DE TREMOR
-   ========================================================================== */
-
-/* Linha verde sutil e elegante ao redor do container de vidro */
-.borda-sucesso {
-  border: 1.5px solid #10b981 !important;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3) !important;
-}
-
-/* Linha vermelha sutil ao redor do container de vidro */
-.borda-erro {
-  border: 1.5px solid #ef4444 !important;
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3) !important;
-}
-
-/* Estilização da caixa de texto explicativa do erro */
-.mensagem-alerta {
-  color: #dc2626;
+.mensagem-alerta { 
+  color: #dc2626; 
   font-size: 14px;
   font-weight: 500;
   text-align: center;
-  margin-top: -5px;
+  margin-bottom: 10px;
   min-height: 20px;
-  transition: all 0.3s ease;
 }
 
-.a { 
-  text-align: center;
-  margin-top: 4px;
-}
-
-/* Animação de tremor lateral */
-.tremer {
+.tremer { 
   animation: shake 0.5s ease-in-out;
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20%, 60% { transform: translateX(-8px); }
-  40%, 80% { transform: translateX(8px); }
-}
-
-h3 {
-  display: flex;
-  flex-direction: column;
-}
-
-/* CABEÇALHO */
-
-.carousel {
-  width: 100%; /* Ajuste a largura conforme preferir */
-  overflow: hidden;
-  border-radius: 20px;
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
 }
 
 
-.carousel-track {
-  display: flex;
-  width: max-content;
-  height: 190px;
-  gap: 15px;
-  animation: scroll 10s linear infinite;
-}
-
-.carousel-track img {
-  border-radius: 30px;
-
-}
 
 @keyframes scroll { 
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
 }
 
+@media (max-width: 829px) {
+  .area-texto{
+    display: none;
+  }
+}
