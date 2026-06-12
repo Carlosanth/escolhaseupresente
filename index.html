@@ -10,8 +10,8 @@
         .hidden { display: none !important; }
         .auth-wrapper {
             width: 100%;
-            max-width: ;
-            margin: ;
+            max-width: 320px;
+            margin: 0 auto;
         }
     </style>
 </head>
@@ -23,102 +23,109 @@
         </div>
     </div>
 
-        <div class="carousel">
-            <div class="carousel-track">
-                <img src="2.png" alt="Imagem2">
-                <img src="3.png" alt="Imagem3">
-                <img src="4.png" alt="Imagem4">
-                <img src="5.png" alt="Imagem5">
-                <img src="2.png" alt="Imagem2">
-                <img src="3.png" alt="Imagem3">
-                <img src="4.png" alt="Imagem4">
-                <img src="5.png" alt="Imagem5">
-            </div>
-            <div class="carousel-track track-inverso">
-                <img src="6.png" alt="Imagem2">
-                <img src="7.png" alt="Imagem3">
-                <img src="8.png" alt="Imagem4">
-                <img src="9.png" alt="Imagem5">
-                <img src="6.png" alt="Imagem2">
-                <img src="7.png" alt="Imagem3">
-                <img src="8.png" alt="Imagem4">
-                <img src="9.png" alt="Imagem5">
-            </div>        
-            <div class="carousel-track">
-                <img src="10.png" alt="Imagem2">
-                <img src="11.png" alt="Imagem3">
-                <img src="12.png" alt="Imagem4">
-                <img src="5.png" alt="Imagem5">
-                <img src="2.png" alt="Imagem2">
-                <img src="3.png" alt="Imagem3">
-                <img src="4.png" alt="Imagem4">
-                <img src="5.png" alt="Imagem5">
-            </div>        
-        
-        
-        
+    <div class="carousel">
+        <div class="carousel-track">
+            <img src="2.png" alt="Imagem2">
+            <img src="3.png" alt="Imagem3">
+            <img src="4.png" alt="Imagem4">
+            <img src="5.png" alt="Imagem5">
+            <img src="2.png" alt="Imagem2">
+            <img src="3.png" alt="Imagem3">
+            <img src="4.png" alt="Imagem4">
+            <img src="5.png" alt="Imagem5">
         </div>
+        <div class="carousel-track track-inverso">
+            <img src="6.png" alt="Imagem2">
+            <img src="7.png" alt="Imagem3">
+            <img src="8.png" alt="Imagem4">
+            <img src="9.png" alt="Imagem5">
+            <img src="6.png" alt="Imagem2">
+            <img src="7.png" alt="Imagem3">
+            <img src="8.png" alt="Imagem4">
+            <img src="9.png" alt="Imagem5">
+        </div>        
+        <div class="carousel-track">
+            <img src="10.png" alt="Imagem2">
+            <img src="11.png" alt="Imagem3">
+            <img src="12.png" alt="Imagem4">
+            <img src="5.png" alt="Imagem5">
+            <img src="2.png" alt="Imagem2">
+            <img src="3.png" alt="Imagem3">
+            <img src="4.png" alt="Imagem4">
+            <img src="5.png" alt="Imagem5">
+        </div>        
+    </div>
 
-
-        <div class="container">
-
-            <div class="area-texto">
-                <div class="cabecalho">
-                    <h1 class="o">ESCOLHA SEU PRESENTE</h1>
-                    <p class="o">A FORMA MAIS FACIL DE CRIAR LISTA</p>
-                </div>
-            </div>            
-
-
-
-
-            <div class="auth-wrapper">
-                <div id="box-login" class="login">
-                    <h1 class="e">Acessar</h1>
-                    <form id="loginForm" onsubmit="event.preventDefault();">
-                        <div class="formbox1">
-                            <input type="email" id="loginEmail" class="form1" placeholder="Email@email.com.br" required>
-                        </div>
-                        <div class="formbox2">
-                            <input type="password" id="loginSenha" class="form1" placeholder="Mínimo sete caracteres" required>
-                        </div>
-                        <div id="erro-login" class="mensagem-alerta"></div>
-                        <button type="button" id="btnEntrar" class="submit-button">Entrar</button>
-                        <p class="a">Ainda não tem uma conta?</p>
-                        <button type="button" id="btnIrParaCadastro" class="submit-button" onclick="alternarTelas()">Cadastre-se</button>
-                    </form>
-                </div>
-
-                <div id="box-cadastro" class="login hidden">
-                    <h1 class="e">Cadastro</h1>
-                    <form id="cadastroForm" onsubmit="event.preventDefault();">
-                        <div class="formbox1">
-                            <input type="email" id="cadastroEmail" class="form1" placeholder="Email@email.com.br" required>
-                        </div>
-                        <div class="formbox2">
-                            <input type="password" id="cadastroSenha" class="form1" placeholder="Mínimo sete caracteres" required>
-                        </div>
-                        <div id="erro-cadastro" class="mensagem-alerta"></div>
-                        <button type="button" id="btnCadastrarEfetivo" class="submit-button">Cadastrar-se</button>
-                        <p class="a">Já tem uma conta?</p>
-                        <button type="button" id="btnIrParaLogin" class="submit-button" onclick="alternarTelas()">Voltar para o Login</button>
-                    </form>
-                </div>
+    <div class="container">
+        <div class="area-texto">
+            <div class="cabecalho">
+                <h1 class="o">ESCOLHA SEU PRESENTE</h1>
+                <p class="o">A FORMA MAIS FACIL DE CRIAR LISTA</p>
             </div>
+        </div>            
+
+        <div class="auth-wrapper">
+            <div id="box-login" class="login">
+                <h1 class="e">Acessar</h1>
+                <form id="loginForm" onsubmit="event.preventDefault();">
+                    <div class="formbox1">
+                        <input type="email" id="loginEmail" class="form1" placeholder="Email@email.com.br" required>
+                    </div>
+                    <div class="formbox2">
+                        <input type="password" id="loginSenha" class="form1" placeholder="Mínimo sete caracteres" required>
+                    </div>
+                    <div id="erro-login" class="mensagem-alerta"></div>
+                    <button type="button" id="btnEntrar" class="submit-button">Entrar</button>
+                    
+                    <p class="a" style="cursor: pointer; text-decoration: underline;" onclick="alternarRecuperar(true)">Esqueceu sua senha?</p>
+                    
+                    <p class="a">Ainda não tem uma conta?</p>
+                    <button type="button" id="btnIrParaCadastro" class="submit-button" onclick="alternarTelas()">Cadastre-se</button>
+                </form>
+            </div>
+
+            <div id="box-cadastro" class="login hidden">
+                <h1 class="e">Cadastro</h1>
+                <form id="cadastroForm" onsubmit="event.preventDefault();">
+                    <div class="formbox1">
+                        <input type="text" id="cadastroNome" class="form1" placeholder="Nome" required>
+                    </div>
+                    <div class="formbox1">
+                        <input type="text" id="cadastroSobrenome" class="form1" placeholder="Sobrenome" required>
+                    </div>
+                    <div class="formbox1">
+                        <input type="email" id="cadastroEmail" class="form1" placeholder="Email@email.com.br" required>
+                    </div>
+                    <div class="formbox2">
+                        <input type="password" id="cadastroSenha" class="form1" placeholder="Mínimo sete caracteres" required>
+                    </div>
+                    <div id="erro-cadastro" class="mensagem-alerta"></div>
+                    <button type="button" id="btnCadastrarEfetivo" class="submit-button">Cadastrar-se</button>
+                    <p class="a">Já tem uma conta?</p>
+                    <button type="button" id="btnIrParaLogin" class="submit-button" onclick="alternarTelas()">Voltar para o Login</button>
+                </form>
+            </div>
+
+            <div id="box-recuperar" class="login hidden">
+                <h1 class="e" style="font-size: 28px; text-align: center;">Recuperar Senha</h1>
+                <p class="a" style="color: white; padding: 0 15px 15px 15px;">Digite seu e-mail para receber o link de redefinição.</p>
+                <form id="recuperarForm" onsubmit="event.preventDefault();">
+                    <div class="formbox1">
+                        <input type="email" id="recuperarEmail" class="form1" placeholder="Email@email.com.br" required>
+                    </div>
+                    <div id="erro-recuperar" class="mensagem-alerta"></div>
+                    <button type="button" id="btnEnviarRecuperar" class="submit-button">Enviar Email</button>
+                    <p class="a">Lembrou a senha?</p>
+                    <button type="button" class="submit-button" onclick="alternarRecuperar(false)">Voltar para o Login</button>
+                </form>
+            </div>
+
         </div>
+    </div>
 
-
-
-
-
-
-
-
-
-        
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
@@ -133,23 +140,44 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Função de alternância simples
+        const boxLogin = document.getElementById('box-login');
+        const boxCadastro = document.getElementById('box-cadastro');
+        const boxRecuperar = document.getElementById('box-recuperar');
+        
+        const erroLoginDiv = document.getElementById('erro-login');
+        const erroCadastroDiv = document.getElementById('erro-cadastro');
+        const erroRecuperarDiv = document.getElementById('erro-recuperar');
+
+        // Alternar entre Login e Cadastro
         window.alternarTelas = () => {
-            document.getElementById('box-login').classList.toggle('hidden');
-            document.getElementById('box-cadastro').classList.toggle('hidden');
+            boxLogin.classList.toggle('hidden');
+            boxCadastro.classList.toggle('hidden');
+            boxRecuperar.classList.add('hidden');
             limparStatus();
         };
 
-        const boxLogin = document.getElementById('box-login');
-        const boxCadastro = document.getElementById('box-cadastro');
-        const erroLoginDiv = document.getElementById('erro-login');
-        const erroCadastroDiv = document.getElementById('erro-cadastro');
+        // Alternar para a tela de Recuperar Senha
+        window.alternarRecuperar = (mostrar) => {
+            if (mostrar) {
+                boxLogin.classList.add('hidden');
+                boxCadastro.classList.add('hidden');
+                boxRecuperar.classList.remove('hidden');
+            } else {
+                boxLogin.classList.remove('hidden');
+                boxCadastro.classList.add('hidden');
+                boxRecuperar.classList.add('hidden');
+            }
+            limparStatus();
+        };
 
         function limparStatus() {
             erroLoginDiv.textContent = "";
             erroCadastroDiv.textContent = "";
+            erroRecuperarDiv.textContent = "";
+            erroRecuperarDiv.style.color = "#dc2626"; // Reseta para a cor de erro padrão
             boxLogin.classList.remove('borda-erro');
             boxCadastro.classList.remove('borda-erro');
+            boxRecuperar.classList.remove('borda-erro');
         }
 
         function tratarErro(textoErro, box, divErro) {
@@ -158,6 +186,7 @@
             setTimeout(() => box.classList.remove('tremer'), 500);
         }
 
+        // Login
         document.getElementById('btnEntrar').addEventListener('click', async () => {
             const email = document.getElementById('loginEmail').value;
             const senha = document.getElementById('loginSenha').value;
@@ -169,14 +198,44 @@
             }
         });
 
+        // Cadastro obtendo Nome e Sobrenome
         document.getElementById('btnCadastrarEfetivo').addEventListener('click', async () => {
+            const nome = document.getElementById('cadastroNome').value;
+            const sobrenome = document.getElementById('cadastroSobrenome').value;
             const email = document.getElementById('cadastroEmail').value;
             const senha = document.getElementById('cadastroSenha').value;
+
+            if(!nome || !sobrenome){
+                tratarErro("Por favor, preencha o Nome e Sobrenome.", boxCadastro, erroCadastroDiv);
+                return;
+            }
+
             try {
-                await createUserWithEmailAndPassword(auth, email, senha);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+                
+                // Nota: Para salvar o Nome e Sobrenome de forma persistente, você usaria o Firestore 
+                // ou o updateProfile do Firebase. Exemplo rápido se quiser atualizar o perfil nativo:
+                // await updateProfile(userCredential.user, { displayName: `${nome} ${sobrenome}` });
+
                 window.location.href = "cadastro.html";
             } catch (error) {
                 tratarErro("Erro no cadastro: verifique os dados.", boxCadastro, erroCadastroDiv);
+            }
+        });
+
+        // Recuperação de Senha com Firebase
+        document.getElementById('btnEnviarRecuperar').addEventListener('click', async () => {
+            const email = document.getElementById('recuperarEmail').value;
+            if(!email) {
+                tratarErro("Por favor, digite seu e-mail.", boxRecuperar, erroRecuperarDiv);
+                return;
+            }
+            try {
+                await sendPasswordResetEmail(auth, email);
+                erroRecuperarDiv.style.color = "#10b981"; // Muda para verde (sucesso)
+                erroRecuperarDiv.textContent = "E-mail de redefinição enviado!";
+            } catch (error) {
+                tratarErro("Erro ao enviar e-mail. Verifique o endereço digitado.", boxRecuperar, erroRecuperarDiv);
             }
         });
     </script>

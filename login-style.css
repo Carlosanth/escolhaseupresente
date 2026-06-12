@@ -11,7 +11,7 @@ html, body {
   background: linear-gradient(180deg, rgba(62, 14, 255, 0.85) 0%, rgba(142, 117, 241, 0.877) 36%, #856fdd75 54%, white 100%);
   background-attachment: fixed;
   overflow-x: hidden;
-  overflow-y: hidden;
+  overflow-y: ;
 }
 
 /* === CARROSSEL === */
@@ -96,6 +96,7 @@ html, body {
   max-width: 320px;
   position: relative;
   min-height: 450px;
+  
 }
 
 .login, .cadastra-se {
@@ -125,6 +126,11 @@ html, body {
   padding-top: 10px;
   padding-bottom: 10px;
   text-align: center;
+}
+
+.o {
+  flex: 1;
+  min-width: 0;
 }
 
 .form1 {
