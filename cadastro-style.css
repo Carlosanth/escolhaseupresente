@@ -26,9 +26,20 @@ html, body {
     background: rgb(102 65 248);
 }
 
+#btnSair {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 3px 12px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
 .painel {
     display: flex;
     flex-direction: column;
+    margin-top: 20px;
 }
 
 .area-temas {
@@ -44,7 +55,7 @@ html, body {
     border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 5px 0 20px 0;
     align-content: flex-start;
-    position: absolute;
+    position: fixed;
     top: 0;
     z-index: 1;
     height: 100vh;
@@ -56,6 +67,25 @@ html, body {
 
 .area-temas.ativo {
     right: -12px;
+}
+
+.fechar {
+    border-radius: 59px;
+    width: 57px;
+    height: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: none;
+    flex-direction: row;
+    /* align-content: stretch; */
+    position: absolute;
+    top: 7px;
+    left: 9px;
+    background-color: #ff4d4d;
+    color: #ffffff;
+    font-weight: 600;
 }
 
 .painel {
@@ -131,15 +161,48 @@ img {
 
 .cor {
     width: 100%;
-    border-radius: 64px;
+    border-radius: 63px;
     border: none;
+    background: transparent;
+    height: 32px;
 }
 
-#usuario-barra, .tema {
+.btn-salvar {
+    position: absolute;
+    bottom: 13px;
+    width: 50%;
+    height: 41px;
+    border-radius: 31px;
+    border: none;
+    background: rgba(1, 175, 44, 0.6);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    font-weight: 600;
+    color: #e8f5e9;
+}
+
+.btn-tema {
+    padding: 8px 10px 8px 10px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 35px;
+    background: rgb(171 160 255 / 60%);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    font-weight: 600;
+    color: #e8f5e9;
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
+
+#usuario-barra {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
+    padding: 10px 10px 3px 10px;
     border-radius: 8px;
     font-family: sans-serif;
     font-size: auto;
@@ -426,4 +489,54 @@ h3 {
     .itenscadastrados {
         margin-bottom: 20px;
     }
+}
+
+@media (max-width: 471px){
+    .area-temas {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        padding: 30px;
+        background-color: #a592f3;
+        box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 5px 0 20px 0;
+        align-content: flex-start;
+        position: fixed;
+        top: 0;
+        z-index: 1;
+        height: 100vh;
+        flex-wrap: wrap;
+        right: -500px;
+        transition: right 0.5s ease-in-out;
+        width: 104%;
+
+    }
+
+    .nav-itens {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .btn-tema {
+        padding: 3px 50px 3px 50px;
+        margin-right: 10px;
+        border: none;
+        border-radius: 35px;
+        background: rgb(171 160 255 / 60%);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+        font-weight: 600;
+        color: #e8f5e9;
+        margin-bottom: 10px;
+    }
+
+
+
 }

@@ -39,14 +39,15 @@
         <div class="nav-itens">
             <div id="usuario-barra">
                 <span id="userLogadoEmail" style="font-weight: bold;">Carregando usuário...</span>
-                <button id="btnSair" style="background: #ff4d4d; color: white; border: none; padding: 12px 12px; border-radius: 50px; cursor: pointer; font-weight: bold;">Sair</button>
+                <button id="btnSair">Sair</button>
             </div>
-            <button class="tema" id="tema">TEMAS DA LISTA</button>   
+            <button class="btn-tema" id="tema">TEMAS DA LISTA</button>   
         </div>
     </div>
 
   <div class="cartao">
           <div class="area-temas">
+            <button class="fechar" id="fechar" style="border-radius: 50px 50px;">Fechar</button>
             <div class="painel">
                 <span class="nome-i" style="padding-bottom: 20px; font-size: 25px; font-weight: 600;">Esolha imagem inical</span>
                 <div class="painel-de-imagens" style="margin-bottom: 20px;">
@@ -65,10 +66,11 @@
                 <input type="file" name="upload" id="upload" class="upload">
                 <div class="adicionar-cores">
                     <div class="cores">
-                        <button id="escolher">Escolha acor de sua lista</button>
+                        <div id="escolher">Escolha acor de sua lista</div>
                         <input type="color" class="cor">
                     </div>
                 </div>
+                <button class="btn-salvar" id="btn-salvar">Salvar <br>preferências</button>
             </div>
           </div>    
       <div class="cardbox">
@@ -178,15 +180,14 @@
         
         const botaoTema = document.getElementById('tema');
         const areaTemas = document.querySelector('.area-temas');
+        const botaoSair = document.querySelector('.fechar');
         
         // Configura o botão de abrir/adicionar o ativo
         botaoTema.addEventListener('click', () => {
             areaTemas.classList.toggle('ativo');
         });
 
-        // Configura o botão de sair (vamos criar o ouvinte para a classe .btn-sair)
-        // Se o seu botão de sair tiver outra classe ou ID, é só ajustar aqui
-        const botaoSair = document.querySelector('.btn-sair');
+
         if (botaoSair) {
             botaoSair.addEventListener('click', () => {
                 areaTemas.classList.remove('ativo');
@@ -218,7 +219,7 @@
     onAuthStateChanged(auth, (user) => {
         if (user) {
             usuarioAtualUid = user.uid;
-            userLogadoEmail.textContent = `Conectado como: ${user.email}`;
+            userLogadoEmail.textContent = `${user.email}`;
             escutarProdutosDoBanco();
             escutarCategoriasDoBanco(); 
         } else {
