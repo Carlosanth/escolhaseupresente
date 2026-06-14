@@ -420,7 +420,7 @@
     // Compartilhamento Dinâmico Nativo do Aparelho (WhatsApp, etc.)
     document.getElementById('compartilhar').addEventListener('click', async () => {
         if (!usuarioAtualUid) return alert('Faça login primeiro.');
-        const linkLista = `${URL_BASE_GITHUB}?id=${usuarioAtualUid}`;
+        const linkLista = `${URL_BASE_SITE}?id=${usuarioAtualUid}`;
 
         if (navigator.share) {
             try {
@@ -441,7 +441,7 @@
     // Geração Real do QR Code e Evento de Download da Imagem
     document.getElementById('qrcode').addEventListener('click', () => {
         if (!usuarioAtualUid) return alert('Faça login primeiro.');
-        const linkLista = `${URL_BASE_GITHUB}?id=${usuarioAtualUid}`;
+        const linkLista = `${URL_BASE_SITE}?id=${usuarioAtualUid}`;
 
         canvasQR.innerHTML = ""; 
         modalQR.style.display = "flex"; 
