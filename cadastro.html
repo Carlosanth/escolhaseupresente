@@ -34,13 +34,43 @@
     </style>
 </head>
 <body>
-    
-  <div class="cartao">
-      <div id="usuario-barra" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; margin-bottom: 15px; font-family: sans-serif; font-size: auto; color: #333; width: 404px; max-width: 500px; ">
-          <span id="userLogadoEmail" style="font-weight: bold;">Carregando usuário...</span>
-          <button id="btnSair" style="background: #ff4d4d; color: white; border: none; padding: 12px 12px; border-radius: 50px; cursor: pointer; font-weight: bold;">Sair</button>
-      </div>
 
+    <div class="nav">
+        <div class="nav-itens">
+            <div id="usuario-barra">
+                <span id="userLogadoEmail" style="font-weight: bold;">Carregando usuário...</span>
+                <button id="btnSair" style="background: #ff4d4d; color: white; border: none; padding: 12px 12px; border-radius: 50px; cursor: pointer; font-weight: bold;">Sair</button>
+            </div>
+            <button class="tema" id="tema">TEMAS DA LISTA</button>   
+        </div>
+    </div>
+
+  <div class="cartao">
+          <div class="area-temas">
+            <div class="painel">
+                <span class="nome-i" style="padding-bottom: 20px; font-size: 25px; font-weight: 600;">Esolha imagem inical</span>
+                <div class="painel-de-imagens" style="margin-bottom: 20px;">
+                    <div class="painel-incial">
+                        <div class="quadrado">
+                            <img src="7.png" alt="pessoas">
+                            <span>Aniversario</span>
+                        </div>
+                        <div class="quadrado">
+                            <img src="6.png" alt="casamento"">
+                            <span>Casamento</span>
+                        </div>
+                    </div>
+                </div>
+                <span class="painel-up">Ou faça Uploand</span>
+                <input type="file" name="upload" id="upload" class="upload">
+                <div class="adicionar-cores">
+                    <div class="cores">
+                        <button id="escolher">Escolha acor de sua lista</button>
+                        <input type="color" class="cor">
+                    </div>
+                </div>
+            </div>
+          </div>    
       <div class="cardbox">
           <div class="box">
               <h1> Cadastre seu itens</h1>
@@ -142,6 +172,27 @@
     const btnFecharQR = document.getElementById('btnFecharQR');
     const btnBaixarQR = document.getElementById('btnBaixarQR');
     let qrcodeInstancia = null;
+
+    // bBotão que ativa a area temas
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        const botaoTema = document.getElementById('tema');
+        const areaTemas = document.querySelector('.area-temas');
+        
+        // Configura o botão de abrir/adicionar o ativo
+        botaoTema.addEventListener('click', () => {
+            areaTemas.classList.toggle('ativo');
+        });
+
+        // Configura o botão de sair (vamos criar o ouvinte para a classe .btn-sair)
+        // Se o seu botão de sair tiver outra classe ou ID, é só ajustar aqui
+        const botaoSair = document.querySelector('.btn-sair');
+        if (botaoSair) {
+            botaoSair.addEventListener('click', () => {
+                areaTemas.classList.remove('ativo');
+            });
+    }
+    });
 
     // Máscara de preço em tempo real (Formato R$ 0,00)
     inputPreco.addEventListener('input', (e) => {
