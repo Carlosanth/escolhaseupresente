@@ -457,6 +457,10 @@
         modalQR.style.display = "none";
     });
 
+    btnFecharQR.addEventListener('click', () => {
+        modalQR.style.display = "none";
+    });
+
     btnBaixarQR.addEventListener('click', () => {
         const imgElement = canvasQR.querySelector('img');
         if (imgElement && imgElement.src) {
@@ -468,6 +472,50 @@
             alert('Aguarde o QR Code carregar totalmente para baixar.');
         }
     });
+
+    // ================================================================
+    // LOGICA PARA SALVAR A COR DO TEMA NO FIREBASE (ADICIONADO AQUI)
+    // ================================================================
+    const btnSalvarPreferencias = document.getElementById('btn-salvar');
+    const inputCorTema = document.querySelector('.cor');
+
+    if (btnSalvarPreferencias) {
+        btnSalvarPreferencias.addEventListener('click', async () => {
+            if (!usuarioAtualUid) {
+                alert('Você precisa estar logado para salvar as preferências.');
+                return;
+            }
+
+            const corEscolhida = inputCorTema.value;
+
+            // Feedback visual no botão
+            const textoOriginal = btnSalvarPreferencias.innerHTML;
+            btnSalvarPreferencias.innerHTML = "Salvando...";
+            btnSalvarPreferencias.disabled = true;
+
+            try {
+                // Grava ou atualiza a cor usando o UID do usuário como ID do documento
+                await setDoc(doc(db, "configuracoes", usuarioAtualUid), {
+                    cor_tema: corEscolhida
+                }, { merge: true });
+
+                alert('Preferências de cor salvas com sucesso!');
+                
+                // Fecha a janela de temas automaticamente
+                const areaTemas = document.querySelector('.area-temas');
+                if (areaTemas) areaTemas.classList.remove('ativo');
+
+            } catch (error) {
+                console.error("Erro ao salvar a cor do tema no Firestore:", error);
+                alert('Erro ao salvar as preferências de cor.');
+            } finally {
+                btnSalvarPreferencias.innerHTML = textoOriginal;
+                btnSalvarPreferencias.disabled = false;
+            }
+        });
+    }
+    // ================================================================
+
   </script>
 </body>
 </html>

@@ -55,8 +55,15 @@
       return;
     }
 
-    // 2. Apontando para a coleção 'produtos_teste' filtrando APENAS pelos itens do dono do link
-    db.collection("produtos_teste")
+    db.collection("configuracoes").doc(usuarioIdUrl)
+      .onSnapshot((doc)) => {
+        if (doc.exists && doc.data() .cor_tema) {
+          const corDoTema = doc.data() .cor_tema;
+          document.documentElement.style.setProperty('--cor-principal', corDoTema);
+        }
+      }, (error) => {
+        console.error("Erro ao carregar tema", error);
+      });
       .where("usuario_id", "==", usuarioIdUrl)
       .onSnapshot((snapshot) => {
         listaContainer.innerHTML = "";
