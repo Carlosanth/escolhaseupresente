@@ -10,7 +10,7 @@ html, body {
 
 body {
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-  background-color: #fcfbf8; 
+  background-color: var(--cor-principal) !important; 
   background-image: url("https://www.transparenttextures.com/patterns/cream-paper.png"); 
   padding: 0; 
   margin: 0;
