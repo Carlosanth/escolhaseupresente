@@ -56,15 +56,16 @@
     }
 
     db.collection("configuracoes").doc(usuarioIdUrl)
-      .onSnapshot((doc)) => {
-        if (doc.exists && doc.data() .cor_tema) {
-          const corDoTema = doc.data() .cor_tema;
+      .onSnapshot((doc) => {
+        if (doc.exists && doc.data().cor_tema) {
+          const corDoTema = doc.data().cor_tema;
           document.documentElement.style.setProperty('--cor-principal', corDoTema);
         }
       }, (error) => {
         console.error("Erro ao carregar tema", error);
       });
-      .where("usuario_id", "==", usuarioIdUrl)
+
+    db.collection("produtos").where("usuario_id", "==", usuarioIdUrl)
       .onSnapshot((snapshot) => {
         listaContainer.innerHTML = "";
 
