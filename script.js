@@ -65,7 +65,7 @@
         console.error("Erro ao carregar tema", error);
       });
 
-    db.collection("produtos").where("usuario_id", "==", usuarioIdUrl)
+    db.collection("produtos_teste").where("usuario_id", "==", usuarioIdUrl)
       .onSnapshot((snapshot) => {
         listaContainer.innerHTML = "";
 
