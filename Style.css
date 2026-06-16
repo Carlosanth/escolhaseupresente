@@ -1,9 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
-:root {
-  --bg-image-url: 'https://i.ibb.co/YnVcFm2/Nos.png';
-}
-
 * {
   box-sizing: border-box;
 } 
@@ -14,7 +10,7 @@ html, body {
 
 body {
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-  background-color: var(--cor-principal) !important; 
+  background-color: var(--cor-principal, #fff); 
   background-image: url("https://www.transparenttextures.com/patterns/cream-paper.png"); 
   padding: 0; 
   margin: 0;
@@ -52,9 +48,7 @@ body {
   transform: translateY(-1px);
 }
 
-/* ==========================================================
-   📌 PADDING DINÂMICO DO WRAPPER (DEITADO VS EM PÉ)
-   ========================================================== */
+
 .wrapper-produtos {
   padding: 8px 11px; 
   transition: padding 0.3s ease;
@@ -153,11 +147,9 @@ body {
   color: #111;
 } 
 
-/* ==========================================================
-   🔄 REGRA MÁGICA: QUANDO A VISUALIZAÇÃO VERTICAL FOR ATIVADA
-   ========================================================== */
+
 #lista-produtos.visualizacao-vertical {
-  gap: 15px; /* Reduzido para os cartões ficarem bem próximos */
+  gap: 15px;
 }
 
 #lista-produtos.visualizacao-vertical .cartao-produto {
@@ -397,12 +389,13 @@ body {
   }
 }
 
-/* TELA DE BOAS-VINDAS */
+
 .tela-boas-vindas {
   position: relative;
   width: 100%;
   height: 100vh;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url(var(--bg-image-url));
+  /* Usa a imagem dinâmica injetada pelo JS. Se não houver, usa 'Nos.jpeg' por padrão */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), var(--imagem-fundo, url('Nos.jpeg'));
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -410,6 +403,7 @@ body {
   justify-content: center;
   align-items: center;
   text-align: center;
+  transition: background-image 0.4s ease; /* Transição suave na troca */
 }
 
 .conteudo-boas-vindas {
@@ -453,6 +447,6 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
 }

@@ -55,14 +55,26 @@
       return;
     }
 
+    // ==========================================================
+    // 🎨 ESCUTA EM TEMPO REAL: CORES E IMAGEM DE BOAS-VINDAS
+    // ==========================================================
     db.collection("configuracoes").doc(usuarioIdUrl)
       .onSnapshot((doc) => {
-        if (doc.exists && doc.data().cor_tema) {
-          const corDoTema = doc.data().cor_tema;
-          document.documentElement.style.setProperty('--cor-principal', corDoTema);
+        if (doc.exists) {
+          const dados = doc.data();
+          
+          // Aplica a cor do tema, se configurada
+          if (dados.cor_tema) {
+            document.documentElement.style.setProperty('--cor-principal', dados.cor_tema);
+          }
+          
+          // NOVO: Aplica a imagem de fundo na tela de boas-vindas, se configurada
+          if (dados.imagem_fundo) {
+            document.documentElement.style.setProperty('--imagem-fundo', `url('${dados.imagem_fundo}')`);
+          }
         }
       }, (error) => {
-        console.error("Erro ao carregar tema", error);
+        console.error("Erro ao carregar tema ou imagem de fundo", error);
       });
 
     db.collection("produtos_teste").where("usuario_id", "==", usuarioIdUrl)
@@ -78,7 +90,6 @@
           const produto = doc.data();
           const id = doc.id;
 
-          // IMPORTANTE: Garantir que os campos no banco usem as chaves 'disponivel', 'imagem', 'titulo' e 'preco'
           const textoDisponibilidade = produto.disponivel ? "Disponível" : "Indisponível";
           const classeDisponibilidade = produto.disponivel ? "disponivel" : "indisponivel";
           
@@ -89,7 +100,6 @@
             mainConteudo.classList.add('item-esgotado');
           }
 
-          // Mantido 100% o seu HTML interno e suas classes originais do Style.css
           mainConteudo.innerHTML = `
             <section class="cartao-produto">
               <div class="imagem-produto">
