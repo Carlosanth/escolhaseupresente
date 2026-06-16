@@ -53,11 +53,11 @@
                 <div class="painel-de-imagens" style="margin-bottom: 20px;">
                     <div class="painel-incial">
                         <div class="quadrado">
-                            <img src="7.png" alt="pessoas">
+                            <img src="https://i.ibb.co/JwYCNmLv/aniversario.png" alt="pessoas">
                             <span>Aniversario</span>
                         </div>
                         <div class="quadrado">
-                            <img src="6.png" alt="casamento"">
+                            <img src="https://i.ibb.co/4ZSTVCT1/casamento.png" alt="casamento"">
                             <span>Casamento</span>
                         </div>
                     </div>
@@ -474,6 +474,35 @@
     });
 
     // ================================================================
+    // SELECIONAR IMAGEM AO CLICAR NOS QUADRADOS
+    // ================================================================
+    let imagemSelecionada = ''; // Vai ser preenchido ao carregar
+
+    const quadrados = document.querySelectorAll('.quadrado');
+    
+    // Define a imagem padrão como a primeira
+    if (quadrados.length > 0) {
+        const imgPrimeira = quadrados[0].querySelector('img');
+        imagemSelecionada = imgPrimeira.src;
+        quadrados[0].classList.add('selecionado');
+    }
+
+    quadrados.forEach((quadrado, index) => {
+        quadrado.addEventListener('click', () => {
+            // Remove a classe 'selecionado' de todos
+            quadrados.forEach(q => q.classList.remove('selecionado'));
+            // Adiciona ao clicado
+            quadrado.classList.add('selecionado');
+            
+            // Atualiza a imagem selecionada com o link do src
+            const img = quadrado.querySelector('img');
+            imagemSelecionada = img.src;
+            
+            console.log('Imagem selecionada:', imagemSelecionada);
+        });
+    });
+
+    // ================================================================
     // LOGICA PARA SALVAR A COR DO TEMA NO FIREBASE (ADICIONADO AQUI)
     // ================================================================
     const btnSalvarPreferencias = document.getElementById('btn-salvar');
@@ -494,20 +523,21 @@
             btnSalvarPreferencias.disabled = true;
 
             try {
-                // Grava ou atualiza a cor usando o UID do usuário como ID do documento
+                // Grava ou atualiza a cor e imagem usando o UID do usuário como ID do documento
                 await setDoc(doc(db, "configuracoes", usuarioAtualUid), {
-                    cor_tema: corEscolhida
+                    cor_tema: corEscolhida,
+                    imagem_background: imagemSelecionada
                 }, { merge: true });
 
-                alert('Preferências de cor salvas com sucesso!');
+                alert('Preferências salvas com sucesso!');
                 
                 // Fecha a janela de temas automaticamente
                 const areaTemas = document.querySelector('.area-temas');
                 if (areaTemas) areaTemas.classList.remove('ativo');
 
             } catch (error) {
-                console.error("Erro ao salvar a cor do tema no Firestore:", error);
-                alert('Erro ao salvar as preferências de cor.');
+                console.error("Erro ao salvar as preferências no Firestore:", error);
+                alert('Erro ao salvar as preferências.');
             } finally {
                 btnSalvarPreferencias.innerHTML = textoOriginal;
                 btnSalvarPreferencias.disabled = false;
