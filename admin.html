@@ -757,6 +757,12 @@
             <button class="nav-item" data-secao="saques">
                 <span class="icon">💸</span><span>Saques</span>
             </button>
+            <button class="nav-item" data-secao="relatorio">
+                <span class="icon">📋</span><span>Relatório</span>
+            </button>
+            <button class="nav-item" data-secao="relatorio">
+                <span class="icon">📋</span><span>Relatório</span>
+            </button>
             <button class="nav-item" data-secao="configuracoes">
                 <span class="icon">⚙️</span><span>Configurações</span>
             </button>
@@ -867,6 +873,61 @@
             </div>
         </section>
 
+        <!-- ===== SEÇÃO: RELATÓRIO ===== -->
+        <section class="secao" id="secao-relatorio">
+            <div class="card-tabela">
+                <div class="card-tabela-header">
+                    <h3>📋 Relatório de Presentes</h3>
+                    <button id="btnExportarRelatorio" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;padding:6px 14px;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;">⬇️ Exportar CSV</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Presente</th>
+                            <th>Convidado</th>
+                            <th>Valor original</th>
+                            <th>Quem pagou taxa</th>
+                            <th>Taxa (%)</th>
+                            <th>Meu lucro</th>
+                            <th>Repasse cliente</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaRelatorio">
+                        <tr class="loading-row"><td colspan="9">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===== SEÇÃO: RELATÓRIO ===== -->
+        <section class="secao" id="secao-relatorio">
+            <div class="card-tabela">
+                <div class="card-tabela-header">
+                    <h3>📋 Todos os presentes recebidos</h3>
+                    <button id="btnExportarRelatorio" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);color:#c4b5fd;padding:6px 14px;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;">⬇️ Exportar CSV</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Presente</th>
+                            <th>Convidado</th>
+                            <th>Valor original</th>
+                            <th>Quem pagou taxa</th>
+                            <th>Taxa (meu lucro)</th>
+                            <th>Cliente recebeu</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaRelatorio">
+                        <tr class="loading-row"><td colspan="8">Carregando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <!-- ===== SEÇÃO: CONFIGURAÇÕES ===== -->
         <section class="secao" id="secao-configuracoes">
             <div class="taxa-config-card">
@@ -922,7 +983,7 @@
     const auth = getAuth(app);
 
     // UID do admin — só este e-mail pode acessar
-    const ADMIN_EMAIL = "carlosantonio.d.m.o@gmail.com"; // ← troque pelo seu e-mail
+    const ADMIN_EMAIL = "SEU_EMAIL_ADMIN@gmail.com"; // ← troque pelo seu e-mail
 
     let taxaGlobal = 2.8;
 
@@ -1008,7 +1069,9 @@
         'visao-geral':    ['Visão Geral', 'Dados em tempo real'],
         'clientes':       ['Clientes', 'Todos os usuários cadastrados'],
         'saques':         ['Solicitações de Saque', 'Gerencie os repasses'],
-        'configuracoes':  ['Configurações', 'Parâmetros globais da plataforma']
+        'relatorio':      ['Relatório de Presentes', 'Histórico completo com dados de taxa'],
+        'configuracoes':  ['Configurações', 'Parâmetros globais da plataforma'],
+        'relatorio':      ['Relatório de Presentes', 'Comprovação detalhada de cada transação']
     };
 
     document.querySelectorAll('.nav-item').forEach(btn => {
@@ -1081,6 +1144,7 @@
 
             atualizarVisaoGeral();
             atualizarTabelaClientes();
+            atualizarRelatorio();
         });
     }
 
@@ -1225,6 +1289,70 @@
     });
 
     // ================================================================
+    // RELATÓRIO
+    // ================================================================
+    function atualizarRelatorio() {
+        const entregues = todosOsProdutos
+            .filter(p => p.disponivel === false && p.presenteado_por)
+            .sort((a, b) => (b.data_presente?.seconds || 0) - (a.data_presente?.seconds || 0));
+
+        const tbody = document.getElementById('tabelaRelatorio');
+        if (!tbody) return;
+
+        if (entregues.length === 0) {
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="9">Nenhum presente recebido ainda.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = entregues.map(p => {
+            const orig        = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+            const taxaDesse   = p.taxa_quem_paga || 'convidado';
+            const taxaPerc    = parseFloat(p.taxa_percentual || taxaGlobal);
+            const lucro       = Math.round(orig * taxaPerc / 100);
+            const repasse     = taxaDesse === 'convidado' ? orig : orig - lucro;
+            const email       = todosOsUsuarios[p.usuario_id] || p.usuario_id?.slice(0,10) + '...';
+            const chipTaxa    = taxaDesse === 'convidado'
+                ? '<span class="chip chip-amarelo">Convidado</span>'
+                : '<span class="chip chip-roxo">Cliente</span>';
+
+            return `<tr>
+                <td><strong>${email}</strong></td>
+                <td>${p.titulo || '—'}</td>
+                <td>${p.presenteado_por || '—'}</td>
+                <td>${brl(orig)}</td>
+                <td>${chipTaxa}</td>
+                <td>${taxaPerc}%</td>
+                <td><span class="chip chip-verde">${brl(lucro)}</span></td>
+                <td>${brl(repasse)}</td>
+                <td>${fmtDate(p.data_presente)}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    document.getElementById('btnExportarRelatorio').addEventListener('click', () => {
+        const entregues = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
+        if (entregues.length === 0) { return; }
+
+        const header = '"Cliente","Presente","Convidado","Valor Original","Quem Pagou Taxa","Taxa","Meu Lucro","Cliente Recebeu","Data"';
+        const linhas = entregues.map(p => {
+            const orig      = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+            const taxaDesse = p.taxa_quem_paga || 'convidado';
+            const taxaPerc  = parseFloat(p.taxa_percentual || taxaGlobal);
+            const lucro     = Math.round(orig * taxaPerc / 100);
+            const repasse   = taxaDesse === 'convidado' ? orig : orig - lucro;
+            const email     = todosOsUsuarios[p.usuario_id] || p.usuario_id;
+            return `"${email}","${p.titulo || ''}","${p.presenteado_por || ''}","${brl(orig)}","${taxaDesse}","${taxaPerc}%","${brl(lucro)}","${brl(repasse)}","${fmtDate(p.data_presente)}"`;
+        });
+
+        const csv = [header, ...linhas].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url; a.download = 'relatorio-presentes.csv'; a.click();
+        URL.revokeObjectURL(url);
+    });
+
+    // ================================================================
     // SAQUES
     // ================================================================
     function renderizarSaques(saques) {
@@ -1281,6 +1409,7 @@
             </div>`;
         }).join('');
     }
+
 </script>
 
 </body>
