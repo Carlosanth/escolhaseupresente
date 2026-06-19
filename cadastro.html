@@ -349,6 +349,416 @@
             padding: 30px 0;
         }
 
+        /* ===== SALDO + SAQUE ===== */
+        .saldo-bloco {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            flex-wrap: nowrap;
+        }
+        .saldo-card {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            flex: 1;
+            min-width: 0;
+        }
+        .saldo-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.45);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .saldo-valor {
+            font-size: 20px;
+            font-weight: 700;
+            color: #34d399;
+        }
+        .saldo-sub {
+            font-size: 10px;
+            color: rgba(255,255,255,0.3);
+        }
+        .btn-solicitar-saque {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            background: rgba(52,211,153,0.15);
+            border: 1px solid rgba(52,211,153,0.3);
+            color: #34d399;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-solicitar-saque:hover { background: rgba(52,211,153,0.25); }
+
+        /* ===== ITEM VENDIDO (bloqueado) ===== */
+        .base.vendido {
+            opacity: 0.85;
+        }
+        .chip-vendido {
+            padding: 4px 10px;
+            border-radius: 50px;
+            background: rgba(245,158,11,0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245,158,11,0.3);
+            min-width: 80px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .btn-bloqueado {
+            padding: 4px 10px;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.04);
+            color: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.07);
+            min-width: 80px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: not-allowed;
+            user-select: none;
+        }
+
+        /* ===== ITEM VENDIDO ===== */
+        .base.vendido {
+            opacity: 0.75;
+            border-color: rgba(245,158,11,0.25);
+            background: rgba(245,158,11,0.04);
+        }
+        .chip-vendido {
+            padding: 4px 10px;
+            border-radius: 50px;
+            background: rgba(245,158,11,0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245,158,11,0.3);
+            min-width: 80px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .btn-bloqueado {
+            padding: 4px 10px;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.04);
+            color: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.08);
+            min-width: 80px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: not-allowed;
+            user-select: none;
+        }
+
+        /* ===== SALDO E SAQUE ===== */
+        .saldo-saque-wrap {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .saldo-card {
+            flex: 1 1 140px;
+            background: rgba(16,185,129,0.07);
+            border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .saldo-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .saldo-valor {
+            font-size: 20px;
+            font-weight: 700;
+            color: #34d399;
+        }
+        .btn-solicitar-saque {
+            flex: 1 1 140px;
+            background: rgba(167,139,250,0.1);
+            border: 1px solid rgba(167,139,250,0.3);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #a78bfa;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-solicitar-saque:hover { background: rgba(167,139,250,0.2); }
+
+        /* ===== MODAL SAQUE ===== */
+        .modal-saque {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+        }
+        .modal-saque-content {
+            background: #0f1420;
+            border: 1px solid rgba(167,139,250,0.2);
+            border-radius: 20px;
+            padding: 28px 24px;
+            width: min(380px, 94vw);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+            animation: popIn 0.2s ease;
+        }
+        .modal-saque-content h4 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .modal-saque-content p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.45);
+            margin-bottom: 18px;
+        }
+        .modal-saque-content label {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.55);
+            display: block;
+            margin-bottom: 5px;
+            margin-left: 4px;
+        }
+        .modal-saque-content input {
+            display: block;
+            width: 100%;
+            padding: 11px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 12px;
+            outline: none;
+            font-family: 'Arial', sans-serif;
+        }
+        .modal-saque-content input:focus {
+            border-color: rgba(167,139,250,0.5);
+        }
+        .modal-saque-aviso {
+            font-size: 12px;
+            color: #f59e0b;
+            background: rgba(245,158,11,0.08);
+            border: 1px solid rgba(245,158,11,0.2);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 16px;
+        }
+        .modal-saque-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-saque-confirmar {
+            flex: 1;
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 12px;
+            cursor: pointer;
+        }
+        .btn-saque-cancelar {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            color: rgba(255,255,255,0.5);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 12px 20px;
+            cursor: pointer;
+        }
+
+        /* ===== CHIP VENDIDO / BOTÃO BLOQUEADO ===== */
+        .chip-vendido {
+            padding: 4px 10px;
+            border-radius: 50px;
+            background: rgba(245,158,11,0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245,158,11,0.3);
+            min-width: 80px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .btn-bloqueado {
+            padding: 4px 10px;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.04);
+            color: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.07);
+            min-width: 80px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: not-allowed;
+            user-select: none;
+        }
+
+        /* ===== SALDO + SAQUE ===== */
+        .saldo-bloco {
+            width: 100%;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .saldo-card {
+            flex: 1 1 120px;
+            background: rgba(16,185,129,0.08);
+            border: 1px solid rgba(16,185,129,0.2);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .saldo-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.45);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .saldo-valor {
+            font-size: 18px;
+            font-weight: 700;
+            color: #34d399;
+        }
+        .btn-solicitar-saque {
+            flex: 1 1 120px;
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 12px 14px;
+            transition: opacity 0.2s;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-solicitar-saque:hover { opacity: 0.85; }
+        .btn-solicitar-saque:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ===== MODAL SAQUE ===== */
+        .modal-saque {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-saque.ativo { display: flex; }
+        .modal-saque-content {
+            background: #120a2e;
+            border: 1px solid rgba(167,139,250,0.25);
+            border-radius: 20px;
+            padding: 28px 24px;
+            width: min(400px, 94vw);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+            animation: popIn 0.2s ease;
+        }
+        .modal-saque-content h4 {
+            font-size: 17px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .modal-saque-content p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 18px;
+        }
+        .modal-saque-content input {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.13);
+            background: rgba(255,255,255,0.07);
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            margin-bottom: 12px;
+            font-family: 'Arial', sans-serif;
+        }
+        .modal-saque-content input::placeholder { color: rgba(255,255,255,0.25); }
+        .modal-saque-content input:focus {
+            border-color: rgba(167,139,250,0.6);
+            box-shadow: 0 0 0 3px rgba(167,139,250,0.12);
+        }
+        .modal-saque-aviso {
+            font-size: 12px;
+            color: #f59e0b;
+            background: rgba(245,158,11,0.1);
+            border: 1px solid rgba(245,158,11,0.2);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+        }
+        .modal-saque-acoes {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-saque-confirmar {
+            flex: 1;
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 11px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-saque-confirmar:hover { opacity: 0.85; }
+        .btn-saque-cancelar {
+            flex: 1;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px;
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 11px;
+            cursor: pointer;
+        }
+
         /* ===== SCROLLBAR CUSTOMIZADA ===== */
         #registros::-webkit-scrollbar {
             width: 4px;
@@ -413,9 +823,16 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 10px;
             margin-bottom: 14px;
+        }
+        .taxa-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .taxa-toggle-wrap {
+            flex-shrink: 0;
         }
         .taxa-info {
             display: flex;
@@ -433,6 +850,9 @@
         .taxa-subtitulo {
             font-size: 11px;
             color: rgba(255,255,255,0.4);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .taxa-toggle-wrap {
             display: flex;
@@ -593,6 +1013,17 @@
                     </div>
                 </div>
 
+                <!-- SALDO DISPONÍVEL + SOLICITAR SAQUE -->
+                <div class="saldo-bloco" id="saldoBloco" style="display:none;">
+                    <div class="saldo-card">
+                        <span class="saldo-label">💰 Saldo disponível</span>
+                        <span class="saldo-valor" id="saldoDisponivel">R$ 0,00</span>
+                    </div>
+                    <button class="btn-solicitar-saque" id="btnSolicitarSaque">
+                        💸 Solicitar Saque
+                    </button>
+                </div>
+
                 <!-- INTERRUPTOR DE TAXA -->
                 <div class="taxa-bloco" id="taxaBloco" style="display:none;">
                     <div class="taxa-info">
@@ -609,7 +1040,56 @@
                     </div>
                 </div>
 
+                <!-- SALDO DISPONÍVEL + SOLICITAR SAQUE -->
+                <div class="saldo-saque-wrap" id="saldoSaqueWrap" style="display:none;">
+                    <div class="saldo-card">
+                        <span class="saldo-label">💰 Saldo disponível</span>
+                        <span class="saldo-valor" id="saldoDisponivel">R$ 0,00</span>
+                    </div>
+                    <button class="btn-solicitar-saque" id="btnSolicitarSaque">
+                        💸 Solicitar Saque
+                    </button>
+                </div>
+
                 <div id="registros" style="width: 100%; max-height: 480px; overflow-y: auto; padding-right: 4px;"></div>
+
+                <!-- SALDO + SAQUE -->
+                <div class="saldo-bloco" id="saldoBloco" style="display:none;">
+                    <div class="saldo-card">
+                        <span class="saldo-label">💰 Saldo disponível</span>
+                        <span class="saldo-valor" id="saldoDisponivel">R$ 0,00</span>
+                        <span class="saldo-sub">presentes recebidos menos taxa</span>
+                    </div>
+                    <button class="btn-solicitar-saque" id="btnSolicitarSaque">
+                        Solicitar Saque
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SOLICITAR SAQUE -->
+    <div id="modalSaque" class="modal-confirm">
+        <div class="modal-confirm-content" style="max-width:380px;">
+            <div class="modal-icon">💸</div>
+            <h4>Solicitar Saque</h4>
+            <p style="margin-bottom:16px;">Preencha seus dados. O valor será enviado em até <strong>24h</strong>.</p>
+            <div style="text-align:left;">
+                <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px;margin-left:4px;">Seu nome completo</label>
+                <input type="text" id="saqueNome" placeholder="Nome completo" style="display:block;width:100%;padding:11px 16px;border-radius:50px;border:1px solid #ddd;font-size:14px;margin-bottom:10px;box-sizing:border-box;">
+                <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px;margin-left:4px;">CPF (chave PIX)</label>
+                <input type="text" id="saqueCpf" placeholder="000.000.000-00" style="display:block;width:100%;padding:11px 16px;border-radius:50px;border:1px solid #ddd;font-size:14px;margin-bottom:10px;box-sizing:border-box;">
+                <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px;margin-left:4px;">WhatsApp para contato</label>
+                <input type="text" id="saqueWhatsapp" placeholder="(85) 99999-9999" style="display:block;width:100%;padding:11px 16px;border-radius:50px;border:1px solid #ddd;font-size:14px;margin-bottom:10px;box-sizing:border-box;">
+                <div style="background:#f8f9fa;border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+                    <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:4px;">VALOR A RECEBER</div>
+                    <div style="font-size:20px;font-weight:700;color:#2e7d32;" id="saqueValorModal">R$ 0,00</div>
+                </div>
+                <p style="font-size:11px;color:#999;text-align:center;">⏱ Prazo de até 24h para o envio após confirmação.</p>
+            </div>
+            <div class="modal-confirm-actions" style="margin-top:14px;">
+                <button class="btn-confirm-nao" id="btnCancelarSaque">Cancelar</button>
+                <button class="btn-confirm-sim" id="btnConfirmarSaque" style="background:#2e7d32;">Solicitar</button>
             </div>
         </div>
     </div>
@@ -663,6 +1143,43 @@
         </div>
     </div>
 
+    <!-- MODAL SOLICITAR SAQUE -->
+    <div class="modal-saque" id="modalSaque">
+        <div class="modal-saque-content">
+            <h4>💸 Solicitar Saque</h4>
+            <p>Informe seus dados para receber o repasse via PIX.</p>
+            <label>Seu nome completo</label>
+            <input type="text" id="saqueNome" placeholder="Nome completo">
+            <label>CPF (chave PIX)</label>
+            <input type="text" id="saqueCpf" placeholder="000.000.000-00">
+            <label>WhatsApp</label>
+            <input type="text" id="saqueWhatsapp" placeholder="(85) 99999-9999">
+            <div class="modal-saque-aviso">
+                ⏱️ O prazo para recebimento é de até <strong>24 horas</strong> após a solicitação.
+            </div>
+            <div class="modal-saque-actions">
+                <button class="btn-saque-cancelar" id="btnSaqueCancelar">Cancelar</button>
+                <button class="btn-saque-confirmar" id="btnSaqueConfirmar">Solicitar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SAQUE -->
+    <div class="modal-saque" id="modalSaque">
+        <div class="modal-saque-content">
+            <h4>💸 Solicitar Saque</h4>
+            <p>Informe seus dados para receber via PIX. O repasse será feito em até 24h.</p>
+            <input type="text" id="saqueNome" placeholder="Seu nome completo">
+            <input type="text" id="saqueCpf" placeholder="CPF ou chave PIX">
+            <input type="text" id="saqueWhatsapp" placeholder="WhatsApp (com DDD)">
+            <div class="modal-saque-aviso">⏱️ O repasse será realizado em até 24 horas após a solicitação.</div>
+            <div class="modal-saque-acoes">
+                <button class="btn-saque-cancelar" id="btnSaqueCancelar">Cancelar</button>
+                <button class="btn-saque-confirmar" id="btnSaqueConfirmar">Solicitar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- CONTAINER DE TOASTS -->
     <div id="toast-container"></div>
 
@@ -685,7 +1202,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, deleteDoc, updateDoc, getDocs, getDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, deleteDoc, updateDoc, getDocs, getDoc, collection, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -1002,6 +1519,8 @@
             if (user) {
                 usuarioAtualUid = user.uid;
                 userLogadoEmail.textContent = user.email;
+                // Salva e-mail nas configurações para o painel admin conseguir identificar o cliente
+                setDoc(doc(db, "configuracoes", user.uid), { email: user.email }, { merge: true }).catch(() => {});
                 escutarProdutosDoBanco();
                 escutarCategoriasDoBanco();
                 carregarImagensCarrosel();
@@ -1178,6 +1697,7 @@
                     document.getElementById('resumoCards').style.display = 'flex';
                     document.getElementById('taxaBloco').style.display = 'flex';
                     atualizarResumo();
+                    atualizarSaldo();
                     todosOsProdutos.forEach(p => renderizarItemNaTela(p, p.id));
                 }
             });
@@ -1192,13 +1712,33 @@
 
         function atualizarResumo() {
             const qtd = todosOsProdutos.length;
-            // Soma sempre pelo preco_original_centavos (valor real cadastrado)
-            // Se não tiver o campo original ainda, usa preco_centavos como fallback
+
+            // Total dos itens disponíveis (previsão)
             let totalOriginalCentavos = 0;
             todosOsProdutos.forEach(p => {
-                const c = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-                totalOriginalCentavos += c;
+                if (p.disponivel !== false) {
+                    totalOriginalCentavos += parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                }
             });
+
+            // Saldo = soma dos itens VENDIDOS respeitando taxa de cada produto
+            let saldoCentavos = 0;
+            todosOsProdutos.forEach(p => {
+                if (p.disponivel === false && p.presenteado_por) {
+                    const orig = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                    const taxaDesse = p.taxa_quem_paga || taxaQuemPaga;
+                    saldoCentavos += taxaDesse === 'convidado'
+                        ? orig
+                        : Math.round(orig * (1 - TAXA_PERCENTUAL / 100));
+                }
+            });
+
+            const vendidos = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
+            const saldoWrap = document.getElementById('saldoSaqueWrap');
+            if (saldoWrap) {
+                saldoWrap.style.display = vendidos.length > 0 ? 'flex' : 'none';
+                document.getElementById('saldoDisponivel').textContent = formatarBRL(saldoCentavos);
+            }
 
             document.getElementById('resumoQtd').textContent = qtd;
 
@@ -1209,14 +1749,12 @@
             const taxaSubtitulo  = document.getElementById('taxaSubtitulo');
 
             if (taxaQuemPaga === 'convidado') {
-                // Convidado paga: cliente recebe o valor cheio
                 receberEl.textContent = formatarBRL(totalOriginalCentavos);
                 receberLabel.textContent = '✅ Você receberá';
                 taxaSubtitulo.textContent = 'Convidado paga +' + TAXA_PERCENTUAL + '% sobre cada item';
                 labelConvidado.classList.add('ativo');
                 labelCliente.classList.remove('ativo');
             } else {
-                // Cliente paga: recebe descontado 2,8%
                 const totalReceber = Math.round(totalOriginalCentavos * (1 - TAXA_PERCENTUAL / 100));
                 receberEl.textContent = formatarBRL(totalReceber);
                 receberLabel.textContent = '✅ Você receberá';
@@ -1237,6 +1775,9 @@
                     taxaQuemPaga = snap.data().taxa_quem_paga;
                     document.getElementById('toggleTaxa').checked = taxaQuemPaga === 'cliente';
                     atualizarResumo();
+                    // Re-renderiza itens para exibir linha correta ao recarregar
+                    containerRegistros.innerHTML = '';
+                    todosOsProdutos.forEach(p => renderizarItemNaTela(p, p.id));
                 }
             } catch(e) { console.error("Erro ao carregar taxa:", e); }
         }
@@ -1295,9 +1836,11 @@
             const originalCentavos = parseInt(produto.preco_original_centavos || produto.preco_centavos || 0);
             const precoOriginalFmt = (originalCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            // Segunda linha: o que o convidado paga OU o que o cliente recebe
+            // Segunda linha: usa taxa_quem_paga do próprio produto (fonte de verdade no banco)
+            // Isso garante que ao recarregar a página o valor exibido é sempre o correto
+            const taxaDoProduto = produto.taxa_quem_paga || taxaQuemPaga;
             let linhaExtra = '';
-            if (taxaQuemPaga === 'convidado') {
+            if (taxaDoProduto === 'convidado') {
                 const cobrado = Math.round(originalCentavos * (1 + TAXA_PERCENTUAL / 100));
                 const cobradoFmt = (cobrado / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 linhaExtra = `<small style="display:block;font-size:11px;color:#f9a825;">Convidado paga: ${cobradoFmt}</small>`;
@@ -1307,46 +1850,68 @@
                 linhaExtra = `<small style="display:block;font-size:11px;color:#81c784;">Você recebe: ${recebeFmt}</small>`;
             }
 
+            const foiVendido = produto.disponivel === false && produto.presenteado_por;
+            if (foiVendido) novaBaseDiv.classList.add('vendido');
+
+            // Linha extra só aparece em itens NÃO vendidos
+            const linhaExtraFinal = foiVendido
+                ? `<small style="display:block;font-size:11px;color:#f59e0b;">🎁 Presenteado por: ${produto.presenteado_por}</small>`
+                : linhaExtra;
+
             novaBaseDiv.innerHTML = `
                 <div class="base-card">
                     <img src="${imagemExibicao}" alt="${tituloExibicao}" loading="lazy">
                     <div class="T-Produtos">
                         <strong>${tituloExibicao}</strong>
                         <span>${precoOriginalFmt}</span>
-                        ${linhaExtra}
+                        ${linhaExtraFinal}
                         <small style="display:block;font-size:11px;opacity:0.6;">Cat: ${categoriaExibicao}</small>
                     </div>
                 </div>
                 <div class="disponibilidade">
-                    <span class="disp" style="color:${corStatus};font-weight:bold;">${textoStatus}</span>
-                    <span class="btn-editar-item">✏️ Editar</span>
-                    <span class="excl">🗑️ Excluir</span>
+                    ${foiVendido
+                        ? `<span class="chip-vendido">🎁 Vendido</span>
+                           <span class="btn-bloqueado">✏️ Editar</span>
+                           <span class="btn-bloqueado">🗑️ Excluir</span>`
+                        : `<span class="disp">${textoStatus}</span>
+                           <span class="btn-editar-item">✏️ Editar</span>
+                           <span class="excl">🗑️ Excluir</span>`
+                    }
                 </div>
             `;
 
-            // Botão excluir
-            novaBaseDiv.querySelector('.excl').addEventListener('click', () => {
-                abrirModalConfirm({
-                    icone:      '🗑️',
-                    titulo:     'Excluir item?',
-                    texto:      `Tem certeza que deseja excluir "${tituloExibicao}"? Esta ação não pode ser desfeita.`,
-                    textoBotao: 'Excluir',
-                    callback:   async () => {
-                        try {
-                            await deleteDoc(doc(db, "produtos_teste", documentoId));
-                            mostrarToast(`"${tituloExibicao}" excluído.`, 'normal', '🗑️');
-                        } catch (error) {
-                            console.error("Erro ao deletar item:", error);
-                            mostrarToast('Não foi possível excluir o item.', 'erro', '❌');
-                        }
-                    }
-                });
+            // Botões bloqueados — toast de aviso
+            novaBaseDiv.querySelectorAll('.btn-bloqueado').forEach(btn => {
+                btn.addEventListener('click', () => mostrarToast('Item vendido — não pode ser alterado.', 'aviso', '🔒'));
             });
 
-            // Botão editar
-            novaBaseDiv.querySelector('.btn-editar-item').addEventListener('click', () => {
-                abrirModalEditar(produto, documentoId);
-            });
+            // Botão excluir — só se existir (não vendido)
+            const btnExcl = novaBaseDiv.querySelector('.excl');
+            if (btnExcl) {
+                btnExcl.addEventListener('click', () => {
+                    abrirModalConfirm({
+                        icone:      '🗑️',
+                        titulo:     'Excluir item?',
+                        texto:      `Tem certeza que deseja excluir "${tituloExibicao}"? Esta ação não pode ser desfeita.`,
+                        textoBotao: 'Excluir',
+                        callback:   async () => {
+                            try {
+                                await deleteDoc(doc(db, "produtos_teste", documentoId));
+                                mostrarToast(`"${tituloExibicao}" excluído.`, 'normal', '🗑️');
+                            } catch (error) {
+                                console.error("Erro ao deletar item:", error);
+                                mostrarToast('Não foi possível excluir o item.', 'erro', '❌');
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Botão editar — só se existir (não vendido)
+            const btnEdit = novaBaseDiv.querySelector('.btn-editar-item');
+            if (btnEdit) {
+                btnEdit.addEventListener('click', () => abrirModalEditar(produto, documentoId));
+            }
 
             containerRegistros.appendChild(novaBaseDiv);
         }
@@ -1471,6 +2036,151 @@
                 linkDownload.click();
             } else {
                 mostrarToast('Aguarde o QR Code carregar.', 'aviso', '⏳');
+            }
+        });
+
+        // ================================================================
+        // MODAL SOLICITAR SAQUE
+        // ================================================================
+        document.getElementById('btnSolicitarSaque').addEventListener('click', () => {
+            document.getElementById('modalSaque').style.display = 'flex';
+            document.getElementById('saqueNome').focus();
+        });
+
+        document.getElementById('btnSaqueCancelar').addEventListener('click', () => {
+            document.getElementById('modalSaque').style.display = 'none';
+        });
+
+        document.getElementById('btnSaqueConfirmar').addEventListener('click', async () => {
+            const nome      = document.getElementById('saqueNome').value.trim();
+            const cpf       = document.getElementById('saqueCpf').value.trim();
+            const whatsapp  = document.getElementById('saqueWhatsapp').value.trim();
+
+            if (!nome)     { mostrarToast('Informe seu nome.', 'aviso', '⚠️'); return; }
+            if (!cpf)      { mostrarToast('Informe o CPF/PIX.', 'aviso', '⚠️'); return; }
+            if (!whatsapp) { mostrarToast('Informe o WhatsApp.', 'aviso', '⚠️'); return; }
+
+            const btn = document.getElementById('btnSaqueConfirmar');
+            btn.textContent = 'Enviando...';
+            btn.disabled = true;
+
+            // Calcular totais para o admin
+            let totalCentavos = 0, saldoCentavos = 0;
+            todosOsProdutos.forEach(p => {
+                if (p.disponivel === false && p.presenteado_por) {
+                    const orig = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                    const taxaDesse = p.taxa_quem_paga || taxaQuemPaga;
+                    totalCentavos += orig;
+                    saldoCentavos += taxaDesse === 'convidado'
+                        ? orig
+                        : Math.round(orig * (1 - TAXA_PERCENTUAL / 100));
+                }
+            });
+            const lucroCentavos = totalCentavos - saldoCentavos;
+
+            try {
+                const saqueId = `${usuarioAtualUid}-${Date.now()}`;
+                await setDoc(doc(db, "saques", saqueId), {
+                    usuario_id:        usuarioAtualUid,
+                    nome,
+                    cpf,
+                    pix:               cpf,
+                    whatsapp,
+                    total_centavos:    totalCentavos.toString(),
+                    lucro_centavos:    lucroCentavos.toString(),
+                    repasse_centavos:  saldoCentavos.toString(),
+                    status:            'pendente',
+                    data_solicitacao:  serverTimestamp()
+                });
+                document.getElementById('modalSaque').style.display = 'none';
+                document.getElementById('saqueNome').value = '';
+                document.getElementById('saqueCpf').value = '';
+                document.getElementById('saqueWhatsapp').value = '';
+                mostrarToast('Saque solicitado! Prazo: até 24h. ✅', 'sucesso', '💸');
+            } catch(e) {
+                console.error(e);
+                mostrarToast('Erro ao solicitar saque.', 'erro', '❌');
+            } finally {
+                btn.textContent = 'Solicitar';
+                btn.disabled = false;
+            }
+        });
+
+        // ================================================================
+        // SALDO E SOLICITAÇÃO DE SAQUE
+        // ================================================================
+        function atualizarSaldo() {
+            const vendidos = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
+            if (vendidos.length === 0) {
+                document.getElementById('saldoBloco').style.display = 'none';
+                return;
+            }
+            document.getElementById('saldoBloco').style.display = 'flex';
+
+            const totalOriginal = vendidos.reduce((acc, p) => {
+                return acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+            }, 0);
+            const taxa = parseFloat(TAXA_PERCENTUAL);
+            const saldo = Math.round(totalOriginal * (1 - taxa / 100));
+            document.getElementById('saldoDisponivel').textContent =
+                (saldo / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Abrir modal de saque
+        document.getElementById('btnSolicitarSaque').addEventListener('click', () => {
+            document.getElementById('modalSaque').classList.add('ativo');
+        });
+
+        document.getElementById('btnSaqueCancelar').addEventListener('click', () => {
+            document.getElementById('modalSaque').classList.remove('ativo');
+        });
+
+        document.getElementById('btnSaqueConfirmar').addEventListener('click', async () => {
+            const nome     = document.getElementById('saqueNome').value.trim();
+            const cpf      = document.getElementById('saqueCpf').value.trim();
+            const whatsapp = document.getElementById('saqueWhatsapp').value.trim();
+
+            if (!nome || !cpf || !whatsapp) {
+                mostrarToast('Preencha todos os campos.', 'aviso', '⚠️');
+                return;
+            }
+
+            const vendidos = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
+            const totalOriginal = vendidos.reduce((acc, p) => {
+                return acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+            }, 0);
+            const taxa          = parseFloat(TAXA_PERCENTUAL);
+            const lucroAdmin    = Math.round(totalOriginal * taxa / 100);
+            const repasse       = totalOriginal - lucroAdmin;
+
+            const btn = document.getElementById('btnSaqueConfirmar');
+            btn.textContent = 'Enviando...';
+            btn.disabled = true;
+
+            try {
+                const saqueId = `${usuarioAtualUid}-${Date.now()}`;
+                await setDoc(doc(db, "saques", saqueId), {
+                    usuario_id:       usuarioAtualUid,
+                    nome,
+                    cpf,
+                    whatsapp,
+                    total_centavos:   totalOriginal.toString(),
+                    lucro_centavos:   lucroAdmin.toString(),
+                    repasse_centavos: repasse.toString(),
+                    status:           'pendente',
+                    data_solicitacao: new Date()
+                });
+                document.getElementById('modalSaque').classList.remove('ativo');
+                document.getElementById('saqueNome').value    = '';
+                document.getElementById('saqueCpf').value     = '';
+                document.getElementById('saqueWhatsapp').value = '';
+                mostrarToast('Saque solicitado! Repasse em até 24h. ✅', 'sucesso', '💸');
+            } catch(e) {
+                console.error(e);
+                mostrarToast('Erro ao solicitar saque. Tente novamente.', 'erro', '❌');
+            } finally {
+                btn.textContent = 'Solicitar';
+                btn.disabled = false;
             }
         });
 
