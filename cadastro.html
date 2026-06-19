@@ -197,6 +197,288 @@
             padding: 4px 0 8px;
             font-weight: 600;
         }
+
+        /* ===== BOTÃO SINO ===== */
+        .btn-notif {
+            position: relative;
+            padding: 8px 14px;
+            margin-right: 4px;
+            border: 1px solid rgba(196, 181, 253, 0.25);
+            border-radius: 35px;
+            background: rgba(196, 181, 253, 0.1);
+            backdrop-filter: blur(10px);
+            font-size: 16px;
+            color: #c4b5fd;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-notif:hover { background: rgba(196, 181, 253, 0.2); }
+
+        .notif-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #e53935;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        /* ===== PAINEL DE NOTIFICAÇÕES ===== */
+        .area-notif {
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            background: rgba(18, 10, 45, 0.97);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(167, 139, 250, 0.2);
+            box-shadow: -8px 0 40px rgba(0,0,0,0.4);
+            border-radius: 20px 0 0 20px;
+            position: fixed;
+            top: 0;
+            right: -420px;
+            z-index: 101;
+            height: 100vh;
+            width: min(400px, 100vw);
+            transition: right 0.5s ease-in-out;
+            overflow: hidden;
+        }
+        .area-notif.ativo { right: 0; }
+
+        .notif-painel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding-top: 20px;
+            gap: 14px;
+        }
+
+        .notif-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .notif-titulo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .notif-acoes {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-exportar-notif {
+            background: rgba(167,139,250,0.15);
+            border: 1px solid rgba(167,139,250,0.3);
+            color: #c4b5fd;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-exportar-notif:hover { background: rgba(167,139,250,0.28); }
+
+        .notif-lista {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 4px;
+        }
+
+        .notif-lista::-webkit-scrollbar { width: 4px; }
+        .notif-lista::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 4px; }
+        .notif-lista::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.35); border-radius: 4px; }
+
+        .notif-item {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            animation: popIn 0.3s ease;
+        }
+
+        .notif-item-nome {
+            font-size: 14px;
+            font-weight: 700;
+            color: #a78bfa;
+        }
+
+        .notif-item-presente {
+            font-size: 13px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .notif-item-data {
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+            margin-top: 2px;
+        }
+
+        .notif-item-valor {
+            font-size: 12px;
+            color: #34d399;
+            font-weight: 600;
+        }
+
+        .notif-vazia {
+            color: rgba(255,255,255,0.35);
+            font-size: 13px;
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        /* ===== SCROLLBAR CUSTOMIZADA ===== */
+        #registros::-webkit-scrollbar {
+            width: 4px;
+        }
+        #registros::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.04);
+            border-radius: 4px;
+        }
+        #registros::-webkit-scrollbar-thumb {
+            background: rgba(167,139,250,0.35);
+            border-radius: 4px;
+        }
+        #registros::-webkit-scrollbar-thumb:hover {
+            background: rgba(167,139,250,0.6);
+        }
+
+        /* ===== CARDS DE RESUMO ===== */
+        .resumo-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+        .resumo-card {
+            flex: 1 1 80px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 10px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 80px;
+        }
+        .resumo-card-destaque {
+            border-color: rgba(167,139,250,0.35);
+            background: rgba(167,139,250,0.08);
+        }
+        .resumo-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .resumo-valor {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .resumo-valor-destaque {
+            color: #a78bfa;
+        }
+
+        /* ===== INTERRUPTOR DE TAXA ===== */
+        .taxa-bloco {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .taxa-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .taxa-titulo {
+            font-size: 13px;
+            color: rgba(255,255,255,0.75);
+            font-weight: 600;
+        }
+        .taxa-titulo strong {
+            color: #a78bfa;
+        }
+        .taxa-subtitulo {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+        }
+        .taxa-toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .taxa-opcao {
+            font-size: 12px;
+            color: rgba(255,255,255,0.5);
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .taxa-opcao.ativo {
+            color: #a78bfa;
+        }
+        /* Toggle switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 42px;
+            height: 24px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(167,139,250,0.4);
+            border-radius: 24px;
+            transition: background 0.3s;
+        }
+        .toggle-slider:before {
+            content: '';
+            position: absolute;
+            height: 18px; width: 18px;
+            left: 3px; bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background: rgba(167,139,250,0.7);
+        }
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(18px);
+        }
     </style>
 </head>
 <body>
@@ -207,7 +489,10 @@
                 <span id="userLogadoEmail" style="font-weight: bold;">Carregando usuário...</span>
                 <button id="btnSair">Sair</button>
             </div>
-            <button class="btn-tema" id="tema">TEMAS DA LISTA</button>   
+            <button class="btn-tema" id="tema">TEMAS DA LISTA</button>
+            <button class="btn-notif" id="btnNotif">
+                🔔 <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+            </button>   
         </div>
     </div>
 
@@ -295,8 +580,36 @@
             
             <div class="itenscadastrados">
                 <h3>📋 Meus Itens Cadastrados</h3>
-                <div class="contador-itens" id="contadorItens"></div>
-                <div id="registros" style="width: 100%;"></div>
+
+                <!-- CARDS DE RESUMO -->
+                <div class="resumo-cards" id="resumoCards" style="display:none;">
+                    <div class="resumo-card">
+                        <span class="resumo-label">🛍️ Itens</span>
+                        <span class="resumo-valor" id="resumoQtd">0</span>
+                    </div>
+                    <div class="resumo-card resumo-card-destaque">
+                        <span class="resumo-label" id="resumoReceberLabel">✅ Você receberá</span>
+                        <span class="resumo-valor resumo-valor-destaque" id="resumoReceber">R$ 0,00</span>
+                    </div>
+                </div>
+
+                <!-- INTERRUPTOR DE TAXA -->
+                <div class="taxa-bloco" id="taxaBloco" style="display:none;">
+                    <div class="taxa-info">
+                        <span class="taxa-titulo">Taxa de serviço <strong id="taxaPercentualLabel">2,8%</strong></span>
+                        <span class="taxa-subtitulo" id="taxaSubtitulo">Quem absorve o custo?</span>
+                    </div>
+                    <div class="taxa-toggle-wrap">
+                        <span class="taxa-opcao" id="labelConvidado">Convidado</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggleTaxa">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="taxa-opcao" id="labelCliente">Eu pago</span>
+                    </div>
+                </div>
+
+                <div id="registros" style="width: 100%; max-height: 480px; overflow-y: auto; padding-right: 4px;"></div>
             </div>
         </div>
     </div>
@@ -353,6 +666,23 @@
     <!-- CONTAINER DE TOASTS -->
     <div id="toast-container"></div>
 
+    <!-- PAINEL DE NOTIFICAÇÕES -->
+    <div class="area-notif" id="areaNotif">
+        <button class="fechar" id="fecharNotif">Fechar</button>
+        <div class="notif-painel">
+            <div class="notif-header">
+                <span style="font-size:20px;">🔔</span>
+                <span class="notif-titulo">Presentes Recebidos</span>
+            </div>
+            <div class="notif-acoes">
+                <button class="btn-exportar-notif" id="btnExportarNotif">⬇️ Exportar lista</button>
+            </div>
+            <div id="notifLista" class="notif-lista">
+                <p class="notif-vazia">Nenhum presente recebido ainda.</p>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, doc, setDoc, deleteDoc, updateDoc, getDocs, getDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -375,12 +705,15 @@
         const IMGBB_API_KEY = "a6dd2e7549451f9117ecd2a25dd8765d";
         const URL_BASE_SITE = "https://carlosanth.github.io/escolhaseupresente/lista.html";
         const LIMITE_ITENS = 1000;
+        const TAXA_PERCENTUAL = 2.8; // futuramente virá do painel admin
 
         let usuarioAtualUid = null;
         let unsubscribeProdutos = null;
         let unsubscribeCategorias = null;
         let imagemSelecionadaParaO_Banco = "";
         let totalItensAtual = 0;
+        let taxaQuemPaga = "convidado"; // "convidado" ou "cliente"
+        let todosOsProdutos = []; // cache local para recalcular sem recarregar
 
         // Referências DOM
         const btnAdicionar         = document.getElementById('Savar');
@@ -672,6 +1005,8 @@
                 escutarProdutosDoBanco();
                 escutarCategoriasDoBanco();
                 carregarImagensCarrosel();
+                carregarTaxaDoFirestore();
+                escutarNotificacoes();
             } else {
                 usuarioAtualUid = null;
                 userLogadoEmail.textContent = "Não autenticado";
@@ -775,7 +1110,11 @@
                 return;
             }
 
-            const precoCentavos = Math.round(precoNumerico * 100);
+            const precoOriginalCentavos = Math.round(precoNumerico * 100);
+            // Aplica taxa conforme configuração atual
+            const fatorTaxa = taxaQuemPaga === 'convidado' ? (1 + TAXA_PERCENTUAL / 100) : 1;
+            const precoCentavosWebhook = Math.round(precoOriginalCentavos * fatorTaxa);
+            const precoParaWebhook = (precoCentavosWebhook / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
             btnAdicionar.value = "Salvando...";
             btnAdicionar.disabled = true;
@@ -792,13 +1131,16 @@
 
             try {
                 await setDoc(doc(db, "produtos_teste", produtoId), {
-                    categoria:      category || "Sem Categoria",
-                    disponivel:     true,
-                    imagem:         urlImagemFinal,
-                    preco:          precoRaw,
-                    preco_centavos: precoCentavos.toString(),
-                    titulo:         nome,
-                    usuario_id:     usuarioAtualUid
+                    categoria:               category || "Sem Categoria",
+                    disponivel:              true,
+                    imagem:                  urlImagemFinal,
+                    preco:                   precoParaWebhook,
+                    preco_original_centavos: precoOriginalCentavos.toString(),
+                    preco_centavos:          precoCentavosWebhook.toString(),
+                    taxa_quem_paga:          taxaQuemPaga,
+                    taxa_percentual:         TAXA_PERCENTUAL,
+                    titulo:                  nome,
+                    usuario_id:              usuarioAtualUid
                 });
 
                 if (selectCategoria.value === 'MANUAL' && category) {
@@ -823,17 +1165,118 @@
             unsubscribeProdutos = onSnapshot(q, (querySnapshot) => {
                 containerRegistros.innerHTML = '';
                 totalItensAtual = querySnapshot.size;
+                todosOsProdutos = [];
 
                 if (totalItensAtual === 0) {
-                    contadorItens.textContent = '';
+                    document.getElementById('resumoCards').style.display = 'none';
+                    document.getElementById('taxaBloco').style.display = 'none';
                     containerRegistros.innerHTML = '<p style="padding:10px; opacity:0.7;">Nenhum item cadastrado ainda.</p>';
                 } else {
-                    const restantes = LIMITE_ITENS - totalItensAtual;
-                    contadorItens.textContent = `${totalItensAtual} item(s) — ${restantes} vagas restantes`;
-                    querySnapshot.forEach((docSnap) => renderizarItemNaTela(docSnap.data(), docSnap.id));
+                    querySnapshot.forEach((docSnap) => {
+                        todosOsProdutos.push({ id: docSnap.id, ...docSnap.data() });
+                    });
+                    document.getElementById('resumoCards').style.display = 'flex';
+                    document.getElementById('taxaBloco').style.display = 'flex';
+                    atualizarResumo();
+                    todosOsProdutos.forEach(p => renderizarItemNaTela(p, p.id));
                 }
             });
         }
+
+        // ================================================================
+        // ATUALIZAR CARDS DE RESUMO
+        // ================================================================
+        function formatarBRL(centavos) {
+            return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        function atualizarResumo() {
+            const qtd = todosOsProdutos.length;
+            // Soma sempre pelo preco_original_centavos (valor real cadastrado)
+            // Se não tiver o campo original ainda, usa preco_centavos como fallback
+            let totalOriginalCentavos = 0;
+            todosOsProdutos.forEach(p => {
+                const c = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                totalOriginalCentavos += c;
+            });
+
+            document.getElementById('resumoQtd').textContent = qtd;
+
+            const labelConvidado = document.getElementById('labelConvidado');
+            const labelCliente   = document.getElementById('labelCliente');
+            const receberEl      = document.getElementById('resumoReceber');
+            const receberLabel   = document.getElementById('resumoReceberLabel');
+            const taxaSubtitulo  = document.getElementById('taxaSubtitulo');
+
+            if (taxaQuemPaga === 'convidado') {
+                // Convidado paga: cliente recebe o valor cheio
+                receberEl.textContent = formatarBRL(totalOriginalCentavos);
+                receberLabel.textContent = '✅ Você receberá';
+                taxaSubtitulo.textContent = 'Convidado paga +' + TAXA_PERCENTUAL + '% sobre cada item';
+                labelConvidado.classList.add('ativo');
+                labelCliente.classList.remove('ativo');
+            } else {
+                // Cliente paga: recebe descontado 2,8%
+                const totalReceber = Math.round(totalOriginalCentavos * (1 - TAXA_PERCENTUAL / 100));
+                receberEl.textContent = formatarBRL(totalReceber);
+                receberLabel.textContent = '✅ Você receberá';
+                taxaSubtitulo.textContent = 'Você absorve -' + TAXA_PERCENTUAL + '% (descontado do seu recebimento)';
+                labelConvidado.classList.remove('ativo');
+                labelCliente.classList.add('ativo');
+            }
+        }
+
+        // ================================================================
+        // INTERRUPTOR DE TAXA
+        // ================================================================
+        async function carregarTaxaDoFirestore() {
+            if (!usuarioAtualUid) return;
+            try {
+                const snap = await getDoc(doc(db, "configuracoes", usuarioAtualUid));
+                if (snap.exists() && snap.data().taxa_quem_paga) {
+                    taxaQuemPaga = snap.data().taxa_quem_paga;
+                    document.getElementById('toggleTaxa').checked = taxaQuemPaga === 'cliente';
+                    atualizarResumo();
+                }
+            } catch(e) { console.error("Erro ao carregar taxa:", e); }
+        }
+
+        async function salvarTaxaNoFirestore() {
+            if (!usuarioAtualUid) return;
+            try {
+                await setDoc(doc(db, "configuracoes", usuarioAtualUid),
+                    { taxa_quem_paga: taxaQuemPaga, taxa_percentual: TAXA_PERCENTUAL },
+                    { merge: true }
+                );
+                // Atualizar preco_centavos de todos os itens no banco
+                const fator = taxaQuemPaga === 'convidado'
+                    ? (1 + TAXA_PERCENTUAL / 100)
+                    : 1;
+                const promises = todosOsProdutos.map(p => {
+                    const original = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                    const novoCentavos = Math.round(original * fator);
+                    const novoPreco = (novoCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                    return updateDoc(doc(db, "produtos_teste", p.id), {
+                        preco_original_centavos: original.toString(),
+                        preco_centavos: novoCentavos.toString(),
+                        preco: novoPreco,
+                        taxa_quem_paga: taxaQuemPaga,
+                        taxa_percentual: TAXA_PERCENTUAL
+                    });
+                });
+                await Promise.all(promises);
+                mostrarToast('Taxa atualizada em todos os itens!', 'sucesso', '💸');
+            } catch(e) {
+                console.error("Erro ao salvar taxa:", e);
+                mostrarToast('Erro ao atualizar taxa.', 'erro', '❌');
+            }
+        }
+
+        document.getElementById('toggleTaxa').addEventListener('change', async (e) => {
+            taxaQuemPaga = e.target.checked ? 'cliente' : 'convidado';
+            atualizarResumo();
+            await salvarTaxaNoFirestore();
+        });
 
         // ================================================================
         // RENDERIZAR ITEM
@@ -843,18 +1286,34 @@
             novaBaseDiv.classList.add('base');
 
             const tituloExibicao    = produto.titulo    || "Sem nome";
-            const precoExibicao     = produto.preco     || "R$ 0,00";
             const imagemExibicao    = produto.imagem    || 'https://i.ibb.co/0jjSyNRG/logo.png';
             const categoriaExibicao = produto.categoria || "Sem Categoria";
             const textoStatus = produto.disponivel !== false ? "Disponível" : "Indisponível";
             const corStatus   = produto.disponivel !== false ? "#28a745" : "#6c757d";
+
+            // Valor original (sempre limpo, sem taxa)
+            const originalCentavos = parseInt(produto.preco_original_centavos || produto.preco_centavos || 0);
+            const precoOriginalFmt = (originalCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            // Segunda linha: o que o convidado paga OU o que o cliente recebe
+            let linhaExtra = '';
+            if (taxaQuemPaga === 'convidado') {
+                const cobrado = Math.round(originalCentavos * (1 + TAXA_PERCENTUAL / 100));
+                const cobradoFmt = (cobrado / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                linhaExtra = `<small style="display:block;font-size:11px;color:#f9a825;">Convidado paga: ${cobradoFmt}</small>`;
+            } else {
+                const recebe = Math.round(originalCentavos * (1 - TAXA_PERCENTUAL / 100));
+                const recebeFmt = (recebe / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                linhaExtra = `<small style="display:block;font-size:11px;color:#81c784;">Você recebe: ${recebeFmt}</small>`;
+            }
 
             novaBaseDiv.innerHTML = `
                 <div class="base-card">
                     <img src="${imagemExibicao}" alt="${tituloExibicao}" loading="lazy">
                     <div class="T-Produtos">
                         <strong>${tituloExibicao}</strong>
-                        <span>${precoExibicao}</span>
+                        <span>${precoOriginalFmt}</span>
+                        ${linhaExtra}
                         <small style="display:block;font-size:11px;opacity:0.6;">Cat: ${categoriaExibicao}</small>
                     </div>
                 </div>
@@ -939,12 +1398,20 @@
             }
 
             try {
+                const editOriginalCentavos = Math.round(precoNumerico * 100);
+                const editFatorTaxa = taxaQuemPaga === 'convidado' ? (1 + TAXA_PERCENTUAL / 100) : 1;
+                const editCentavosWebhook = Math.round(editOriginalCentavos * editFatorTaxa);
+                const editPrecoWebhook = (editCentavosWebhook / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
                 await updateDoc(doc(db, "produtos_teste", editandoId), {
-                    titulo:         novoNome,
-                    preco:          novoPreco,
-                    preco_centavos: Math.round(precoNumerico * 100).toString(),
-                    categoria:      novaCat || "Sem Categoria",
-                    imagem:         urlImagemFinal
+                    titulo:                  novoNome,
+                    preco:                   editPrecoWebhook,
+                    preco_original_centavos: editOriginalCentavos.toString(),
+                    preco_centavos:          editCentavosWebhook.toString(),
+                    taxa_quem_paga:          taxaQuemPaga,
+                    taxa_percentual:         TAXA_PERCENTUAL,
+                    categoria:               novaCat || "Sem Categoria",
+                    imagem:                  urlImagemFinal
                 });
                 modalEditar.style.display = 'none';
                 mostrarToast('Item atualizado!', 'sucesso', '✅');
@@ -1005,6 +1472,135 @@
             } else {
                 mostrarToast('Aguarde o QR Code carregar.', 'aviso', '⏳');
             }
+        });
+
+        // ================================================================
+        // PAINEL DE NOTIFICAÇÕES
+        // ================================================================
+        const btnNotif    = document.getElementById('btnNotif');
+        const areaNotif   = document.getElementById('areaNotif');
+        const fecharNotif = document.getElementById('fecharNotif');
+        const notifBadge  = document.getElementById('notifBadge');
+        const notifLista  = document.getElementById('notifLista');
+        let unsubscribeNotif = null;
+        let notifJaVistas = new Set(); // IDs já vistos para controlar badge
+
+        btnNotif.addEventListener('click', () => {
+            areaNotif.classList.toggle('ativo');
+            // Zera badge ao abrir
+            if (areaNotif.classList.contains('ativo')) {
+                notifBadge.style.display = 'none';
+                notifBadge.textContent = '0';
+                notifJaVistas = new Set(todosOsProdutos
+                    .filter(p => p.presenteado_por)
+                    .map(p => p.id));
+            }
+        });
+
+        fecharNotif.addEventListener('click', () => {
+            areaNotif.classList.remove('ativo');
+        });
+
+        function escutarNotificacoes() {
+            if (!usuarioAtualUid) return;
+            const q = query(
+                collection(db, "produtos_teste"),
+                where("usuario_id", "==", usuarioAtualUid)
+            );
+            unsubscribeNotif = onSnapshot(q, (snapshot) => {
+                const presenteados = [];
+                snapshot.forEach(docSnap => {
+                    const d = docSnap.data();
+                    if (d.presenteado_por && d.disponivel === false) {
+                        presenteados.push({ id: docSnap.id, ...d });
+                    }
+                });
+
+                // Atualizar badge com novos não vistos
+                const novos = presenteados.filter(p => !notifJaVistas.has(p.id));
+                if (novos.length > 0 && !areaNotif.classList.contains('ativo')) {
+                    notifBadge.style.display = 'flex';
+                    notifBadge.textContent = novos.length > 9 ? '9+' : novos.length;
+                }
+
+                // Renderizar lista
+                if (presenteados.length === 0) {
+                    notifLista.innerHTML = '<p class="notif-vazia">Nenhum presente recebido ainda.</p>';
+                    return;
+                }
+
+                // Ordenar do mais recente para o mais antigo
+                function toMs(ts) {
+                    if (!ts) return 0;
+                    if (ts.seconds) return ts.seconds * 1000;
+                    if (typeof ts.toDate === 'function') return ts.toDate().getTime();
+                    return new Date(ts).getTime() || 0;
+                }
+                presenteados.sort((a, b) => toMs(b.data_presente) - toMs(a.data_presente));
+
+                notifLista.innerHTML = '';
+                presenteados.forEach(p => {
+                    const originalCentavos = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                    const valorFmt = (originalCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                    let dataFmt = 'Data não registrada';
+                    if (p.data_presente) {
+                        let dataObj = null;
+                        // Timestamp do Firestore (objeto com seconds)
+                        if (p.data_presente.seconds) {
+                            dataObj = new Date(p.data_presente.seconds * 1000);
+                        // Timestamp do Firestore SDK (método toDate)
+                        } else if (typeof p.data_presente.toDate === 'function') {
+                            dataObj = p.data_presente.toDate();
+                        // String ou number normal
+                        } else {
+                            dataObj = new Date(p.data_presente);
+                        }
+                        if (dataObj && !isNaN(dataObj)) {
+                            dataFmt = dataObj.toLocaleString('pt-BR', {
+                                day: '2-digit', month: '2-digit', year: 'numeric',
+                                hour: '2-digit', minute: '2-digit'
+                            });
+                        }
+                    }
+
+                    const item = document.createElement('div');
+                    item.className = 'notif-item';
+                    item.innerHTML = `
+                        <span class="notif-item-nome">🎁 ${p.presenteado_por}</span>
+                        <span class="notif-item-presente">${p.titulo || 'Presente'}</span>
+                        <span class="notif-item-valor">${valorFmt}</span>
+                        <span class="notif-item-data">📅 ${dataFmt}</span>
+                    `;
+                    notifLista.appendChild(item);
+                });
+            });
+        }
+
+        // Exportar lista como CSV
+        document.getElementById('btnExportarNotif').addEventListener('click', () => {
+            const itens = [];
+            notifLista.querySelectorAll('.notif-item').forEach(el => {
+                const nome    = el.querySelector('.notif-item-nome')?.textContent.replace('🎁 ', '').trim() || '';
+                const present = el.querySelector('.notif-item-presente')?.textContent.trim() || '';
+                const valor   = el.querySelector('.notif-item-valor')?.textContent.trim() || '';
+                const data    = el.querySelector('.notif-item-data')?.textContent.replace('📅 ', '').trim() || '';
+                itens.push(`"${nome}","${present}","${valor}","${data}"`);
+            });
+
+            if (itens.length === 0) {
+                mostrarToast('Nenhum presente para exportar.', 'aviso', '⚠️');
+                return;
+            }
+
+            const csv = 'Convidado,Presente,Valor,Data\n' + itens.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.href     = url;
+            a.download = 'presentes-recebidos.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+            mostrarToast('Lista exportada!', 'sucesso', '📥');
         });
 
         // ================================================================
