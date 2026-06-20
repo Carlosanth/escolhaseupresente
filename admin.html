@@ -381,6 +381,43 @@
             color: var(--text3);
         }
 
+        /* GRÁFICO DE BARRAS (CSS puro, sem dependências externas) */
+        .grafico-barras {
+            display: flex;
+            align-items: flex-end;
+            gap: 14px;
+            height: 160px;
+            padding: 0 6px;
+        }
+        .grafico-coluna {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+            gap: 6px;
+        }
+        .grafico-barra {
+            width: 100%;
+            max-width: 44px;
+            background: linear-gradient(180deg, var(--purple-light), var(--purple));
+            border-radius: 6px 6px 2px 2px;
+            min-height: 3px;
+            transition: height 0.3s ease;
+            position: relative;
+        }
+        .grafico-valor {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .grafico-label {
+            font-size: 11px;
+            color: var(--text3);
+            margin-top: 4px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -473,6 +510,17 @@
             font-family: var(--mono);
             width: 150px;
         }
+        .config-saque-card select { background: var(--bg); border: 1px solid var(--border2); border-radius: 8px; color: var(--text); padding: 8px 12px; font-size: 13px; cursor: pointer; }
+        .config-saque-card select option { background: var(--surface); color: var(--text); }
+        .config-saque-card input[type="date"] {
+            color-scheme: dark;
+            width: 145px;
+        }
+        .btn-excluir-cliente {
+            background: var(--red-dim);
+            color: var(--red);
+        }
+        .btn-excluir-cliente:hover { background: rgba(239,68,68,0.25); }
         .btn-salvar-config {
             background: var(--purple-dim);
             color: var(--purple-light);
@@ -855,6 +903,14 @@
                 </div>
             </div>
 
+            <div class="card-tabela" style="margin-bottom:20px;">
+                <div class="card-tabela-header">
+                    <h3>📈 Presentes recebidos por mês</h3>
+                    <span style="font-size:11px; color:var(--text3);">Últimos 6 meses</span>
+                </div>
+                <div id="graficoMensal" style="padding:20px 10px 10px;"></div>
+            </div>
+
             <div class="card-tabela">
                 <div class="card-tabela-header">
                     <h3>Últimos presentes recebidos</h3>
@@ -879,6 +935,15 @@
 
         <!-- ===== SEÇÃO: CLIENTES ===== -->
         <section class="secao" id="secao-clientes">
+            <div class="config-saque-card">
+                <label for="buscaClientes">🔍 Buscar cliente</label>
+                <input type="text" id="buscaClientes" placeholder="Nome ou e-mail..." style="width:220px;">
+                <label for="filtroAnoClientes">📅 Ano de cadastro</label>
+                <select id="filtroAnoClientes">
+                    <option value="">Todos os anos</option>
+                </select>
+                <span style="font-size:11px; color: var(--text3);">Clientes com ⏰ já completaram 1 ano — revise para exclusão manual.</span>
+            </div>
             <div class="card-tabela">
                 <div class="card-tabela-header">
                     <h3>Todos os clientes</h3>
@@ -888,15 +953,17 @@
                     <thead>
                         <tr>
                             <th>E-mail</th>
+                            <th>Cadastrado em</th>
                             <th>Itens cadastrados</th>
                             <th>Presentes recebidos</th>
                             <th>Total movimentado</th>
                             <th>Meu lucro</th>
+                            <th>Saldo pendente</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tabelaClientes">
-                        <tr class="loading-row"><td colspan="6">Carregando...</td></tr>
+                        <tr class="loading-row"><td colspan="8">Carregando...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -921,6 +988,15 @@
 
         <!-- ===== SEÇÃO: RELATÓRIO ===== -->
         <section class="secao" id="secao-relatorio">
+            <div class="config-saque-card">
+                <label for="buscaRelatorio">🔍 Buscar</label>
+                <input type="text" id="buscaRelatorio" placeholder="Cliente, presente ou convidado..." style="width:220px;">
+                <label for="dataInicioRelatorio">De</label>
+                <input type="date" id="dataInicioRelatorio">
+                <label for="dataFimRelatorio">Até</label>
+                <input type="date" id="dataFimRelatorio">
+                <button class="btn-salvar-config" id="btnLimparFiltrosRelatorio">Limpar filtros</button>
+            </div>
             <div class="card-tabela">
                 <div class="card-tabela-header">
                     <h3>📋 Relatório de Presentes</h3>
@@ -980,12 +1056,36 @@
     </div>
 </div>
 
+<!-- MODAL CONFIRMAR PAGAMENTO DE SAQUE -->
+<div class="modal-admin" id="modalConfirmarPagamento">
+    <div class="modal-admin-content" style="max-width:420px;">
+        <div class="modal-admin-header">
+            <h3>✅ Confirmar pagamento</h3>
+            <button class="btn-fechar-modal" id="btnFecharModalPagamento">✕</button>
+        </div>
+        <p style="font-size:13px; color:var(--text2); margin-bottom:6px;">
+            Cliente: <strong id="pagamentoClienteNome">—</strong>
+        </p>
+        <p style="font-size:13px; color:var(--text2); margin-bottom:16px;">
+            Valor a confirmar: <strong id="pagamentoValor" style="color:var(--green);">—</strong>
+        </p>
+        <div class="nome" style="margin-top:0;">Comprovante / observação <span>(opcional)</span></div>
+        <textarea id="pagamentoObservacao" class="campo-form-admin" rows="3"
+            placeholder="Ex: PIX enviado às 14h32, comprovante #12345, etc."
+            style="width:100%; resize:vertical; background:var(--bg); border:1px solid var(--border2); border-radius:8px; color:var(--text); padding:10px 12px; font-size:13px; font-family:inherit;"></textarea>
+        <div style="display:flex; gap:10px; margin-top:18px; justify-content:flex-end;">
+            <button class="btn-tabela" id="btnCancelarPagamento" style="background:var(--surface2); color:var(--text2);">Cancelar</button>
+            <button class="btn-tabela btn-marcar-pago" id="btnConfirmarPagamentoFinal">✅ Confirmar pagamento</button>
+        </div>
+    </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast-admin" id="toastAdmin"></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -1179,21 +1279,107 @@
     });
 
     // ================================================================
-    // MARCAR SAQUE COMO PAGO
+    // MARCAR SAQUE COMO PAGO (via modal, com observação/comprovante)
     // ================================================================
-    window.marcarSaqueComoPago = async function(saqueId) {
-        if (!confirm('Confirmar que este saque foi pago? Essa ação atualiza o saldo do cliente.')) return;
+    let saqueIdPendenteConfirmacao = null;
+
+    window.marcarSaqueComoPago = function(saqueId) {
+        const saque = todosOsSaques.find(s => s.id === saqueId);
+        if (!saque) { toast('❌ Saque não encontrado.'); return; }
+
+        saqueIdPendenteConfirmacao = saqueId;
+        document.getElementById('pagamentoClienteNome').textContent = saque.nome || '—';
+        document.getElementById('pagamentoValor').textContent = brl(parseInt(saque.repasse_centavos || 0));
+        document.getElementById('pagamentoObservacao').value = '';
+        document.getElementById('modalConfirmarPagamento').classList.add('ativo');
+    };
+
+    document.getElementById('btnFecharModalPagamento').addEventListener('click', () => {
+        document.getElementById('modalConfirmarPagamento').classList.remove('ativo');
+        saqueIdPendenteConfirmacao = null;
+    });
+    document.getElementById('btnCancelarPagamento').addEventListener('click', () => {
+        document.getElementById('modalConfirmarPagamento').classList.remove('ativo');
+        saqueIdPendenteConfirmacao = null;
+    });
+    document.getElementById('modalConfirmarPagamento').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('modalConfirmarPagamento')) {
+            document.getElementById('modalConfirmarPagamento').classList.remove('ativo');
+            saqueIdPendenteConfirmacao = null;
+        }
+    });
+
+    document.getElementById('btnConfirmarPagamentoFinal').addEventListener('click', async () => {
+        if (!saqueIdPendenteConfirmacao) return;
+        const observacao = document.getElementById('pagamentoObservacao').value.trim();
+        const btn = document.getElementById('btnConfirmarPagamentoFinal');
+        btn.disabled = true;
+        btn.textContent = 'Confirmando...';
         try {
-            await updateDoc(doc(db, "saques", saqueId), {
+            await updateDoc(doc(db, "saques", saqueIdPendenteConfirmacao), {
                 status: 'pago',
-                data_pagamento: new Date()
+                data_pagamento: new Date(),
+                observacao_pagamento: observacao || null
             });
             toast('✅ Saque marcado como pago!');
+            document.getElementById('modalConfirmarPagamento').classList.remove('ativo');
+            saqueIdPendenteConfirmacao = null;
         } catch(e) {
             console.error(e);
-            toast('❌ Erro ao marcar saque como pago.');
+            toast('❌ Erro ao marcar saque como pago: ' + (e.message || e.code || 'desconhecido'));
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '✅ Confirmar pagamento';
         }
+    });
+
+    // ================================================================
+    // EXCLUIR CLIENTE (manual, com confirmação dupla)
+    // ================================================================
+    // Ação destrutiva e irreversível: apaga o doc de configurações, todos
+    // os produtos e todos os saques desse cliente. Por ser uma operação
+    // financeira/crítica, exige que o admin digite o e-mail exato do
+    // cliente para confirmar — evita exclusão por clique acidental.
+    window.confirmarExclusaoCliente = function(uid, email) {
+        const digitado = prompt(
+            `⚠️ ATENÇÃO: isso vai excluir PERMANENTEMENTE o cliente "${email}", ` +
+            `todos os itens cadastrados por ele e todo o histórico de saques.\n\n` +
+            `Esta ação não pode ser desfeita.\n\n` +
+            `Para confirmar, digite o e-mail exato do cliente abaixo:`
+        );
+        if (digitado === null) return; // cancelou
+        if (digitado.trim().toLowerCase() !== email.trim().toLowerCase()) {
+            toast('❌ E-mail não confere. Exclusão cancelada.');
+            return;
+        }
+        executarExclusaoCliente(uid, email);
     };
+
+    async function executarExclusaoCliente(uid, email) {
+        try {
+            const batch = writeBatch(db);
+
+            // 1. Produtos do cliente
+            const produtosSnap = await getDocs(query(collection(db, "produtos_teste"), where("usuario_id", "==", uid)));
+            produtosSnap.forEach(d => batch.delete(d.ref));
+
+            // 2. Saques do cliente
+            const saquesSnap = await getDocs(query(collection(db, "saques"), where("usuario_id", "==", uid)));
+            saquesSnap.forEach(d => batch.delete(d.ref));
+
+            // 3. Configurações do cliente
+            batch.delete(doc(db, "configuracoes", uid));
+
+            // 4. Perfil do cliente (nome, cpf, telefone, data de cadastro)
+            batch.delete(doc(db, "perfis", uid));
+
+            await batch.commit();
+            toast(`✅ Cliente "${email}" excluído (${produtosSnap.size} item(ns), ${saquesSnap.size} saque(s)). Lembre-se: a CONTA DE LOGIN (Firebase Authentication) não é apagada automaticamente — remova-a manualmente no Firebase Console se necessário.`);
+        } catch(e) {
+            console.error(e);
+            toast('❌ Erro ao excluir cliente: ' + (e.message || e.code || 'desconhecido'));
+        }
+    }
 
     // ================================================================
     // INICIAR PAINEL — escuta em tempo real
@@ -1201,10 +1387,41 @@
     function iniciarPainel() {
         escutarProdutos();
         escutarSaques();
+        escutarConfiguracoes();
+        escutarPerfis();
+
+        // Re-renderiza a tabela de clientes ao digitar na busca ou trocar o ano
+        document.getElementById('buscaClientes')?.addEventListener('input', atualizarTabelaClientes);
+        document.getElementById('filtroAnoClientes')?.addEventListener('change', atualizarTabelaClientes);
     }
 
     let todosOsProdutos = [];
     let todosOsUsuarios = {};
+    let todasConfiguracoes = {}; // uid -> { email, taxa_quem_paga, ... }
+    let todosOsPerfis = {};      // uid -> { email, criado_em, nome, ... } — fonte real da data de cadastro
+
+    function escutarConfiguracoes() {
+        onSnapshot(collection(db, "configuracoes"), (snap) => {
+            todasConfiguracoes = {};
+            snap.docs.forEach(d => {
+                todasConfiguracoes[d.id] = { id: d.id, ...d.data() };
+                if (d.data().email) todosOsUsuarios[d.id] = d.data().email;
+            });
+            atualizarTabelaClientes();
+        });
+    }
+
+    function escutarPerfis() {
+        onSnapshot(collection(db, "perfis"), (snap) => {
+            todosOsPerfis = {};
+            snap.docs.forEach(d => {
+                todosOsPerfis[d.id] = { id: d.id, ...d.data() };
+                if (d.data().email) todosOsUsuarios[d.id] = d.data().email;
+            });
+            atualizarFiltroAnos();
+            atualizarTabelaClientes();
+        });
+    }
 
     function escutarProdutos() {
         onSnapshot(collection(db, "produtos_teste"), async (snap) => {
@@ -1231,11 +1448,16 @@
         });
     }
 
+    let todosOsSaques = [];
+
     function escutarSaques() {
         onSnapshot(collection(db, "saques"), (snap) => {
-            const saques = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderizarSaques(saques);
-            document.getElementById('labelTotalSaques').textContent = saques.length + ' solicitação(ões)';
+            todosOsSaques = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderizarSaques(todosOsSaques);
+            document.getElementById('labelTotalSaques').textContent = todosOsSaques.length + ' solicitação(ões)';
+            // O saldo pendente exibido na aba Clientes depende dos saques —
+            // recalcula a tabela quando chegam novos dados.
+            atualizarTabelaClientes();
         });
     }
 
@@ -1254,6 +1476,8 @@
         document.getElementById('metricaListas').textContent = todosOsProdutos.length;
         document.getElementById('metricaEntregues').textContent = entregues.length;
         document.getElementById('metricaLucro').textContent = brl(meuLucro);
+
+        renderizarGraficoMensal(entregues);
 
         // Tabela últimos presentes
         const ultimos = [...entregues]
@@ -1286,38 +1510,183 @@
     }
 
     // ================================================================
+    // GRÁFICO: PRESENTES RECEBIDOS POR MÊS (últimos 6 meses)
+    // ================================================================
+    const NOMES_MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+    function renderizarGraficoMensal(entregues) {
+        const container = document.getElementById('graficoMensal');
+        if (!container) return;
+
+        // Monta os últimos 6 meses (incluindo o atual), do mais antigo ao mais recente
+        const hoje = new Date();
+        const meses = [];
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+            meses.push({ ano: d.getFullYear(), mes: d.getMonth(), qtd: 0 });
+        }
+
+        entregues.forEach(p => {
+            const d = p.data_presente?.toDate ? p.data_presente.toDate() : null;
+            if (!d) return;
+            const alvo = meses.find(m => m.ano === d.getFullYear() && m.mes === d.getMonth());
+            if (alvo) alvo.qtd++;
+        });
+
+        const maxQtd = Math.max(1, ...meses.map(m => m.qtd));
+
+        if (entregues.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text3); font-size:13px; padding:30px 0;">Nenhum presente recebido ainda — o gráfico aparece aqui assim que houver dados.</p>';
+            return;
+        }
+
+        container.innerHTML = `<div class="grafico-barras">
+            ${meses.map(m => {
+                const alturaPerc = Math.round((m.qtd / maxQtd) * 100);
+                return `<div class="grafico-coluna">
+                    <span class="grafico-valor">${m.qtd > 0 ? m.qtd : ''}</span>
+                    <div class="grafico-barra" style="height:${m.qtd > 0 ? Math.max(alturaPerc, 4) : 2}%;"></div>
+                    <span class="grafico-label">${NOMES_MESES[m.mes]}</span>
+                </div>`;
+            }).join('')}
+        </div>`;
+    }
+
+    // ================================================================
     // TABELA DE CLIENTES
     // ================================================================
+    function formatarData(timestamp) {
+        if (!timestamp) return '—';
+        const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return d.toLocaleDateString('pt-BR');
+    }
+
+    function anoDoTimestamp(timestamp) {
+        if (!timestamp) return null;
+        const d = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return d.getFullYear();
+    }
+
+    // Busca a data de cadastro real do cliente, na coleção 'perfis' (campo
+    // 'criado_em', string ISO), que é a fonte de verdade já existente no
+    // sistema — criada por outra tela de cadastro/onboarding.
+    function getDataCadastro(uid) {
+        return todosOsPerfis[uid]?.criado_em || null;
+    }
+
     function atualizarTabelaClientes() {
-        const uids = [...new Set(todosOsProdutos.map(p => p.usuario_id).filter(Boolean))];
-        document.getElementById('labelTotalClientes').textContent = uids.length + ' clientes';
+        // Fonte de verdade: TODOS os clientes cadastrados. Une uids vindos de
+        // 'perfis' (cadastro completo) e 'configuracoes' (legado/parcial),
+        // para não perder ninguém na listagem.
+        let uids = [...new Set([...Object.keys(todosOsPerfis), ...Object.keys(todasConfiguracoes)])];
+
+        // Inclui também uids que só aparecem em produtos mas, por algum
+        // motivo, não têm doc em perfis/configuracoes (caso legado/órfão).
+        const uidsDeProdutos = [...new Set(todosOsProdutos.map(p => p.usuario_id).filter(Boolean))];
+        uidsDeProdutos.forEach(uid => { if (!uids.includes(uid)) uids.push(uid); });
+
+        // ===== FILTROS =====
+        const termoBusca = (document.getElementById('buscaClientes')?.value || '').trim().toLowerCase();
+        const anoFiltro  = document.getElementById('filtroAnoClientes')?.value || '';
+
+        if (termoBusca) {
+            uids = uids.filter(uid => {
+                const email = (todosOsUsuarios[uid] || '').toLowerCase();
+                return email.includes(termoBusca) || uid.toLowerCase().includes(termoBusca);
+            });
+        }
+        if (anoFiltro) {
+            uids = uids.filter(uid => anoDoTimestamp(getDataCadastro(uid)) === parseInt(anoFiltro));
+        }
+
+        document.getElementById('labelTotalClientes').textContent = uids.length + ' cliente' + (uids.length === 1 ? '' : 's');
 
         const tbody = document.getElementById('tabelaClientes');
 
         if (uids.length === 0) {
-            tbody.innerHTML = '<tr class="loading-row"><td colspan="6">Nenhum cliente ainda.</td></tr>';
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="8">Nenhum cliente encontrado.</td></tr>';
             return;
         }
+
+        // Ordena por data de cadastro (mais antigos primeiro — facilita achar
+        // quem já completou 1 ano e precisa de revisão para exclusão)
+        uids.sort((a, b) => {
+            const da = getDataCadastro(a) ? new Date(getDataCadastro(a)).getTime() : 0;
+            const db_ = getDataCadastro(b) ? new Date(getDataCadastro(b)).getTime() : 0;
+            return da - db_;
+        });
 
         tbody.innerHTML = uids.map(uid => {
             const itensDoUsuario    = todosOsProdutos.filter(p => p.usuario_id === uid);
             const entreguesUsuario  = itensDoUsuario.filter(p => p.disponivel === false && p.presenteado_por);
             const totalCentavos     = entreguesUsuario.reduce((acc, p) => acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0), 0);
             const meuLucroUsuario   = Math.round(totalCentavos * taxaGlobal / 100);
-            const clienteRecebe     = totalCentavos - meuLucroUsuario;
             const email             = todosOsUsuarios[uid] || uid.slice(0, 12) + '...';
+            const dataCadastro      = getDataCadastro(uid);
+            const dataFmt           = formatarData(dataCadastro);
+
+            // Saldo pendente = repasse líquido total (já considerando a taxa
+            // de cada item, igual ao relatório) MENOS o que já foi pago em
+            // saques anteriores. É o que o cliente tem disponível AGORA,
+            // ainda não retirado.
+            const repasseLiquidoTotal = entreguesUsuario.reduce((acc, p) => {
+                const orig      = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                const taxaDesse = p.taxa_quem_paga || 'convidado';
+                const taxaPerc  = parseFloat(p.taxa_percentual || taxaGlobal);
+                const lucro     = Math.round(orig * taxaPerc / 100);
+                return acc + (taxaDesse === 'convidado' ? orig : orig - lucro);
+            }, 0);
+            const jaPagoCentavos = todosOsSaques
+                .filter(s => s.usuario_id === uid && s.status === 'pago')
+                .reduce((acc, s) => acc + parseInt(s.repasse_centavos || 0), 0);
+            const saldoPendenteCentavos = Math.max(0, repasseLiquidoTotal - jaPagoCentavos);
+
+            // Marca visualmente quem já passou de 1 ano de cadastro —
+            // só um indicador, a exclusão continua sendo manual/sua decisão.
+            let chipTempo = '';
+            if (dataCadastro) {
+                const d = dataCadastro.toDate ? dataCadastro.toDate() : new Date(dataCadastro);
+                const umAnoAtras = new Date();
+                umAnoAtras.setFullYear(umAnoAtras.getFullYear() - 1);
+                if (d <= umAnoAtras) {
+                    chipTempo = ' <span class="chip chip-vermelho" title="Cadastrado há mais de 1 ano">⏰ +1 ano</span>';
+                }
+            }
+
+            const chipSaldo = saldoPendenteCentavos > 0
+                ? `<span class="chip chip-roxo" title="Saldo disponível ainda não sacado">${brl(saldoPendenteCentavos)}</span>`
+                : `<span style="color:var(--text3); font-size:12px;">—</span>`;
 
             return `<tr>
                 <td><strong>${email}</strong></td>
+                <td>${dataFmt}${chipTempo}</td>
                 <td>${itensDoUsuario.length}</td>
                 <td><span class="chip chip-verde">${entreguesUsuario.length}</span></td>
                 <td>${brl(totalCentavos)}</td>
                 <td><span class="chip chip-amarelo">${brl(meuLucroUsuario)}</span></td>
+                <td>${chipSaldo}</td>
                 <td style="display:flex; gap:6px;">
                     <button class="btn-tabela btn-detalhe" onclick="abrirDetalheCliente('${uid}')">Ver detalhes</button>
+                    <button class="btn-tabela btn-excluir-cliente" onclick="confirmarExclusaoCliente('${uid}', '${email.replace(/'/g, "\\'")}')">🗑️ Excluir</button>
                 </td>
             </tr>`;
         }).join('');
+    }
+
+    // Popula o filtro de ano dinamicamente com base nos anos de cadastro existentes
+    function atualizarFiltroAnos() {
+        const select = document.getElementById('filtroAnoClientes');
+        if (!select) return;
+        const valorAtual = select.value;
+        const anos = new Set();
+        Object.values(todosOsPerfis).forEach(p => {
+            const ano = anoDoTimestamp(p.criado_em);
+            if (ano) anos.add(ano);
+        });
+        const anosOrdenados = [...anos].sort((a, b) => b - a);
+        select.innerHTML = '<option value="">Todos os anos</option>' +
+            anosOrdenados.map(a => `<option value="${a}">${a}</option>`).join('');
+        select.value = valorAtual;
     }
 
     // ================================================================
@@ -1374,16 +1743,48 @@
     // ================================================================
     // RELATÓRIO
     // ================================================================
-    function atualizarRelatorio() {
-        const entregues = todosOsProdutos
+    function obterEntreguesFiltrados() {
+        let entregues = todosOsProdutos
             .filter(p => p.disponivel === false && p.presenteado_por)
             .sort((a, b) => (b.data_presente?.seconds || 0) - (a.data_presente?.seconds || 0));
+
+        const termo = (document.getElementById('buscaRelatorio')?.value || '').trim().toLowerCase();
+        const dataIni = document.getElementById('dataInicioRelatorio')?.value;
+        const dataFim = document.getElementById('dataFimRelatorio')?.value;
+
+        if (termo) {
+            entregues = entregues.filter(p => {
+                const email = (todosOsUsuarios[p.usuario_id] || '').toLowerCase();
+                const titulo = (p.titulo || '').toLowerCase();
+                const convidado = (p.presenteado_por || '').toLowerCase();
+                return email.includes(termo) || titulo.includes(termo) || convidado.includes(termo);
+            });
+        }
+        if (dataIni) {
+            const ini = new Date(dataIni + 'T00:00:00');
+            entregues = entregues.filter(p => {
+                const d = p.data_presente?.toDate ? p.data_presente.toDate() : null;
+                return d && d >= ini;
+            });
+        }
+        if (dataFim) {
+            const fim = new Date(dataFim + 'T23:59:59');
+            entregues = entregues.filter(p => {
+                const d = p.data_presente?.toDate ? p.data_presente.toDate() : null;
+                return d && d <= fim;
+            });
+        }
+        return entregues;
+    }
+
+    function atualizarRelatorio() {
+        const entregues = obterEntreguesFiltrados();
 
         const tbody = document.getElementById('tabelaRelatorio');
         if (!tbody) return;
 
         if (entregues.length === 0) {
-            tbody.innerHTML = '<tr class="loading-row"><td colspan="9">Nenhum presente recebido ainda.</td></tr>';
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="9">Nenhum presente encontrado.</td></tr>';
             return;
         }
 
@@ -1413,8 +1814,8 @@
     }
 
     document.getElementById('btnExportarRelatorio').addEventListener('click', () => {
-        const entregues = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
-        if (entregues.length === 0) { return; }
+        const entregues = obterEntreguesFiltrados();
+        if (entregues.length === 0) { toast('⚠️ Nenhum dado para exportar com os filtros atuais.'); return; }
 
         const header = '"Cliente","Presente","Convidado","Valor Original","Quem Pagou Taxa","Taxa","Meu Lucro","Cliente Recebeu","Data"';
         const linhas = entregues.map(p => {
@@ -1433,6 +1834,16 @@
         const a    = document.createElement('a');
         a.href = url; a.download = 'relatorio-presentes.csv'; a.click();
         URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('buscaRelatorio')?.addEventListener('input', atualizarRelatorio);
+    document.getElementById('dataInicioRelatorio')?.addEventListener('change', atualizarRelatorio);
+    document.getElementById('dataFimRelatorio')?.addEventListener('change', atualizarRelatorio);
+    document.getElementById('btnLimparFiltrosRelatorio')?.addEventListener('click', () => {
+        document.getElementById('buscaRelatorio').value = '';
+        document.getElementById('dataInicioRelatorio').value = '';
+        document.getElementById('dataFimRelatorio').value = '';
+        atualizarRelatorio();
     });
 
     // ================================================================
@@ -1484,7 +1895,14 @@
                             <span class="saque-info-label">Data solicitação</span>
                             <span class="saque-info-valor">${fmtDate(s.data_solicitacao)}</span>
                         </div>
+                        ${s.status === 'pago' ? `<div class="saque-info-item">
+                            <span class="saque-info-label">Data pagamento</span>
+                            <span class="saque-info-valor verde">${fmtDate(s.data_pagamento)}</span>
+                        </div>` : ''}
                     </div>
+                    ${s.status === 'pago' && s.observacao_pagamento ? `<div style="margin-top:10px; padding:8px 10px; background:var(--bg); border-radius:8px; font-size:12px; color:var(--text3);">
+                        📝 ${s.observacao_pagamento}
+                    </div>` : ''}
                 </div>
                 <div class="saque-acoes">
                     ${s.status !== 'pago' ? `<button class="btn-tabela btn-marcar-pago" data-saque-id="${s.id}" onclick="marcarSaqueComoPago('${s.id}')">✅ Marcar como pago</button>` : ''}
