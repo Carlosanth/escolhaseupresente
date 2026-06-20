@@ -803,9 +803,6 @@
             <button class="nav-item" data-secao="relatorio">
                 <span class="icon">📋</span><span>Relatório</span>
             </button>
-            <button class="nav-item" data-secao="relatorio">
-                <span class="icon">📋</span><span>Relatório</span>
-            </button>
             <button class="nav-item" data-secao="configuracoes">
                 <span class="icon">⚙️</span><span>Configurações</span>
             </button>
@@ -945,33 +942,6 @@
                     </thead>
                     <tbody id="tabelaRelatorio">
                         <tr class="loading-row"><td colspan="9">Carregando...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- ===== SEÇÃO: RELATÓRIO ===== -->
-        <section class="secao" id="secao-relatorio">
-            <div class="card-tabela">
-                <div class="card-tabela-header">
-                    <h3>📋 Todos os presentes recebidos</h3>
-                    <button id="btnExportarRelatorio" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);color:#c4b5fd;padding:6px 14px;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;">⬇️ Exportar CSV</button>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Cliente</th>
-                            <th>Presente</th>
-                            <th>Convidado</th>
-                            <th>Valor original</th>
-                            <th>Quem pagou taxa</th>
-                            <th>Taxa (meu lucro)</th>
-                            <th>Cliente recebeu</th>
-                            <th>Data</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaRelatorio">
-                        <tr class="loading-row"><td colspan="8">Carregando...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1120,8 +1090,7 @@
         'clientes':       ['Clientes', 'Todos os usuários cadastrados'],
         'saques':         ['Solicitações de Saque', 'Gerencie os repasses'],
         'relatorio':      ['Relatório de Presentes', 'Histórico completo com dados de taxa'],
-        'configuracoes':  ['Configurações', 'Parâmetros globais da plataforma'],
-        'relatorio':      ['Relatório de Presentes', 'Comprovação detalhada de cada transação']
+        'configuracoes':  ['Configurações', 'Parâmetros globais da plataforma']
     };
 
     document.querySelectorAll('.nav-item').forEach(btn => {
@@ -1205,7 +1174,7 @@
             toast('✅ Valor mínimo de saque atualizado!');
         } catch(e) {
             console.error(e);
-            toast('❌ Erro ao salvar valor mínimo.');
+            toast('❌ Erro ao salvar: ' + (e.message || e.code || 'desconhecido'));
         }
     });
 
