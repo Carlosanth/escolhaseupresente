@@ -216,6 +216,27 @@
         }
         .btn-notif:hover { background: rgba(196, 181, 253, 0.2); }
 
+        /* Badge de saldo disponível — mesma "pílula" do sino, fundo um
+           pouco mais escuro, mesma cor de texto. É só informativo,
+           não é clicável. */
+        .saldo-mini-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 14px;
+            margin-right: 4px;
+            margin-bottom: 10px;
+            margin-top: 10px;
+            border: 1px solid rgba(196, 181, 253, 0.25);
+            border-radius: 35px;
+            background: rgba(120, 100, 170, 0.16);
+            backdrop-filter: blur(10px);
+            font-size: 13px;
+            font-weight: 700;
+            color: #c4b5fd;
+            white-space: nowrap;
+        }
+
         .notif-badge {
             position: absolute;
             top: -4px;
@@ -347,279 +368,6 @@
             font-size: 13px;
             text-align: center;
             padding: 30px 0;
-        }
-
-        /* ===== SALDO + SAQUE ===== */
-        .saldo-bloco {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid rgba(255,255,255,0.07);
-            flex-wrap: nowrap;
-        }
-        .saldo-card {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            flex: 1;
-            min-width: 0;
-        }
-        .saldo-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.45);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .saldo-valor {
-            font-size: 20px;
-            font-weight: 700;
-            color: #34d399;
-        }
-        .saldo-sub {
-            font-size: 10px;
-            color: rgba(255,255,255,0.3);
-        }
-        .btn-solicitar-saque {
-            flex-shrink: 0;
-            padding: 10px 16px;
-            background: rgba(52,211,153,0.15);
-            border: 1px solid rgba(52,211,153,0.3);
-            color: #34d399;
-            border-radius: 50px;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-        .btn-solicitar-saque:hover { background: rgba(52,211,153,0.25); }
-
-        /* ===== ITEM VENDIDO (bloqueado) ===== */
-        .base.vendido {
-            opacity: 0.85;
-        }
-        .chip-vendido {
-            padding: 4px 10px;
-            border-radius: 50px;
-            background: rgba(245,158,11,0.15);
-            color: #f59e0b;
-            border: 1px solid rgba(245,158,11,0.3);
-            min-width: 80px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .btn-bloqueado {
-            padding: 4px 10px;
-            border-radius: 50px;
-            background: rgba(255,255,255,0.04);
-            color: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.07);
-            min-width: 80px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: not-allowed;
-            user-select: none;
-        }
-
-        /* ===== ITEM VENDIDO ===== */
-        .base.vendido {
-            opacity: 0.75;
-            border-color: rgba(245,158,11,0.25);
-            background: rgba(245,158,11,0.04);
-        }
-        .chip-vendido {
-            padding: 4px 10px;
-            border-radius: 50px;
-            background: rgba(245,158,11,0.15);
-            color: #f59e0b;
-            border: 1px solid rgba(245,158,11,0.3);
-            min-width: 80px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .btn-bloqueado {
-            padding: 4px 10px;
-            border-radius: 50px;
-            background: rgba(255,255,255,0.04);
-            color: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.08);
-            min-width: 80px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: not-allowed;
-            user-select: none;
-        }
-
-        /* ===== SALDO E SAQUE ===== */
-        .saldo-saque-wrap {
-            display: flex;
-            gap: 12px;
-            width: 100%;
-            margin-bottom: 14px;
-            flex-wrap: wrap;
-        }
-        .saldo-card {
-            flex: 1 1 140px;
-            background: rgba(16,185,129,0.07);
-            border: 1px solid rgba(16,185,129,0.2);
-            border-radius: 12px;
-            padding: 14px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .saldo-label {
-            font-size: 11px;
-            color: rgba(255,255,255,0.4);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .saldo-valor {
-            font-size: 20px;
-            font-weight: 700;
-            color: #34d399;
-        }
-        .btn-solicitar-saque {
-            flex: 1 1 140px;
-            background: rgba(167,139,250,0.1);
-            border: 1px solid rgba(167,139,250,0.3);
-            border-radius: 12px;
-            padding: 14px 16px;
-            color: #a78bfa;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn-solicitar-saque:hover { background: rgba(167,139,250,0.2); }
-
-        /* ===== MODAL SAQUE ===== */
-        .modal-saque {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            justify-content: center;
-            align-items: center;
-            z-index: 3000;
-        }
-        .modal-saque-content {
-            background: #0f1420;
-            border: 1px solid rgba(167,139,250,0.2);
-            border-radius: 20px;
-            padding: 28px 24px;
-            width: min(380px, 94vw);
-            box-shadow: 0 24px 60px rgba(0,0,0,0.6);
-            animation: popIn 0.2s ease;
-        }
-        .modal-saque-content h4 {
-            font-size: 17px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 6px;
-        }
-        .modal-saque-content p {
-            font-size: 13px;
-            color: rgba(255,255,255,0.45);
-            margin-bottom: 18px;
-        }
-        .modal-saque-content label {
-            font-size: 12px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.55);
-            display: block;
-            margin-bottom: 5px;
-            margin-left: 4px;
-        }
-        .modal-saque-content input {
-            display: block;
-            width: 100%;
-            padding: 11px 16px;
-            border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.06);
-            color: #fff;
-            font-size: 14px;
-            margin-bottom: 12px;
-            outline: none;
-            font-family: 'Arial', sans-serif;
-        }
-        .modal-saque-content input:focus {
-            border-color: rgba(167,139,250,0.5);
-        }
-        .modal-saque-aviso {
-            font-size: 12px;
-            color: #f59e0b;
-            background: rgba(245,158,11,0.08);
-            border: 1px solid rgba(245,158,11,0.2);
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 16px;
-        }
-        .modal-saque-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .btn-saque-confirmar {
-            flex: 1;
-            background: linear-gradient(135deg, #7c3aed, #4f46e5);
-            border: none;
-            border-radius: 50px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 700;
-            padding: 12px;
-            cursor: pointer;
-        }
-        .btn-saque-cancelar {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 50px;
-            color: rgba(255,255,255,0.5);
-            font-size: 14px;
-            font-weight: 600;
-            padding: 12px 20px;
-            cursor: pointer;
-        }
-
-        /* ===== CHIP VENDIDO / BOTÃO BLOQUEADO ===== */
-        .chip-vendido {
-            padding: 4px 10px;
-            border-radius: 50px;
-            background: rgba(245,158,11,0.15);
-            color: #f59e0b;
-            border: 1px solid rgba(245,158,11,0.3);
-            min-width: 80px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .btn-bloqueado {
-            padding: 4px 10px;
-            border-radius: 50px;
-            background: rgba(255,255,255,0.04);
-            color: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.07);
-            min-width: 80px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: not-allowed;
-            user-select: none;
         }
 
         /* ===== SALDO + SAQUE ===== */
@@ -812,10 +560,18 @@
         .resumo-valor-destaque {
             color: #a78bfa;
         }
+        .resumo-ja-sacado {
+            font-size: 10px;
+            color: rgba(255,255,255,0.35);
+            font-weight: 500;
+            white-space: nowrap;
+        }
 
         /* ===== INTERRUPTOR DE TAXA ===== */
         .taxa-bloco {
             width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: 12px;
@@ -910,6 +666,9 @@
                 <button id="btnSair">Sair</button>
             </div>
             <button class="btn-tema" id="tema">TEMAS DA LISTA</button>
+            <span class="saldo-mini-badge" id="saldoMiniBadge" style="display:none;">
+                💰 <span id="saldoMiniValor">R$ 0,00</span>
+            </span>
             <button class="btn-notif" id="btnNotif">
                 🔔 <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
             </button>   
@@ -996,6 +755,7 @@
                         <input type="button" id="qrcode" class="qrcode" value="Gerar QrCode">
                     </div>
                 </div>
+
             </div>
             
             <div class="itenscadastrados">
@@ -1010,18 +770,8 @@
                     <div class="resumo-card resumo-card-destaque">
                         <span class="resumo-label" id="resumoReceberLabel">✅ Você receberá</span>
                         <span class="resumo-valor resumo-valor-destaque" id="resumoReceber">R$ 0,00</span>
+                        <small class="resumo-ja-sacado" id="resumoJaSacado" style="display:none;"></small>
                     </div>
-                </div>
-
-                <!-- SALDO DISPONÍVEL + SOLICITAR SAQUE -->
-                <div class="saldo-bloco" id="saldoBloco" style="display:none;">
-                    <div class="saldo-card">
-                        <span class="saldo-label">💰 Saldo disponível</span>
-                        <span class="saldo-valor" id="saldoDisponivel">R$ 0,00</span>
-                    </div>
-                    <button class="btn-solicitar-saque" id="btnSolicitarSaque">
-                        💸 Solicitar Saque
-                    </button>
                 </div>
 
                 <!-- INTERRUPTOR DE TAXA -->
@@ -1040,59 +790,12 @@
                     </div>
                 </div>
 
-                <!-- SALDO DISPONÍVEL + SOLICITAR SAQUE -->
-                <div class="saldo-saque-wrap" id="saldoSaqueWrap" style="display:none;">
-                    <div class="saldo-card">
-                        <span class="saldo-label">💰 Saldo disponível</span>
-                        <span class="saldo-valor" id="saldoDisponivel">R$ 0,00</span>
-                    </div>
-                    <button class="btn-solicitar-saque" id="btnSolicitarSaque">
-                        💸 Solicitar Saque
-                    </button>
-                </div>
-
                 <div id="registros" style="width: 100%; max-height: 480px; overflow-y: auto; padding-right: 4px;"></div>
-
-                <!-- SALDO + SAQUE -->
-                <div class="saldo-bloco" id="saldoBloco" style="display:none;">
-                    <div class="saldo-card">
-                        <span class="saldo-label">💰 Saldo disponível</span>
-                        <span class="saldo-valor" id="saldoDisponivel">R$ 0,00</span>
-                        <span class="saldo-sub">presentes recebidos menos taxa</span>
-                    </div>
-                    <button class="btn-solicitar-saque" id="btnSolicitarSaque">
-                        Solicitar Saque
-                    </button>
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL SOLICITAR SAQUE -->
-    <div id="modalSaque" class="modal-confirm">
-        <div class="modal-confirm-content" style="max-width:380px;">
-            <div class="modal-icon">💸</div>
-            <h4>Solicitar Saque</h4>
-            <p style="margin-bottom:16px;">Preencha seus dados. O valor será enviado em até <strong>24h</strong>.</p>
-            <div style="text-align:left;">
-                <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px;margin-left:4px;">Seu nome completo</label>
-                <input type="text" id="saqueNome" placeholder="Nome completo" style="display:block;width:100%;padding:11px 16px;border-radius:50px;border:1px solid #ddd;font-size:14px;margin-bottom:10px;box-sizing:border-box;">
-                <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px;margin-left:4px;">CPF (chave PIX)</label>
-                <input type="text" id="saqueCpf" placeholder="000.000.000-00" style="display:block;width:100%;padding:11px 16px;border-radius:50px;border:1px solid #ddd;font-size:14px;margin-bottom:10px;box-sizing:border-box;">
-                <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px;margin-left:4px;">WhatsApp para contato</label>
-                <input type="text" id="saqueWhatsapp" placeholder="(85) 99999-9999" style="display:block;width:100%;padding:11px 16px;border-radius:50px;border:1px solid #ddd;font-size:14px;margin-bottom:10px;box-sizing:border-box;">
-                <div style="background:#f8f9fa;border-radius:12px;padding:12px 14px;margin-bottom:14px;">
-                    <div style="font-size:11px;color:#888;font-weight:600;margin-bottom:4px;">VALOR A RECEBER</div>
-                    <div style="font-size:20px;font-weight:700;color:#2e7d32;" id="saqueValorModal">R$ 0,00</div>
-                </div>
-                <p style="font-size:11px;color:#999;text-align:center;">⏱ Prazo de até 24h para o envio após confirmação.</p>
-            </div>
-            <div class="modal-confirm-actions" style="margin-top:14px;">
-                <button class="btn-confirm-nao" id="btnCancelarSaque">Cancelar</button>
-                <button class="btn-confirm-sim" id="btnConfirmarSaque" style="background:#2e7d32;">Solicitar</button>
-            </div>
-        </div>
-    </div>
+
 
     <!-- MODAL QR CODE -->
     <div id="modalQR" class="modal-qr">
@@ -1157,28 +860,14 @@
             <div class="modal-saque-aviso">
                 ⏱️ O prazo para recebimento é de até <strong>24 horas</strong> após a solicitação.
             </div>
-            <div class="modal-saque-actions">
-                <button class="btn-saque-cancelar" id="btnSaqueCancelar">Cancelar</button>
-                <button class="btn-saque-confirmar" id="btnSaqueConfirmar">Solicitar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL SAQUE -->
-    <div class="modal-saque" id="modalSaque">
-        <div class="modal-saque-content">
-            <h4>💸 Solicitar Saque</h4>
-            <p>Informe seus dados para receber via PIX. O repasse será feito em até 24h.</p>
-            <input type="text" id="saqueNome" placeholder="Seu nome completo">
-            <input type="text" id="saqueCpf" placeholder="CPF ou chave PIX">
-            <input type="text" id="saqueWhatsapp" placeholder="WhatsApp (com DDD)">
-            <div class="modal-saque-aviso">⏱️ O repasse será realizado em até 24 horas após a solicitação.</div>
             <div class="modal-saque-acoes">
                 <button class="btn-saque-cancelar" id="btnSaqueCancelar">Cancelar</button>
                 <button class="btn-saque-confirmar" id="btnSaqueConfirmar">Solicitar</button>
             </div>
         </div>
     </div>
+
+
 
     <!-- CONTAINER DE TOASTS -->
     <div id="toast-container"></div>
@@ -1191,6 +880,18 @@
                 <span style="font-size:20px;">🔔</span>
                 <span class="notif-titulo">Presentes Recebidos</span>
             </div>
+
+            <!-- SALDO + SOLICITAR SAQUE -->
+            <div class="saldo-bloco" id="saldoBloco" style="display:none;">
+                <div class="saldo-card">
+                    <span class="saldo-label">💰 Saldo disponível</span>
+                    <span class="saldo-valor" id="saldoDisponivel">R$ 0,00</span>
+                </div>
+                <button class="btn-solicitar-saque" id="btnSolicitarSaque">
+                    💸 Solicitar Saque
+                </button>
+            </div>
+
             <div class="notif-acoes">
                 <button class="btn-exportar-notif" id="btnExportarNotif">⬇️ Exportar lista</button>
             </div>
@@ -1227,10 +928,13 @@
         let usuarioAtualUid = null;
         let unsubscribeProdutos = null;
         let unsubscribeCategorias = null;
+        let unsubscribeSaques = null;
         let imagemSelecionadaParaO_Banco = "";
         let totalItensAtual = 0;
         let taxaQuemPaga = "convidado"; // "convidado" ou "cliente"
         let todosOsProdutos = []; // cache local para recalcular sem recarregar
+        let meusSaques = []; // cache local dos saques deste usuário
+        let valorMinimoSaqueCentavos = 25000; // padrão R$ 250,00, sobrescrito pela config do admin
 
         // Referências DOM
         const btnAdicionar         = document.getElementById('Savar');
@@ -1515,16 +1219,23 @@
         // ================================================================
         // AUTH
         // ================================================================
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 usuarioAtualUid = user.uid;
                 userLogadoEmail.textContent = user.email;
                 // Salva e-mail nas configurações para o painel admin conseguir identificar o cliente
                 setDoc(doc(db, "configuracoes", user.uid), { email: user.email }, { merge: true }).catch(() => {});
-                escutarProdutosDoBanco();
                 escutarCategoriasDoBanco();
                 carregarImagensCarrosel();
-                carregarTaxaDoFirestore();
+                // IMPORTANTE: a taxa precisa terminar de carregar ANTES de começar
+                // a escutar/renderizar produtos. Antes as duas chamadas rodavam em
+                // paralelo e competiam: se o snapshot de produtos chegasse primeiro,
+                // os itens eram desenhados com a taxa padrão (errada) e o toggle
+                // ficava fora de sincronia com o texto de cada card.
+                await carregarTaxaDoFirestore();
+                await carregarValorMinimoSaque();
+                escutarProdutosDoBanco();
+                escutarMeusSaques();
                 escutarNotificacoes();
             } else {
                 usuarioAtualUid = null;
@@ -1532,6 +1243,7 @@
                 containerRegistros.innerHTML = '<p style="padding:10px;">Redirecionando...</p>';
                 if (unsubscribeProdutos)   unsubscribeProdutos();
                 if (unsubscribeCategorias) unsubscribeCategorias();
+                if (unsubscribeSaques)     unsubscribeSaques();
                 window.location.href = "index.html";
             }
         });
@@ -1682,18 +1394,35 @@
         function escutarProdutosDoBanco() {
             const q = query(collection(db, "produtos_teste"), where("usuario_id", "==", usuarioAtualUid));
             unsubscribeProdutos = onSnapshot(q, (querySnapshot) => {
-                containerRegistros.innerHTML = '';
+                // Remove só os cards de item (.base), preservando o resto do
+                // container (mensagem "nenhum item", scroll, etc.) e evitando
+                // o "pulo" visual que innerHTML = '' causava a cada atualização.
+                containerRegistros.querySelectorAll('.base').forEach(el => el.remove());
+                const msgVazia = containerRegistros.querySelector('.msg-vazia');
+                if (msgVazia) msgVazia.remove();
+
                 totalItensAtual = querySnapshot.size;
                 todosOsProdutos = [];
 
                 if (totalItensAtual === 0) {
                     document.getElementById('resumoCards').style.display = 'none';
                     document.getElementById('taxaBloco').style.display = 'none';
-                    containerRegistros.innerHTML = '<p style="padding:10px; opacity:0.7;">Nenhum item cadastrado ainda.</p>';
+                    containerRegistros.innerHTML = '<p class="msg-vazia" style="padding:10px; opacity:0.7;">Nenhum item cadastrado ainda.</p>';
                 } else {
                     querySnapshot.forEach((docSnap) => {
                         todosOsProdutos.push({ id: docSnap.id, ...docSnap.data() });
                     });
+
+                    // Fonte de verdade do toggle: o campo taxa_quem_paga gravado
+                    // nos próprios produtos. Isso evita dessincronia caso o doc
+                    // "configuracoes/{uid}" esteja ausente, desatualizado ou
+                    // vindo do cache local do Firestore antes do servidor confirmar.
+                    const produtoComTaxa = todosOsProdutos.find(p => p.taxa_quem_paga);
+                    if (produtoComTaxa) {
+                        taxaQuemPaga = produtoComTaxa.taxa_quem_paga;
+                        document.getElementById('toggleTaxa').checked = taxaQuemPaga === 'cliente';
+                    }
+
                     document.getElementById('resumoCards').style.display = 'flex';
                     document.getElementById('taxaBloco').style.display = 'flex';
                     atualizarResumo();
@@ -1713,32 +1442,14 @@
         function atualizarResumo() {
             const qtd = todosOsProdutos.length;
 
-            // Total dos itens disponíveis (previsão)
+            // "Você receberá" é a previsão TOTAL da lista inteira — soma todos
+            // os itens, vendidos ou ainda disponíveis. É um cálculo geral para
+            // o cliente entender quanto vai receber de presente no total,
+            // não reflete o que já caiu na conta de fato.
             let totalOriginalCentavos = 0;
             todosOsProdutos.forEach(p => {
-                if (p.disponivel !== false) {
-                    totalOriginalCentavos += parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-                }
+                totalOriginalCentavos += parseInt(p.preco_original_centavos || p.preco_centavos || 0);
             });
-
-            // Saldo = soma dos itens VENDIDOS respeitando taxa de cada produto
-            let saldoCentavos = 0;
-            todosOsProdutos.forEach(p => {
-                if (p.disponivel === false && p.presenteado_por) {
-                    const orig = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-                    const taxaDesse = p.taxa_quem_paga || taxaQuemPaga;
-                    saldoCentavos += taxaDesse === 'convidado'
-                        ? orig
-                        : Math.round(orig * (1 - TAXA_PERCENTUAL / 100));
-                }
-            });
-
-            const vendidos = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
-            const saldoWrap = document.getElementById('saldoSaqueWrap');
-            if (saldoWrap) {
-                saldoWrap.style.display = vendidos.length > 0 ? 'flex' : 'none';
-                document.getElementById('saldoDisponivel').textContent = formatarBRL(saldoCentavos);
-            }
 
             document.getElementById('resumoQtd').textContent = qtd;
 
@@ -1747,6 +1458,7 @@
             const receberEl      = document.getElementById('resumoReceber');
             const receberLabel   = document.getElementById('resumoReceberLabel');
             const taxaSubtitulo  = document.getElementById('taxaSubtitulo');
+            const jaSacadoEl     = document.getElementById('resumoJaSacado');
 
             if (taxaQuemPaga === 'convidado') {
                 receberEl.textContent = formatarBRL(totalOriginalCentavos);
@@ -1762,6 +1474,20 @@
                 labelConvidado.classList.remove('ativo');
                 labelCliente.classList.add('ativo');
             }
+
+            // Linha discreta: quanto já foi efetivamente sacado/pago pelo admin.
+            // É só um aviso para o cliente não achar que o valor de "Você
+            // receberá" (que é a previsão total) ainda está inteiro disponível.
+            const totalJaSacadoCentavos = meusSaques
+                .filter(s => s.status === 'pago')
+                .reduce((acc, s) => acc + parseInt(s.repasse_centavos || 0), 0);
+
+            if (totalJaSacadoCentavos > 0) {
+                jaSacadoEl.textContent = '− ' + formatarBRL(totalJaSacadoCentavos) + ' já sacado';
+                jaSacadoEl.style.display = 'block';
+            } else {
+                jaSacadoEl.style.display = 'none';
+            }
         }
 
         // ================================================================
@@ -1774,11 +1500,10 @@
                 if (snap.exists() && snap.data().taxa_quem_paga) {
                     taxaQuemPaga = snap.data().taxa_quem_paga;
                     document.getElementById('toggleTaxa').checked = taxaQuemPaga === 'cliente';
-                    atualizarResumo();
-                    // Re-renderiza itens para exibir linha correta ao recarregar
-                    containerRegistros.innerHTML = '';
-                    todosOsProdutos.forEach(p => renderizarItemNaTela(p, p.id));
                 }
+                // Não renderiza nada aqui: a lista de produtos (escutarProdutosDoBanco)
+                // só começa a escutar DEPOIS desta função terminar, então ela já vai
+                // desenhar tudo com a taxaQuemPaga correta desde o início.
             } catch(e) { console.error("Erro ao carregar taxa:", e); }
         }
 
@@ -2040,90 +1765,75 @@
         });
 
         // ================================================================
-        // MODAL SOLICITAR SAQUE
-        // ================================================================
-        document.getElementById('btnSolicitarSaque').addEventListener('click', () => {
-            document.getElementById('modalSaque').style.display = 'flex';
-            document.getElementById('saqueNome').focus();
-        });
-
-        document.getElementById('btnSaqueCancelar').addEventListener('click', () => {
-            document.getElementById('modalSaque').style.display = 'none';
-        });
-
-        document.getElementById('btnSaqueConfirmar').addEventListener('click', async () => {
-            const nome      = document.getElementById('saqueNome').value.trim();
-            const cpf       = document.getElementById('saqueCpf').value.trim();
-            const whatsapp  = document.getElementById('saqueWhatsapp').value.trim();
-
-            if (!nome)     { mostrarToast('Informe seu nome.', 'aviso', '⚠️'); return; }
-            if (!cpf)      { mostrarToast('Informe o CPF/PIX.', 'aviso', '⚠️'); return; }
-            if (!whatsapp) { mostrarToast('Informe o WhatsApp.', 'aviso', '⚠️'); return; }
-
-            const btn = document.getElementById('btnSaqueConfirmar');
-            btn.textContent = 'Enviando...';
-            btn.disabled = true;
-
-            // Calcular totais para o admin
-            let totalCentavos = 0, saldoCentavos = 0;
-            todosOsProdutos.forEach(p => {
-                if (p.disponivel === false && p.presenteado_por) {
-                    const orig = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-                    const taxaDesse = p.taxa_quem_paga || taxaQuemPaga;
-                    totalCentavos += orig;
-                    saldoCentavos += taxaDesse === 'convidado'
-                        ? orig
-                        : Math.round(orig * (1 - TAXA_PERCENTUAL / 100));
-                }
-            });
-            const lucroCentavos = totalCentavos - saldoCentavos;
-
-            try {
-                const saqueId = `${usuarioAtualUid}-${Date.now()}`;
-                await setDoc(doc(db, "saques", saqueId), {
-                    usuario_id:        usuarioAtualUid,
-                    nome,
-                    cpf,
-                    pix:               cpf,
-                    whatsapp,
-                    total_centavos:    totalCentavos.toString(),
-                    lucro_centavos:    lucroCentavos.toString(),
-                    repasse_centavos:  saldoCentavos.toString(),
-                    status:            'pendente',
-                    data_solicitacao:  serverTimestamp()
-                });
-                document.getElementById('modalSaque').style.display = 'none';
-                document.getElementById('saqueNome').value = '';
-                document.getElementById('saqueCpf').value = '';
-                document.getElementById('saqueWhatsapp').value = '';
-                mostrarToast('Saque solicitado! Prazo: até 24h. ✅', 'sucesso', '💸');
-            } catch(e) {
-                console.error(e);
-                mostrarToast('Erro ao solicitar saque.', 'erro', '❌');
-            } finally {
-                btn.textContent = 'Solicitar';
-                btn.disabled = false;
-            }
-        });
-
-        // ================================================================
         // SALDO E SOLICITAÇÃO DE SAQUE
         // ================================================================
         function atualizarSaldo() {
             const vendidos = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
-            if (vendidos.length === 0) {
-                document.getElementById('saldoBloco').style.display = 'none';
-                return;
-            }
-            document.getElementById('saldoBloco').style.display = 'flex';
 
+            // Saldo bruto = soma de tudo que já foi vendido (líquido da taxa)
             const totalOriginal = vendidos.reduce((acc, p) => {
                 return acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0);
             }, 0);
             const taxa = parseFloat(TAXA_PERCENTUAL);
-            const saldo = Math.round(totalOriginal * (1 - taxa / 100));
-            document.getElementById('saldoDisponivel').textContent =
-                (saldo / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const saldoBruto = Math.round(totalOriginal * (1 - taxa / 100));
+
+            // Desconta o que já foi pago em saques anteriores — assim o saldo
+            // disponível nunca mostra de novo um valor que já caiu na conta.
+            const totalJaSacadoCentavos = meusSaques
+                .filter(s => s.status === 'pago')
+                .reduce((acc, s) => acc + parseInt(s.repasse_centavos || 0), 0);
+
+            const saldoDisponivelCentavos = Math.max(0, saldoBruto - totalJaSacadoCentavos);
+            const saldoFmt = formatarBRL(saldoDisponivelCentavos);
+
+            // O bloco fica SEMPRE visível, mesmo com saldo zerado.
+            document.getElementById('saldoBloco').style.display = 'flex';
+            document.getElementById('saldoDisponivel').textContent = saldoFmt;
+
+            // Mini-badge ao lado do sino — sempre visível também.
+            const miniBadge = document.getElementById('saldoMiniBadge');
+            const miniValor = document.getElementById('saldoMiniValor');
+            if (miniBadge && miniValor) {
+                miniValor.textContent = saldoFmt;
+                miniBadge.style.display = 'inline-flex';
+            }
+
+            // Botão de saque só fica habilitado se o saldo atingir o mínimo
+            // configurado pelo admin (válido para todos os clientes).
+            const btnSaque = document.getElementById('btnSolicitarSaque');
+            if (btnSaque) {
+                const habilitado = saldoDisponivelCentavos >= valorMinimoSaqueCentavos;
+                btnSaque.disabled = !habilitado;
+                btnSaque.title = habilitado
+                    ? ''
+                    : `Saldo mínimo para saque: ${formatarBRL(valorMinimoSaqueCentavos)}`;
+            }
+        }
+
+        // ================================================================
+        // VALOR MÍNIMO DE SAQUE (vem da configuração global do admin)
+        // ================================================================
+        async function carregarValorMinimoSaque() {
+            try {
+                const snap = await getDoc(doc(db, "admin_config", "global"));
+                if (snap.exists() && snap.data().valor_minimo_saque_centavos != null) {
+                    valorMinimoSaqueCentavos = parseInt(snap.data().valor_minimo_saque_centavos);
+                }
+            } catch(e) { console.error("Erro ao carregar valor mínimo de saque:", e); }
+        }
+
+        // ================================================================
+        // ESCUTAR SAQUES DO USUÁRIO (para descontar do saldo quando pagos)
+        // ================================================================
+        function escutarMeusSaques() {
+            if (!usuarioAtualUid) return;
+            const q = query(collection(db, "saques"), where("usuario_id", "==", usuarioAtualUid));
+            unsubscribeSaques = onSnapshot(q, (snapshot) => {
+                meusSaques = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                // Recalcula tudo que depende de saques (saldo + linha "já sacado")
+                atualizarResumo();
+                atualizarSaldo();
+            });
         }
 
         // Abrir modal de saque
@@ -2145,13 +1855,33 @@
                 return;
             }
 
+            // Calcula o saldo disponível ATUAL (descontando o que já foi pago
+            // em saques anteriores), para suportar saques parciais sem
+            // duplicar valor já recebido em um saque anterior.
             const vendidos = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
             const totalOriginal = vendidos.reduce((acc, p) => {
                 return acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0);
             }, 0);
-            const taxa          = parseFloat(TAXA_PERCENTUAL);
-            const lucroAdmin    = Math.round(totalOriginal * taxa / 100);
-            const repasse       = totalOriginal - lucroAdmin;
+            const taxa       = parseFloat(TAXA_PERCENTUAL);
+            const lucroTotal = Math.round(totalOriginal * taxa / 100);
+            const repasseTotal = totalOriginal - lucroTotal;
+
+            const totalJaSacadoCentavos = meusSaques
+                .filter(s => s.status === 'pago')
+                .reduce((acc, s) => acc + parseInt(s.repasse_centavos || 0), 0);
+
+            const repasse    = Math.max(0, repasseTotal - totalJaSacadoCentavos);
+            // Proporção do lucro/total referente apenas ao valor ainda não sacado
+            const lucroAdmin = repasseTotal > 0 ? Math.round(lucroTotal * (repasse / repasseTotal)) : 0;
+
+            if (repasse <= 0) {
+                mostrarToast('Não há saldo disponível para saque no momento.', 'aviso', '⚠️');
+                return;
+            }
+            if (repasse < valorMinimoSaqueCentavos) {
+                mostrarToast(`Saldo abaixo do mínimo de ${formatarBRL(valorMinimoSaqueCentavos)} para saque.`, 'aviso', '⚠️');
+                return;
+            }
 
             const btn = document.getElementById('btnSaqueConfirmar');
             btn.textContent = 'Enviando...';

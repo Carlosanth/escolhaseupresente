@@ -442,6 +442,49 @@
         .btn-wpp:hover { background: rgba(37,211,102,0.25); }
         .btn-detalhe { background: var(--purple-dim); color: var(--purple-light); }
         .btn-detalhe:hover { background: rgba(124,58,237,0.25); }
+        .btn-marcar-pago { background: var(--green-dim); color: var(--green); }
+        .btn-marcar-pago:hover { background: rgba(16,185,129,0.25); }
+        .btn-marcar-pago:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* CONFIGURAÇÃO: VALOR MÍNIMO DE SAQUE */
+        .config-saque-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .config-saque-card label {
+            font-size: 13px;
+            color: var(--text2);
+            font-weight: 600;
+        }
+        .config-saque-card input {
+            background: var(--bg);
+            border: 1px solid var(--border2);
+            border-radius: 8px;
+            color: var(--text);
+            padding: 8px 12px;
+            font-size: 13px;
+            font-family: var(--mono);
+            width: 150px;
+        }
+        .btn-salvar-config {
+            background: var(--purple-dim);
+            color: var(--purple-light);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .btn-salvar-config:hover { background: rgba(124,58,237,0.25); }
 
         /* SAQUE DETALHE */
         .saque-card {
@@ -864,6 +907,12 @@
 
         <!-- ===== SEÇÃO: SAQUES ===== -->
         <section class="secao" id="secao-saques">
+            <div class="config-saque-card">
+                <label for="inputValorMinimoSaque">💰 Valor mínimo para saque</label>
+                <input type="tel" id="inputValorMinimoSaque" placeholder="R$ 0,00">
+                <button class="btn-salvar-config" id="btnSalvarValorMinimo">Salvar</button>
+                <span style="font-size:11px; color: var(--text3);">Vale para todos os clientes.</span>
+            </div>
             <div class="card-tabela" style="margin-bottom:20px;">
                 <div class="card-tabela-header">
                     <h3>Solicitações de saque</h3>
@@ -966,7 +1015,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -1052,6 +1101,7 @@
             document.getElementById('tela-login').style.display = 'none';
             document.getElementById('painel').style.display = 'block';
             await carregarTaxaGlobal();
+            await carregarValorMinimoSaque();
             iniciarPainel();
         } else if (user && user.email !== ADMIN_EMAIL) {
             await signOut(auth);
@@ -1111,6 +1161,70 @@
             toast('✅ Taxa atualizada para ' + val.toFixed(1) + '%');
         } catch(e) { toast('❌ Erro ao salvar taxa.'); }
     });
+
+    // ================================================================
+    // VALOR MÍNIMO DE SAQUE (GLOBAL)
+    // ================================================================
+    function formatarCentavosParaReais(centavos) {
+        const valor = (centavos / 100).toFixed(2);
+        return "R$ " + valor.replace(".", ",").replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+    }
+
+    // Converte o texto exibido ("R$ 1.234,56") de volta para centavos (inteiro)
+    function parseReaisParaCentavos(texto) {
+        const apenasDigitos = (texto || '').replace(/\D/g, "");
+        return apenasDigitos ? parseInt(apenasDigitos, 10) : 0;
+    }
+
+    const inputValorMinimoSaque = document.getElementById('inputValorMinimoSaque');
+
+    // Máscara em tempo real — mesmo padrão usado no campo de preço do cadastro.html
+    inputValorMinimoSaque.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, "");
+        if (!value) { e.target.value = ""; return; }
+        value = (parseFloat(value) / 100).toFixed(2);
+        e.target.value = "R$ " + value.replace(".", ",").replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+    });
+
+    async function carregarValorMinimoSaque() {
+        try {
+            const snap = await getDoc(doc(db, "admin_config", "global"));
+            const centavos = (snap.exists() && snap.data().valor_minimo_saque_centavos != null)
+                ? parseInt(snap.data().valor_minimo_saque_centavos)
+                : 25000; // padrão: R$ 250,00
+            inputValorMinimoSaque.value = formatarCentavosParaReais(centavos);
+        } catch(e) { console.error(e); }
+    }
+
+    document.getElementById('btnSalvarValorMinimo').addEventListener('click', async () => {
+        const centavos = parseReaisParaCentavos(inputValorMinimoSaque.value);
+        if (centavos <= 0) { toast('⚠️ Valor inválido.'); return; }
+        try {
+            await setDoc(doc(db, "admin_config", "global"), { valor_minimo_saque_centavos: centavos }, { merge: true });
+            inputValorMinimoSaque.value = formatarCentavosParaReais(centavos);
+            toast('✅ Valor mínimo de saque atualizado!');
+        } catch(e) {
+            console.error(e);
+            toast('❌ Erro ao salvar valor mínimo.');
+        }
+    });
+
+    // ================================================================
+    // MARCAR SAQUE COMO PAGO
+    // ================================================================
+    window.marcarSaqueComoPago = async function(saqueId) {
+        if (!confirm('Confirmar que este saque foi pago? Essa ação atualiza o saldo do cliente.')) return;
+        try {
+            await updateDoc(doc(db, "saques", saqueId), {
+                status: 'pago',
+                data_pagamento: new Date()
+            });
+            toast('✅ Saque marcado como pago!');
+        } catch(e) {
+            console.error(e);
+            toast('❌ Erro ao marcar saque como pago.');
+        }
+    };
 
     // ================================================================
     // INICIAR PAINEL — escuta em tempo real
@@ -1404,6 +1518,7 @@
                     </div>
                 </div>
                 <div class="saque-acoes">
+                    ${s.status !== 'pago' ? `<button class="btn-tabela btn-marcar-pago" data-saque-id="${s.id}" onclick="marcarSaqueComoPago('${s.id}')">✅ Marcar como pago</button>` : ''}
                     ${wppNum ? `<a href="${wppLink}" target="_blank" class="btn-tabela btn-wpp">💬 WhatsApp</a>` : ''}
                 </div>
             </div>`;
