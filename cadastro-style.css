@@ -567,12 +567,61 @@ select.campo-formulario option {
     background: rgba(239, 68, 68, 0.22);
 }
 
+/* ===== CARD VENDIDO (item já presenteado) ===== */
+.base.vendido {
+    background: rgba(245, 166, 35, 0.14);
+    border-color: rgba(245, 166, 35, 0.35);
+}
+
+.base.vendido:hover {
+    background: rgba(245, 166, 35, 0.14);
+    border-color: rgba(245, 166, 35, 0.35);
+}
+
+.base.vendido .T-Produtos strong,
+.base.vendido .T-Produtos span,
+.base.vendido .T-Produtos small {
+    opacity: 0.55;
+}
+
+.base.vendido img {
+    opacity: 0.6;
+}
+
+.chip-vendido {
+    padding: 4px 10px;
+    background: rgba(245, 166, 35, 0.18);
+    color: #f5a623 !important;
+    border: 1px solid rgba(245, 166, 35, 0.4);
+    border-radius: 50px;
+    min-width: 80px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.btn-bloqueado {
+    padding: 4px 10px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    min-width: 80px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: not-allowed;
+    user-select: none;
+}
+
 /* ===== BOTÕES AÇÃO ===== */
 .salva-it {
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 .int {
@@ -649,6 +698,347 @@ h3 {
 }
 
 .qrcode:active { transform: scale(0.95); }
+
+/* ===== RESPONSIVO ===== */
+
+/* ===== BOTÃO LISTAS PRONTAS ===== */
+.btn-listas-prontas {
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: 50px;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    font-weight: 700;
+    background: rgba(52, 211, 153, 0.1);
+    color: #34d399;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    white-space: nowrap;
+}
+
+.btn-listas-prontas:hover {
+    background: rgba(52, 211, 153, 0.2);
+}
+
+.btn-listas-prontas:active { transform: scale(0.95); }
+
+/* ===== PAINEL CATEGORIAS DE LISTAS PRONTAS ===== */
+.area-listas {
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    background: rgba(18, 10, 45, 0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    box-shadow: -8px 0 40px rgba(0,0,0,0.4);
+    border-radius: 20px 0 0 20px;
+    position: fixed;
+    top: 0;
+    right: -420px;
+    z-index: 101;
+    height: 100vh;
+    width: min(400px, 100vw);
+    transition: right 0.5s ease-in-out;
+    overflow: hidden;
+}
+
+.area-listas.ativo { right: 0; }
+
+.listas-painel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-top: 20px;
+    gap: 14px;
+}
+
+.listas-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.listas-titulo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.listas-subtitulo {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    margin-top: -8px;
+}
+
+.categorias-prontas {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+}
+
+.categorias-prontas::-webkit-scrollbar { width: 4px; }
+.categorias-prontas::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 4px; }
+.categorias-prontas::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.35); border-radius: 4px; }
+
+.categoria-pronta-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.categoria-pronta-card:hover {
+    background: rgba(167, 139, 250, 0.1);
+    border-color: rgba(167, 139, 250, 0.3);
+}
+
+.categoria-pronta-icone {
+    font-size: 26px;
+    flex-shrink: 0;
+}
+
+.categoria-pronta-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.categoria-pronta-nome {
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.categoria-pronta-qtd {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+}
+
+.categoria-pronta-seta {
+    margin-left: auto;
+    color: rgba(255,255,255,0.3);
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+/* ===== PAINEL ITENS DA LISTA PRONTA ===== */
+.area-itens-prontos {
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    background: rgba(18, 10, 45, 0.985);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+    box-shadow: -8px 0 40px rgba(0,0,0,0.4);
+    border-radius: 20px 0 0 20px;
+    position: fixed;
+    top: 0;
+    right: -420px;
+    z-index: 102;
+    height: 100vh;
+    width: min(400px, 100vw);
+    transition: right 0.5s ease-in-out;
+    overflow: hidden;
+}
+
+.area-itens-prontos.ativo { right: 0; }
+
+.itens-prontos-painel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-top: 20px;
+    gap: 14px;
+}
+
+.itens-prontos-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.btn-voltar-categorias {
+    background: rgba(167,139,250,0.12);
+    border: 1px solid rgba(167,139,250,0.25);
+    color: #c4b5fd;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.itens-prontos-titulo {
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.itens-prontos-marcar-todos {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.btn-marcar-todos,
+.btn-desmarcar-todos {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.7);
+    padding: 8px 10px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-marcar-todos:hover,
+.btn-desmarcar-todos:hover {
+    background: rgba(167,139,250,0.18);
+}
+
+.itens-prontos-lista {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-right: 4px;
+}
+
+.itens-prontos-lista::-webkit-scrollbar { width: 4px; }
+.itens-prontos-lista::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 4px; }
+.itens-prontos-lista::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.35); border-radius: 4px; }
+
+.item-pronto-linha {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.item-pronto-linha:hover {
+    background: rgba(167, 139, 250, 0.08);
+}
+
+.item-pronto-linha.selecionado {
+    background: rgba(52, 211, 153, 0.1);
+    border-color: rgba(52, 211, 153, 0.3);
+}
+
+.item-pronto-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 2px solid rgba(255,255,255,0.25);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: transparent;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.item-pronto-linha.selecionado .item-pronto-check {
+    background: #34d399;
+    border-color: #34d399;
+    color: #0d0821;
+}
+
+.item-pronto-emoji {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.item-pronto-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.item-pronto-nome {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.item-pronto-preco {
+    font-size: 12px;
+    color: #a78bfa;
+}
+
+.itens-prontos-rodape {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.itens-prontos-contagem {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    white-space: nowrap;
+}
+
+.btn-add-selecionados {
+    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 11px 22px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+    transition: transform 0.1s, opacity 0.2s;
+    white-space: nowrap;
+}
+
+.btn-add-selecionados:hover { transform: translateY(-1px); }
+.btn-add-selecionados:active { transform: scale(0.96); }
+.btn-add-selecionados:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+@media (max-width: 471px) {
+    .area-listas,
+    .area-itens-prontos {
+        right: -500px;
+        width: 100vw;
+    }
+    .area-listas.ativo,
+    .area-itens-prontos.ativo { right: 0; }
+}
 
 /* ===== RESPONSIVO ===== */
 @media (min-width: 800px) {

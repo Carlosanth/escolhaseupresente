@@ -715,6 +715,40 @@
             </div>
         </div>    
 
+        <!-- PAINEL CATEGORIAS DE LISTAS PRONTAS -->
+        <div class="area-listas" id="areaListas">
+            <button class="fechar" id="fecharListas">Fechar</button>
+            <div class="listas-painel">
+                <div class="listas-header">
+                    <span style="font-size:20px;">📑</span>
+                    <span class="listas-titulo">Listas prontas</span>
+                </div>
+                <span class="listas-subtitulo">Escolha uma categoria para ver itens sugeridos</span>
+                <div class="categorias-prontas" id="categoriasProntas"></div>
+            </div>
+        </div>
+
+        <!-- PAINEL ITENS DA LISTA PRONTA ESCOLHIDA -->
+        <div class="area-itens-prontos" id="areaItensProntos">
+            <button class="fechar" id="fecharItensProntos">Fechar</button>
+            <div class="itens-prontos-painel">
+                <div class="itens-prontos-header">
+                    <button class="btn-voltar-categorias" id="btnVoltarCategorias">←</button>
+                    <span class="itens-prontos-titulo" id="itensProntosTitulo">Categoria</span>
+                </div>
+                <div class="itens-prontos-marcar-todos">
+                    <button class="btn-marcar-todos" id="btnMarcarTodos">☑️ Marcar todas</button>
+                    <button class="btn-desmarcar-todos" id="btnDesmarcarTodos">⬜ Desmarcar todas</button>
+                </div>
+                <div class="itens-prontos-lista" id="itensProntosLista"></div>
+                <div class="itens-prontos-rodape">
+                    <span class="itens-prontos-contagem" id="itensProntosContagem">0 selecionados</span>
+                    <button class="btn-add-selecionados" id="btnAddSelecionados">Adicionar</button>
+                </div>
+            </div>
+        </div>
+
+
         <!-- FORMULÁRIO + LISTA -->
         <div class="cardbox">
             <div class="box">
@@ -746,6 +780,7 @@
                 </div>
                 <div class="salva-it">
                     <input type="button" class="int" id="Savar" value="Adicionar item" />
+                    <button type="button" class="btn-listas-prontas" id="btnListasProntas">📑 Listas prontas</button>
                 </div>
                 <div class="comp-qr">
                     <div class="compart-link">
@@ -1316,6 +1351,239 @@
         }
 
         // ================================================================
+        // LISTAS PRONTAS — categorias e itens vêm do Firestore
+        // (cadastrados pelo admin em listas_prontas/{catId}/itens/{itemId})
+        // ================================================================
+        let categoriasProntasCache = [];     // [{ id, nome, icone }]
+        let itensProntosPorCategoria = {};   // catId -> [{ id, nome, preco_centavos, imagem }]
+        let unsubscribesItensProntos = {};
+
+        function escutarListasProntas() {
+            onSnapshot(collection(db, "listas_prontas"), (snap) => {
+                categoriasProntasCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+                categoriasProntasCache.forEach(cat => {
+                    if (!unsubscribesItensProntos[cat.id]) {
+                        unsubscribesItensProntos[cat.id] = onSnapshot(
+                            collection(db, "listas_prontas", cat.id, "itens"),
+                            (itensSnap) => {
+                                itensProntosPorCategoria[cat.id] = itensSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                                if (areaListas.classList.contains('ativo')) renderizarCategoriasProntas();
+                                if (categoriaProntaAtual === cat.id) renderizarItensProntosNaTela(cat.id);
+                            }
+                        );
+                    }
+                });
+
+                if (areaListas.classList.contains('ativo')) renderizarCategoriasProntas();
+            });
+        }
+
+        const areaListas         = document.getElementById('areaListas');
+        const areaItensProntos   = document.getElementById('areaItensProntos');
+        const btnListasProntas   = document.getElementById('btnListasProntas');
+        const categoriasProntas  = document.getElementById('categoriasProntas');
+        const btnVoltarCategorias = document.getElementById('btnVoltarCategorias');
+        const itensProntosTitulo = document.getElementById('itensProntosTitulo');
+        const itensProntosLista  = document.getElementById('itensProntosLista');
+        const itensProntosContagem = document.getElementById('itensProntosContagem');
+        const btnMarcarTodos     = document.getElementById('btnMarcarTodos');
+        const btnDesmarcarTodos  = document.getElementById('btnDesmarcarTodos');
+        const btnAddSelecionados = document.getElementById('btnAddSelecionados');
+
+        let categoriaProntaAtual = null;
+        let itensSelecionadosProntos = new Set(); // guarda os IDs (string) dos itens selecionados
+
+        function renderizarCategoriasProntas() {
+            if (categoriasProntasCache.length === 0) {
+                categoriasProntas.innerHTML = '<p style="color:rgba(255,255,255,0.4); font-size:13px; text-align:center; padding:30px 0;">Nenhuma lista pronta disponível no momento.</p>';
+                return;
+            }
+            categoriasProntas.innerHTML = '';
+            categoriasProntasCache.forEach(cat => {
+                const qtd = (itensProntosPorCategoria[cat.id] || []).length;
+                const card = document.createElement('div');
+                card.className = 'categoria-pronta-card';
+                card.innerHTML = `
+                    <span class="categoria-pronta-icone">${cat.icone || '📦'}</span>
+                    <div class="categoria-pronta-info">
+                        <span class="categoria-pronta-nome">${cat.nome}</span>
+                        <span class="categoria-pronta-qtd">${qtd} item${qtd === 1 ? '' : 's'} sugerido${qtd === 1 ? '' : 's'}</span>
+                    </div>
+                    <span class="categoria-pronta-seta">›</span>
+                `;
+                card.addEventListener('click', () => abrirItensProntos(cat.id));
+                categoriasProntas.appendChild(card);
+            });
+        }
+
+        function abrirItensProntos(catId) {
+            categoriaProntaAtual = catId;
+            itensSelecionadosProntos = new Set();
+            renderizarItensProntosNaTela(catId);
+            areaListas.classList.remove('ativo');
+            areaItensProntos.classList.add('ativo');
+        }
+
+        function renderizarItensProntosNaTela(catId) {
+            const cat = categoriasProntasCache.find(c => c.id === catId);
+            const itens = itensProntosPorCategoria[catId] || [];
+            itensProntosTitulo.textContent = cat ? `${cat.icone || '📦'} ${cat.nome}` : 'Categoria';
+            itensProntosLista.innerHTML = '';
+
+            if (itens.length === 0) {
+                itensProntosLista.innerHTML = '<p style="color:rgba(255,255,255,0.4); font-size:13px; text-align:center; padding:20px 0;">Nenhum item nesta categoria ainda.</p>';
+                atualizarContagemProntos();
+                return;
+            }
+
+            itens.forEach(item => {
+                const precoFmt = (parseInt(item.preco_centavos || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                const imgSrc = item.imagem || 'https://i.ibb.co/0jjSyNRG/logo.png';
+                const linha = document.createElement('div');
+                linha.className = 'item-pronto-linha';
+                linha.dataset.id = item.id;
+                if (itensSelecionadosProntos.has(item.id)) linha.classList.add('selecionado');
+                linha.innerHTML = `
+                    <span class="item-pronto-check">✓</span>
+                    <img src="${imgSrc}" alt="${item.nome}" style="width:32px;height:32px;border-radius:8px;object-fit:cover;flex-shrink:0;">
+                    <div class="item-pronto-info">
+                        <span class="item-pronto-nome">${item.nome}</span>
+                        <span class="item-pronto-preco">${precoFmt}</span>
+                    </div>
+                `;
+                linha.addEventListener('click', () => {
+                    if (itensSelecionadosProntos.has(item.id)) {
+                        itensSelecionadosProntos.delete(item.id);
+                        linha.classList.remove('selecionado');
+                    } else {
+                        itensSelecionadosProntos.add(item.id);
+                        linha.classList.add('selecionado');
+                    }
+                    atualizarContagemProntos();
+                });
+                itensProntosLista.appendChild(linha);
+            });
+
+            atualizarContagemProntos();
+        }
+
+        function atualizarContagemProntos() {
+            const n = itensSelecionadosProntos.size;
+            itensProntosContagem.textContent = `${n} selecionado${n === 1 ? '' : 's'}`;
+            btnAddSelecionados.disabled = n === 0;
+        }
+
+        btnListasProntas.addEventListener('click', () => {
+            renderizarCategoriasProntas();
+            areaListas.classList.add('ativo');
+        });
+
+        btnVoltarCategorias.addEventListener('click', () => {
+            areaItensProntos.classList.remove('ativo');
+            areaListas.classList.add('ativo');
+        });
+
+        // Botões "Fechar" — mesmo padrão dos outros painéis (temas/notificações)
+        document.getElementById('fecharListas').addEventListener('click', () => {
+            areaListas.classList.remove('ativo');
+        });
+        document.getElementById('fecharItensProntos').addEventListener('click', () => {
+            areaItensProntos.classList.remove('ativo');
+        });
+
+        // Fecha ao clicar fora do painel (na área escurecida/vazia da página)
+        document.addEventListener('click', (e) => {
+            if (areaListas.classList.contains('ativo') &&
+                !areaListas.contains(e.target) &&
+                e.target !== btnListasProntas) {
+                areaListas.classList.remove('ativo');
+            }
+            if (areaItensProntos.classList.contains('ativo') &&
+                !areaItensProntos.contains(e.target)) {
+                areaItensProntos.classList.remove('ativo');
+            }
+        });
+
+        btnMarcarTodos.addEventListener('click', () => {
+            const itens = itensProntosPorCategoria[categoriaProntaAtual] || [];
+            itens.forEach(item => itensSelecionadosProntos.add(item.id));
+            itensProntosLista.querySelectorAll('.item-pronto-linha').forEach(l => l.classList.add('selecionado'));
+            atualizarContagemProntos();
+        });
+
+        btnDesmarcarTodos.addEventListener('click', () => {
+            itensSelecionadosProntos.clear();
+            itensProntosLista.querySelectorAll('.item-pronto-linha').forEach(l => l.classList.remove('selecionado'));
+            atualizarContagemProntos();
+        });
+
+        btnAddSelecionados.addEventListener('click', async () => {
+            if (!usuarioAtualUid) { mostrarToast('Você precisa estar logado.', 'erro', '🔒'); return; }
+            if (itensSelecionadosProntos.size === 0) return;
+
+            const cat = categoriasProntasCache.find(c => c.id === categoriaProntaAtual);
+            const todosItensCategoria = itensProntosPorCategoria[categoriaProntaAtual] || [];
+            const itensParaAdicionar = todosItensCategoria.filter(item => itensSelecionadosProntos.has(item.id));
+
+            const textoOriginal = btnAddSelecionados.textContent;
+            btnAddSelecionados.textContent = 'Adicionando...';
+            btnAddSelecionados.disabled = true;
+
+            try {
+                // Garante que a categoria existe na coleção "categorias".
+                // Importante: a regra de "categorias" só libera CREATE (não
+                // update), então só gravamos se o documento ainda não existir.
+                const nomeCategoria = cat?.nome || 'Sem Categoria';
+                const categoriaLimpaCat = nomeCategoria.replace(/[\/#\$\.\[\]]/g, "").trim();
+                const catRef = doc(db, "categorias", categoriaLimpaCat);
+                const catSnap = await getDoc(catRef);
+                if (!catSnap.exists()) {
+                    await setDoc(catRef, { nome: nomeCategoria });
+                }
+
+                for (const item of itensParaAdicionar) {
+                    if (totalItensAtual >= LIMITE_ITENS) {
+                        mostrarToast(`Limite de ${LIMITE_ITENS} itens atingido!`, 'erro', '🚫');
+                        break;
+                    }
+                    const precoOriginalCentavos = parseInt(item.preco_centavos || 0);
+                    const fatorTaxa = taxaQuemPaga === 'convidado' ? (1 + TAXA_PERCENTUAL / 100) : 1;
+                    const precoCentavosWebhook = Math.round(precoOriginalCentavos * fatorTaxa);
+                    const precoParaWebhook = (precoCentavosWebhook / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                    const nomeLimpo = item.nome.replace(/[\/#\$\.\[\]]/g, "").trim();
+                    const produtoId = `${usuarioAtualUid}-${categoriaLimpaCat}-${nomeLimpo}`;
+
+                    await setDoc(doc(db, "produtos_teste", produtoId), {
+                        categoria:               nomeCategoria,
+                        disponivel:              true,
+                        imagem:                  item.imagem || 'https://i.ibb.co/0jjSyNRG/logo.png',
+                        preco:                   precoParaWebhook,
+                        preco_original_centavos: precoOriginalCentavos.toString(),
+                        preco_centavos:          precoCentavosWebhook.toString(),
+                        taxa_quem_paga:          taxaQuemPaga,
+                        taxa_percentual:         TAXA_PERCENTUAL,
+                        titulo:                  item.nome,
+                        usuario_id:              usuarioAtualUid
+                    });
+                    totalItensAtual++;
+                }
+
+                mostrarToast(`${itensParaAdicionar.length} item(ns) adicionado(s)!`, 'sucesso', '✅');
+                areaItensProntos.classList.remove('ativo');
+            } catch (error) {
+                console.error("Erro ao adicionar itens da lista pronta:", error);
+                mostrarToast('Erro ao adicionar itens. Tente novamente.', 'erro', '❌');
+            } finally {
+                btnAddSelecionados.textContent = textoOriginal;
+                btnAddSelecionados.disabled = itensSelecionadosProntos.size === 0;
+            }
+        });
+
+        escutarListasProntas();
+
+        // ================================================================
         // ADICIONAR ITEM
         // ================================================================
         btnAdicionar.addEventListener('click', async () => {
@@ -1375,7 +1643,11 @@
                 });
 
                 if (selectCategoria.value === 'MANUAL' && category) {
-                    await setDoc(doc(db, "categorias", categoriaLimpa), { nome: category });
+                    const catRef = doc(db, "categorias", categoriaLimpa);
+                    const catSnap = await getDoc(catRef);
+                    if (!catSnap.exists()) {
+                        await setDoc(catRef, { nome: category });
+                    }
                 }
                 limparFormulario();
                 mostrarToast('Item adicionado com sucesso!', 'sucesso', '✅');
