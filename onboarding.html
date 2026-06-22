@@ -98,6 +98,25 @@
             padding-left: 4px;
         }
 
+        .field-group-linha {
+            display: flex;
+            gap: 12px;
+        }
+
+        .field-group-linha .field-group {
+            flex: 1;
+            margin-bottom: 16px;
+        }
+
+        .field-group-linha .field-group-estado {
+            flex: 0 0 70px;
+        }
+
+        .field-group-linha .field-group-estado .field-input {
+            text-align: center;
+            text-transform: uppercase;
+        }
+
         .field-input {
             width: 100%;
             padding: 14px 18px;
@@ -272,6 +291,31 @@
                 >
             </div>
 
+            <div class="field-group-linha">
+                <div class="field-group">
+                    <label for="cidadeInput">Cidade</label>
+                    <input
+                        type="text"
+                        id="cidadeInput"
+                        class="field-input"
+                        placeholder="Sua cidade"
+                        maxlength="60"
+                        required
+                    >
+                </div>
+                <div class="field-group field-group-estado">
+                    <label for="estadoInput">UF</label>
+                    <input
+                        type="text"
+                        id="estadoInput"
+                        class="field-input"
+                        placeholder="CE"
+                        maxlength="2"
+                        required
+                    >
+                </div>
+            </div>
+
             <div class="aviso-seguranca">
                 <span>🔒</span>
                 <p>Seus dados são armazenados com segurança e utilizados exclusivamente para verificação de identidade e processamento de saques.</p>
@@ -369,6 +413,15 @@
             return r === parseInt(nums[10]);
         }
 
+        // ── Lista de UFs válidas (Brasil) ────────────────────
+        const UFS_VALIDAS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+
+        // ── Força maiúsculas no campo UF ─────────────────────
+        const estadoInput = document.getElementById('estadoInput');
+        estadoInput.addEventListener('input', () => {
+            estadoInput.value = estadoInput.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 2);
+        });
+
         // ── Mensagem de erro ─────────────────────────────────
         const msgErro = document.getElementById('msg-erro');
         function mostrarErro(msg) {
@@ -386,6 +439,8 @@
 
             const cpf      = cpfInput.value.trim();
             const telefone = telInput.value.trim();
+            const cidade   = document.getElementById('cidadeInput').value.trim();
+            const estado   = document.getElementById('estadoInput').value.trim().toUpperCase();
             const btn      = document.getElementById('btnSalvarPerfil');
 
             limparErro();
@@ -394,6 +449,11 @@
             if (!validarCPF(cpf)) { mostrarErro('CPF inválido. Verifique os números.'); return; }
             if (telefone.replace(/\D/g,'').length < 10) {
                 mostrarErro('Informe um telefone válido com DDD.');
+                return;
+            }
+            if (!cidade) { mostrarErro('Informe sua cidade.'); return; }
+            if (!estado || !UFS_VALIDAS.includes(estado)) {
+                mostrarErro('Informe um estado (UF) válido, ex: CE, SP, RJ.');
                 return;
             }
 
@@ -407,6 +467,8 @@
                     email:        usuarioAtual.email || '',
                     cpf:          cpf,
                     telefone:     telefone,
+                    cidade:       cidade,
+                    estado:       estado,
                     criado_em:    new Date().toISOString(),
                     perfil_completo: true
                 });

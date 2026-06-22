@@ -655,6 +655,93 @@
         .toggle-switch input:checked + .toggle-slider:before {
             transform: translateX(18px);
         }
+
+        /* ===== MODAL DETALHE DO ITEM (popup com fundo desfocado) ===== */
+        .modal-detalhe-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 5, 25, 0.55);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 2100;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal-detalhe-overlay.ativo { display: flex; }
+
+        .modal-detalhe-content {
+            background: rgba(24, 14, 56, 0.97);
+            border: 1px solid rgba(167, 139, 250, 0.25);
+            border-radius: 20px;
+            max-width: 380px;
+            width: 100%;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: popIn 0.2s ease;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .modal-detalhe-fechar {
+            position: absolute;
+            top: 14px; right: 14px;
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-detalhe-fechar:hover { background: rgba(255,255,255,0.12); }
+
+        .modal-detalhe-imagem {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 18px;
+        }
+
+        .modal-detalhe-titulo {
+            font-size: 19px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+
+        .modal-detalhe-linha {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            font-size: 13px;
+        }
+        .modal-detalhe-linha:last-of-type { border-bottom: none; }
+
+        .modal-detalhe-label { color: rgba(255,255,255,0.5); }
+        .modal-detalhe-valor { color: #fff; font-weight: 600; text-align: right; }
+        .modal-detalhe-valor.destaque { color: #a78bfa; font-size: 15px; }
+        .modal-detalhe-valor.dourado { color: #f5a623; }
+        .modal-detalhe-valor.vermelho { color: #f87171; }
+
+        .modal-detalhe-status {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 5px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -855,6 +942,32 @@
         </div>
     </div>
 
+    <!-- MODAL DETALHE DO ITEM -->
+    <div id="modalDetalheItem" class="modal-detalhe-overlay">
+        <div class="modal-detalhe-content">
+            <button class="modal-detalhe-fechar" id="fecharModalDetalheItem">✕</button>
+            <img class="modal-detalhe-imagem" id="detalheImagem" src="" alt="">
+            <div class="modal-detalhe-titulo" id="detalheTitulo"></div>
+            <div class="modal-detalhe-linha">
+                <span class="modal-detalhe-label">Categoria</span>
+                <span class="modal-detalhe-valor" id="detalheCategoria"></span>
+            </div>
+            <div class="modal-detalhe-linha" id="detalheLinhaValor">
+                <span class="modal-detalhe-label">Valor</span>
+                <span class="modal-detalhe-valor destaque" id="detalheValor"></span>
+            </div>
+            <div class="modal-detalhe-linha" id="detalheLinhaExtra" style="display:none;">
+                <span class="modal-detalhe-label" id="detalheLabelExtra"></span>
+                <span class="modal-detalhe-valor" id="detalheValorExtra"></span>
+            </div>
+            <div class="modal-detalhe-linha" id="detalheLinhaPresenteado" style="display:none;">
+                <span class="modal-detalhe-label">Presenteado por</span>
+                <span class="modal-detalhe-valor dourado" id="detalhePresenteadoPor"></span>
+            </div>
+            <span class="modal-detalhe-status" id="detalheStatus"></span>
+        </div>
+    </div>
+
     <!-- MODAL EDITAR ITEM -->
     <div id="modalEditar" class="modal-editar">
         <div class="modal-editar-content">
@@ -890,6 +1003,7 @@
             <input type="text" id="saqueNome" placeholder="Nome completo">
             <label>CPF (chave PIX)</label>
             <input type="text" id="saqueCpf" placeholder="000.000.000-00">
+            <small id="saqueCpfAviso" style="display:none; color:#a78bfa; font-size:11px; margin-top:-8px; margin-bottom:10px;"></small>
             <label>WhatsApp</label>
             <input type="text" id="saqueWhatsapp" placeholder="(85) 99999-9999">
             <div class="modal-saque-aviso">
@@ -961,6 +1075,7 @@
         const TAXA_PERCENTUAL = 2.8; // futuramente virá do painel admin
 
         let usuarioAtualUid = null;
+        let avisoSemValorJaMostrado = false;
         let unsubscribeProdutos = null;
         let unsubscribeCategorias = null;
         let unsubscribeSaques = null;
@@ -969,6 +1084,7 @@
         let taxaQuemPaga = "convidado"; // "convidado" ou "cliente"
         let todosOsProdutos = []; // cache local para recalcular sem recarregar
         let meusSaques = []; // cache local dos saques deste usuário
+        let cpfPerfilUsuario = null; // CPF cadastrado no onboarding (perfis/{uid}) — fonte de verdade
         let valorMinimoSaqueCentavos = 25000; // padrão R$ 250,00, sobrescrito pela config do admin
 
         // Referências DOM
@@ -1269,6 +1385,7 @@
                 // ficava fora de sincronia com o texto de cada card.
                 await carregarTaxaDoFirestore();
                 await carregarValorMinimoSaque();
+                await carregarCpfDoPerfil();
                 escutarProdutosDoBanco();
                 escutarMeusSaques();
                 escutarNotificacoes();
@@ -1405,14 +1522,17 @@
                 const card = document.createElement('div');
                 card.className = 'categoria-pronta-card';
                 card.innerHTML = `
-                    <span class="categoria-pronta-icone">${cat.icone || '📦'}</span>
+                    ${cat.icone ? `<span class="categoria-pronta-icone">${cat.icone}</span>` : ''}
                     <div class="categoria-pronta-info">
                         <span class="categoria-pronta-nome">${cat.nome}</span>
                         <span class="categoria-pronta-qtd">${qtd} item${qtd === 1 ? '' : 's'} sugerido${qtd === 1 ? '' : 's'}</span>
                     </div>
                     <span class="categoria-pronta-seta">›</span>
                 `;
-                card.addEventListener('click', () => abrirItensProntos(cat.id));
+                card.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    abrirItensProntos(cat.id);
+                });
                 categoriasProntas.appendChild(card);
             });
         }
@@ -1428,7 +1548,7 @@
         function renderizarItensProntosNaTela(catId) {
             const cat = categoriasProntasCache.find(c => c.id === catId);
             const itens = itensProntosPorCategoria[catId] || [];
-            itensProntosTitulo.textContent = cat ? `${cat.icone || '📦'} ${cat.nome}` : 'Categoria';
+            itensProntosTitulo.textContent = cat ? (cat.icone ? `${cat.icone} ${cat.nome}` : cat.nome) : 'Categoria';
             itensProntosLista.innerHTML = '';
 
             if (itens.length === 0) {
@@ -1438,7 +1558,9 @@
             }
 
             itens.forEach(item => {
-                const precoFmt = (parseInt(item.preco_centavos || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                const centavos = parseInt(item.preco_centavos || 0);
+                const semValor = !centavos || centavos <= 0;
+                const precoFmt = (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 const imgSrc = item.imagem || 'https://i.ibb.co/0jjSyNRG/logo.png';
                 const linha = document.createElement('div');
                 linha.className = 'item-pronto-linha';
@@ -1449,7 +1571,9 @@
                     <img src="${imgSrc}" alt="${item.nome}" style="width:32px;height:32px;border-radius:8px;object-fit:cover;flex-shrink:0;">
                     <div class="item-pronto-info">
                         <span class="item-pronto-nome">${item.nome}</span>
-                        <span class="item-pronto-preco">${precoFmt}</span>
+                        ${semValor
+                            ? '<span class="item-pronto-selo-definir-valor">⚠️ Definir valor</span>'
+                            : `<span class="item-pronto-preco">${precoFmt}</span>`}
                     </div>
                 `;
                 linha.addEventListener('click', () => {
@@ -1474,12 +1598,14 @@
             btnAddSelecionados.disabled = n === 0;
         }
 
-        btnListasProntas.addEventListener('click', () => {
+        btnListasProntas.addEventListener('click', (e) => {
+            e.stopPropagation();
             renderizarCategoriasProntas();
             areaListas.classList.add('ativo');
         });
 
-        btnVoltarCategorias.addEventListener('click', () => {
+        btnVoltarCategorias.addEventListener('click', (e) => {
+            e.stopPropagation();
             areaItensProntos.classList.remove('ativo');
             areaListas.classList.add('ativo');
         });
@@ -1494,13 +1620,10 @@
 
         // Fecha ao clicar fora do painel (na área escurecida/vazia da página)
         document.addEventListener('click', (e) => {
-            if (areaListas.classList.contains('ativo') &&
-                !areaListas.contains(e.target) &&
-                e.target !== btnListasProntas) {
+            if (areaListas.classList.contains('ativo') && !areaListas.contains(e.target)) {
                 areaListas.classList.remove('ativo');
             }
-            if (areaItensProntos.classList.contains('ativo') &&
-                !areaItensProntos.contains(e.target)) {
+            if (areaItensProntos.classList.contains('ativo') && !areaItensProntos.contains(e.target)) {
                 areaItensProntos.classList.remove('ativo');
             }
         });
@@ -1525,6 +1648,11 @@
             const cat = categoriasProntasCache.find(c => c.id === categoriaProntaAtual);
             const todosItensCategoria = itensProntosPorCategoria[categoriaProntaAtual] || [];
             const itensParaAdicionar = todosItensCategoria.filter(item => itensSelecionadosProntos.has(item.id));
+
+            const itensSemValor = itensParaAdicionar.filter(item => !parseInt(item.preco_centavos || 0) || parseInt(item.preco_centavos || 0) <= 0);
+            if (itensSemValor.length > 0) {
+                mostrarToast(`${itensSemValor.length} item(ns) sem valor definido — lembre-se de editar o preço deles depois.`, 'aviso', '⚠️');
+            }
 
             const textoOriginal = btnAddSelecionados.textContent;
             btnAddSelecionados.textContent = 'Adicionando...';
@@ -1700,6 +1828,22 @@
                     atualizarResumo();
                     atualizarSaldo();
                     todosOsProdutos.forEach(p => renderizarItemNaTela(p, p.id));
+
+                    // Aviso único (não um por item) se houver itens sem valor definido
+                    const qtdSemValor = todosOsProdutos.filter(p => {
+                        const centavos = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                        const vendido = p.disponivel === false && p.presenteado_por;
+                        return (!centavos || centavos <= 0) && !vendido;
+                    }).length;
+                    if (qtdSemValor > 0 && !avisoSemValorJaMostrado) {
+                        avisoSemValorJaMostrado = true;
+                        mostrarToast(
+                            qtdSemValor === 1
+                                ? '1 item está sem valor definido. Edite-o para informar o preço.'
+                                : `${qtdSemValor} itens estão sem valor definido. Edite-os para informar o preço.`,
+                            'aviso', '⚠️'
+                        );
+                    }
                 }
             });
         }
@@ -1786,11 +1930,16 @@
                     { taxa_quem_paga: taxaQuemPaga, taxa_percentual: TAXA_PERCENTUAL },
                     { merge: true }
                 );
-                // Atualizar preco_centavos de todos os itens no banco
+                // Atualizar preco_centavos apenas dos itens AINDA DISPONÍVEIS.
+                // Itens já vendidos mantêm a taxa que valia no momento da venda —
+                // mudar o toggle depois não pode reescrever o histórico de quem
+                // pagou a taxa em vendas já concluídas (isso distorceria o
+                // relatório financeiro e o valor já repassado/a repassar).
                 const fator = taxaQuemPaga === 'convidado'
                     ? (1 + TAXA_PERCENTUAL / 100)
                     : 1;
-                const promises = todosOsProdutos.map(p => {
+                const itensDisponiveis = todosOsProdutos.filter(p => p.disponivel !== false);
+                const promises = itensDisponiveis.map(p => {
                     const original = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
                     const novoCentavos = Math.round(original * fator);
                     const novoPreco = (novoCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -1803,7 +1952,7 @@
                     });
                 });
                 await Promise.all(promises);
-                mostrarToast('Taxa atualizada em todos os itens!', 'sucesso', '💸');
+                mostrarToast('Taxa atualizada nos itens disponíveis!', 'sucesso', '💸');
             } catch(e) {
                 console.error("Erro ao salvar taxa:", e);
                 mostrarToast('Erro ao atualizar taxa.', 'erro', '❌');
@@ -1831,13 +1980,18 @@
 
             // Valor original (sempre limpo, sem taxa)
             const originalCentavos = parseInt(produto.preco_original_centavos || produto.preco_centavos || 0);
+            const semValorDefinido = !originalCentavos || originalCentavos <= 0;
             const precoOriginalFmt = (originalCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            if (semValorDefinido) novaBaseDiv.classList.add('sem-valor');
 
             // Segunda linha: usa taxa_quem_paga do próprio produto (fonte de verdade no banco)
             // Isso garante que ao recarregar a página o valor exibido é sempre o correto
             const taxaDoProduto = produto.taxa_quem_paga || taxaQuemPaga;
             let linhaExtra = '';
-            if (taxaDoProduto === 'convidado') {
+            if (semValorDefinido) {
+                linhaExtra = '';
+            } else if (taxaDoProduto === 'convidado') {
                 const cobrado = Math.round(originalCentavos * (1 + TAXA_PERCENTUAL / 100));
                 const cobradoFmt = (cobrado / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 linhaExtra = `<small style="display:block;font-size:11px;color:#f9a825;">Convidado paga: ${cobradoFmt}</small>`;
@@ -1855,19 +2009,23 @@
                 ? `<small style="display:block;font-size:11px;color:#f59e0b;">🎁 Presenteado por: ${produto.presenteado_por}</small>`
                 : linhaExtra;
 
+            const precoOuAviso = semValorDefinido
+                ? `<span class="selo-sem-valor">⚠️ Defina o valor deste item</span>`
+                : `<span>${precoOriginalFmt}</span>`;
+
             novaBaseDiv.innerHTML = `
                 <div class="base-card">
                     <img src="${imagemExibicao}" alt="${tituloExibicao}" loading="lazy">
                     <div class="T-Produtos">
                         <strong>${tituloExibicao}</strong>
-                        <span>${precoOriginalFmt}</span>
+                        ${precoOuAviso}
                         ${linhaExtraFinal}
                         <small style="display:block;font-size:11px;opacity:0.6;">Cat: ${categoriaExibicao}</small>
                     </div>
                 </div>
                 <div class="disponibilidade">
                     ${foiVendido
-                        ? `<span class="chip-vendido">🎁 Presenteado</span>
+                        ? `<span class="chip-vendido">🎁 Vendido</span>
                            <span class="btn-bloqueado">✏️ Editar</span>
                            <span class="btn-bloqueado">🗑️ Excluir</span>`
                         : `<span class="disp">${textoStatus}</span>
@@ -1876,6 +2034,9 @@
                     }
                 </div>
             `;
+
+            // Item sem valor definido — o aviso resumido (1x por carregamento)
+            // é mostrado fora desta função, depois que todos os itens carregam.
 
             // Botões bloqueados — toast de aviso
             novaBaseDiv.querySelectorAll('.btn-bloqueado').forEach(btn => {
@@ -1910,8 +2071,99 @@
                 btnEdit.addEventListener('click', () => abrirModalEditar(produto, documentoId));
             }
 
+            // Clique no card (fora dos botões de ação) abre o popup de detalhe
+            novaBaseDiv.addEventListener('click', (e) => {
+                if (e.target.closest('.disponibilidade')) return; // não abre se clicou em Editar/Excluir/Vendido
+                abrirModalDetalheItem(produto);
+            });
+
             containerRegistros.appendChild(novaBaseDiv);
         }
+
+        // ================================================================
+        // MODAL DETALHE DO ITEM (popup com fundo desfocado)
+        // ================================================================
+        function abrirModalDetalheItem(produto) {
+            const tituloExibicao    = produto.titulo    || "Sem nome";
+            const imagemExibicao    = produto.imagem    || 'https://i.ibb.co/0jjSyNRG/logo.png';
+            const categoriaExibicao = produto.categoria || "Sem Categoria";
+
+            const originalCentavos = parseInt(produto.preco_original_centavos || produto.preco_centavos || 0);
+            const semValorDefinido = !originalCentavos || originalCentavos <= 0;
+            const precoOriginalFmt = (originalCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            const foiVendido = produto.disponivel === false && produto.presenteado_por;
+            const taxaDoProduto = produto.taxa_quem_paga || taxaQuemPaga;
+
+            document.getElementById('detalheImagem').src = imagemExibicao;
+            document.getElementById('detalheImagem').alt = tituloExibicao;
+            document.getElementById('detalheTitulo').textContent = tituloExibicao;
+            document.getElementById('detalheCategoria').textContent = categoriaExibicao;
+
+            const valorEl = document.getElementById('detalheValor');
+            if (semValorDefinido) {
+                valorEl.textContent = '⚠️ Valor não definido';
+                valorEl.className = 'modal-detalhe-valor vermelho';
+            } else {
+                valorEl.textContent = precoOriginalFmt;
+                valorEl.className = 'modal-detalhe-valor destaque';
+            }
+
+            const linhaExtra  = document.getElementById('detalheLinhaExtra');
+            const labelExtra  = document.getElementById('detalheLabelExtra');
+            const valorExtra  = document.getElementById('detalheValorExtra');
+            const linhaPresenteado = document.getElementById('detalheLinhaPresenteado');
+
+            if (foiVendido) {
+                linhaExtra.style.display = 'none';
+                linhaPresenteado.style.display = 'flex';
+                document.getElementById('detalhePresenteadoPor').textContent = produto.presenteado_por;
+            } else if (!semValorDefinido) {
+                linhaPresenteado.style.display = 'none';
+                linhaExtra.style.display = 'flex';
+                if (taxaDoProduto === 'convidado') {
+                    const cobrado = Math.round(originalCentavos * (1 + TAXA_PERCENTUAL / 100));
+                    labelExtra.textContent = 'Convidado paga';
+                    valorExtra.textContent = (cobrado / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                    valorExtra.className = 'modal-detalhe-valor dourado';
+                } else {
+                    const recebe = Math.round(originalCentavos * (1 - TAXA_PERCENTUAL / 100));
+                    labelExtra.textContent = 'Você recebe';
+                    valorExtra.textContent = (recebe / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                    valorExtra.className = 'modal-detalhe-valor';
+                    valorExtra.style.color = '#81c784';
+                }
+            } else {
+                linhaExtra.style.display = 'none';
+                linhaPresenteado.style.display = 'none';
+            }
+
+            const statusEl = document.getElementById('detalheStatus');
+            if (foiVendido) {
+                statusEl.textContent = '🎁 Vendido';
+                statusEl.style.background = 'rgba(245, 166, 35, 0.18)';
+                statusEl.style.color = '#f5a623';
+            } else if (produto.disponivel !== false) {
+                statusEl.textContent = '✅ Disponível';
+                statusEl.style.background = 'rgba(52, 211, 153, 0.16)';
+                statusEl.style.color = '#34d399';
+            } else {
+                statusEl.textContent = 'Indisponível';
+                statusEl.style.background = 'rgba(255,255,255,0.08)';
+                statusEl.style.color = 'rgba(255,255,255,0.6)';
+            }
+
+            document.getElementById('modalDetalheItem').classList.add('ativo');
+        }
+
+        document.getElementById('fecharModalDetalheItem').addEventListener('click', () => {
+            document.getElementById('modalDetalheItem').classList.remove('ativo');
+        });
+        document.getElementById('modalDetalheItem').addEventListener('click', (e) => {
+            if (e.target.id === 'modalDetalheItem') {
+                document.getElementById('modalDetalheItem').classList.remove('ativo');
+            }
+        });
 
         // ================================================================
         // MODAL EDITAR
@@ -2094,6 +2346,18 @@
             } catch(e) { console.error("Erro ao carregar valor mínimo de saque:", e); }
         }
 
+        // CPF cadastrado no onboarding (perfis/{uid}) — usado para confirmar
+        // que quem está solicitando o saque é o dono real da conta.
+        async function carregarCpfDoPerfil() {
+            if (!usuarioAtualUid) return;
+            try {
+                const snap = await getDoc(doc(db, "perfis", usuarioAtualUid));
+                if (snap.exists() && snap.data().cpf) {
+                    cpfPerfilUsuario = String(snap.data().cpf).trim();
+                }
+            } catch(e) { console.error("Erro ao carregar CPF do perfil:", e); }
+        }
+
         // ================================================================
         // ESCUTAR SAQUES DO USUÁRIO (para descontar do saldo quando pagos)
         // ================================================================
@@ -2110,6 +2374,19 @@
 
         // Abrir modal de saque
         document.getElementById('btnSolicitarSaque').addEventListener('click', () => {
+            const inputCpf = document.getElementById('saqueCpf');
+            const avisoCpf = document.getElementById('saqueCpfAviso');
+            if (cpfPerfilUsuario) {
+                inputCpf.value = cpfPerfilUsuario;
+                inputCpf.readOnly = true;
+                avisoCpf.textContent = '🔒 CPF confirmado a partir do seu cadastro, por segurança.';
+                avisoCpf.style.display = 'block';
+            } else {
+                inputCpf.value = '';
+                inputCpf.readOnly = false;
+                avisoCpf.textContent = '';
+                avisoCpf.style.display = 'none';
+            }
             document.getElementById('modalSaque').classList.add('ativo');
         });
 
@@ -2124,6 +2401,17 @@
 
             if (!nome || !cpf || !whatsapp) {
                 mostrarToast('Preencha todos os campos.', 'aviso', '⚠️');
+                return;
+            }
+
+            // Verificação de segurança: o CPF do saque precisa ser o mesmo do
+            // cadastro da conta (perfis/{uid}). Isso impede que alguém solicite
+            // saque informando o CPF de outra pessoa. O campo já vem travado na
+            // tela quando há CPF no perfil — esta é uma segunda checagem.
+            const cpfLimpo = cpf.replace(/\D/g, '');
+            const cpfPerfilLimpo = cpfPerfilUsuario ? cpfPerfilUsuario.replace(/\D/g, '') : null;
+            if (cpfPerfilLimpo && cpfLimpo !== cpfPerfilLimpo) {
+                mostrarToast('O CPF informado não confere com o CPF do seu cadastro.', 'erro', '🔒');
                 return;
             }
 
