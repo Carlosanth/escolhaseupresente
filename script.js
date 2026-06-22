@@ -55,7 +55,7 @@
     ].join(', ');
   }
 
-  function aplicarTema(hex) {
+  function aplicarTema(hex, modoForcado) {
     if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return;
 
     const { h, s, l } = hexParaHSL(hex);
@@ -68,7 +68,8 @@
     // Cor clara (l > 75%) → light mode elegante
     // Cor escura (l ≤ 75%) → dark mode navy (padrão)
     // ============================================================
-    const modoClaro = l > 75;
+    // modoForcado: true=claro, false=escuro, undefined=auto pela cor
+    const modoClaro = modoForcado !== undefined ? modoForcado : l > 75;
 
     if (modoClaro) {
       // ----------------------------------------------------------
@@ -197,7 +198,15 @@
       .onSnapshot((doc) => {
         if (doc.exists) {
           const dados = doc.data();
-          if (dados.cor_tema) aplicarTema(dados.cor_tema);
+
+          // modo_display: 'claro' = forçar light | 'escuro' = forçar dark
+          // undefined/ausente = detectar automaticamente pela cor
+          const modoForcado = dados.modo_display === 'claro'  ? true
+                            : dados.modo_display === 'escuro' ? false
+                            : undefined;
+
+          if (dados.cor_tema) aplicarTema(dados.cor_tema, modoForcado);
+
           if (dados.imagem_fundo) {
             document.documentElement.style.setProperty(
               '--imagem-fundo', `url('${dados.imagem_fundo}')`

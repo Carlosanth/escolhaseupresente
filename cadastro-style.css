@@ -1903,3 +1903,66 @@ não é clicável. */
 
 
 }
+/* ==========================================================
+   🌗 TOGGLE MODO CLARO / ESCURO — bloco no painel de temas
+   ========================================================== */
+.modo-toggle-bloco {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 310px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin: 14px 0 8px;
+    box-sizing: border-box;
+}
+
+.modo-icone {
+    font-size: 22px;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: all 0.3s;
+}
+
+.modo-toggle-textos {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.modo-toggle-titulo {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.80);
+    white-space: nowrap;
+}
+
+.modo-toggle-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.40);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.3s;
+}
+
+/* Toggle switch reutiliza o .toggle-switch já existente no CSS,
+   só ajustamos o alinhamento */
+.modo-toggle-switch {
+    flex-shrink: 0;
+}
+
+/* ==========================================================
+   ☀️ MODO CLARO — aplicado via script.js quando modo_display
+   === 'claro' vem do Firebase. Fundo branco com textura,
+   cards claros, textos escuros. Nada mais muda.
+   ========================================================== */
+
+/* O script.js da lista (Style.css + script.js dos convidados)
+   já gerencia o modo claro dos convidados via aplicarTema().
+   Aqui só precisamos que o campo modo_display chegue ao Firebase. */

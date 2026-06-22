@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro de Presentes</title>
     <link rel="stylesheet" href="cadastro-style.css">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#110a1f">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
@@ -66,6 +64,20 @@
                         <input type="color" class="cor">
                     </div>
                 </div>
+
+                <!-- TOGGLE MODO CLARO / ESCURO -->
+                <div class="modo-toggle-bloco">
+                    <span class="modo-icone">🌑</span>
+                    <div class="modo-toggle-textos">
+                        <span class="modo-toggle-titulo">Modo de exibição da lista</span>
+                        <span class="modo-toggle-sub" id="modoSub">Escuro — fundo preto com glassmorphism</span>
+                    </div>
+                    <label class="toggle-switch modo-toggle-switch">
+                        <input type="checkbox" id="toggleModo">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
                 <button class="btn-salvar" id="btn-salvar">Salvar <br>preferências</button>
             </div>
         </div>    
@@ -654,6 +666,7 @@
                 await carregarTaxaDoFirestore();
                 await carregarValorMinimoSaque();
                 await carregarCpfDoPerfil();
+                await carregarModoDisplay();
                 escutarProdutosDoBanco();
                 escutarMeusSaques();
                 escutarNotificacoes();
@@ -1876,18 +1889,50 @@
         // ================================================================
         const btnSalvarPreferencias = document.getElementById('btn-salvar');
         const inputCorTema = document.querySelector('.cor');
+        const toggleModo   = document.getElementById('toggleModo');
+        const modoSub      = document.getElementById('modoSub');
+        const modoIcone    = document.querySelector('.modo-icone');
+
+        // Atualiza o texto descritivo ao lado do toggle em tempo real
+        function atualizarTextoModo(claro) {
+            if (claro) {
+                modoSub.textContent    = 'Claro — fundo branco com textura';
+                modoIcone.textContent  = '☀️';
+            } else {
+                modoSub.textContent    = 'Escuro — fundo preto com glassmorphism';
+                modoIcone.textContent  = '🌑';
+            }
+        }
+
+        toggleModo.addEventListener('change', () => {
+            atualizarTextoModo(toggleModo.checked);
+        });
+
+        // Carrega o modo salvo no Firebase ao abrir o painel
+        async function carregarModoDisplay() {
+            if (!usuarioAtualUid) return;
+            try {
+                const snap = await getDoc(doc(db, "configuracoes", usuarioAtualUid));
+                if (snap.exists() && snap.data().modo_display) {
+                    const claro = snap.data().modo_display === 'claro';
+                    toggleModo.checked = claro;
+                    atualizarTextoModo(claro);
+                }
+            } catch(e) { console.error("Erro ao carregar modo:", e); }
+        }
 
         if (btnSalvarPreferencias) {
             btnSalvarPreferencias.addEventListener('click', async () => {
                 if (!usuarioAtualUid) { mostrarToast('Você precisa estar logado.', 'erro', '🔒'); return; }
 
                 const corEscolhida = inputCorTema.value;
+                const modoDisplay  = toggleModo.checked ? 'claro' : 'escuro';
                 const textoOriginal = btnSalvarPreferencias.innerHTML;
                 btnSalvarPreferencias.innerHTML = "Salvando...";
                 btnSalvarPreferencias.disabled = true;
 
                 try {
-                    const dadosParaSalvar = { cor_tema: corEscolhida };
+                    const dadosParaSalvar = { cor_tema: corEscolhida, modo_display: modoDisplay };
                     if (imagemSelecionadaParaO_Banco !== "") {
                         dadosParaSalvar.imagem_fundo = imagemSelecionadaParaO_Banco;
                     }
@@ -1902,12 +1947,8 @@
                     btnSalvarPreferencias.disabled = false;
                 }
             });
-            
-              if ('serviceWorker' in navigator) {
-                  window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js');
-            });
         }
+
     </script>
 </body>
 </html>
