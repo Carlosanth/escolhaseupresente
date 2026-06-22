@@ -6,6 +6,8 @@
     <title>Cadastro de Presentes</title>
     <link rel="stylesheet" href="cadastro-style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#110a1f">
 </head>
 <body>
 
@@ -1949,6 +1951,16 @@
             });
         }
 
+    </script>
+    
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(() => console.log('SW registrado'))
+            .catch(err => console.error('SW erro:', err));
+        });
+      }
     </script>
 </body>
 </html>

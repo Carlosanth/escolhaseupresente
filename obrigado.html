@@ -11,5 +11,14 @@
         <p class="p">Obrigado pelo presente</p>
         <p class="p">Ficamos muito agradecidos</p>
     </div>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js")
+            .then(() => console.log("SW registrado"))
+            .catch(err => console.error("SW erro:", err));
+        });
+      }
+    </script>
 </body>
 </html>
