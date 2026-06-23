@@ -152,7 +152,7 @@
                 <div class="preview-overlay-welcome-inner">
                     <h1 id="previewOverlayTitulo">Sejam Bem-Vindos ao Nosso Sonho!</h1>
                     <p id="previewOverlayDesc">Ficamos muito felizes em compartilhar este momento tão especial com você.</p>
-                    <button class="preview-overlay-cta">Acessar Lista de Presentes</button>
+                    <button class="preview-overlay-cta" onclick="document.getElementById('previewOverlayCards').scrollIntoView({behavior:'smooth'})">Acessar Lista de Presentes</button>
                 </div>
                 <span style="position: absolute; bottom: 100px; color: aliceblue; font-weight: bolder;">
                     PAGINA DEMOSTRATIVA <br>DESLIZE PARA CIMA<br>⇩
@@ -726,13 +726,33 @@
             const inpDesc = document.getElementById('inputDescricaoBoasVindas');
             [inpTit, inpDesc].forEach(el => { if (el) el.addEventListener('input', marcarDirty); });
 
-            // Preview mini reage à cor + tema (claro/escuro)
+            // Preview mini — aplica as mesmas vars da lista diretamente no grid
             window.aplicarPreviewMini = function() {
                 const cor = inputCor ? inputCor.value : '#a78bfa';
                 const grid = document.getElementById('previewMiniGrid');
-                if (!grid) return;
-                grid.style.setProperty('--mini-acento', cor);
+                if (!grid || !cor || !/^#[0-9a-fA-F]{6}$/.test(cor)) return;
+                const r=parseInt(cor.slice(1,3),16)/255, g=parseInt(cor.slice(3,5),16)/255, b=parseInt(cor.slice(5,7),16)/255;
+                const max=Math.max(r,g,b), min=Math.min(r,g,b);
+                let h,s,l=(max+min)/2;
+                if(max===min){h=s=0;}else{const d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);switch(max){case r:h=((g-b)/d+(g<b?6:0))/6;break;case g:h=((b-r)/d+2)/6;break;case b:h=((r-g)/d+4)/6;break;}}
+                h=Math.round(h*360);s=Math.round(s*100);l=Math.round(l*100);
+                const sAdj=Math.max(s,40);
                 const isClaro = toggleModo && toggleModo.checked;
+                if (isClaro) {
+                    const hA=s<10?240:h,sA=s<10?60:Math.min(sAdj+20,90),lA=45;
+                    grid.style.setProperty('--mini-acento',`hsl(${hA},${sA}%,${lA}%)`);
+                    grid.style.setProperty('--mini-preco-texto',`hsl(${hA},${sA}%,${lA}%)`);
+                    grid.style.setProperty('--mini-btn-bg',`hsl(${hA},${sA}%,${lA}%)`);
+                    grid.style.setProperty('--mini-card-bg',`rgba(255,255,255,0.92)`);
+                    grid.style.setProperty('--mini-titulo','#111111');
+                } else {
+                    const lA=Math.min(Math.max(l,58),72), lBtn=Math.max(lA-12,38);
+                    grid.style.setProperty('--mini-acento',`hsl(${h},${sAdj}%,${lA}%)`);
+                    grid.style.setProperty('--mini-preco-texto',`hsl(${h},${Math.min(sAdj+8,88)}%,${Math.min(lA+14,86)}%)`);
+                    grid.style.setProperty('--mini-btn-bg',`hsla(${h},${Math.min(sAdj+15,95)}%,${lBtn}%,0.75)`);
+                    grid.style.setProperty('--mini-card-bg',`hsla(${h},${Math.round(sAdj*0.25)}%,80%,0.055)`);
+                    grid.style.setProperty('--mini-titulo','#ffffff');
+                }
                 grid.classList.toggle('tema-claro', !!isClaro);
             };
             aplicarPreviewMini();
@@ -795,16 +815,78 @@
                 }).join('');
             }
 
+            // Aplica as mesmas vars que script.js usa na lista real, mas escopadas no overlay
+            function aplicarTemaNoOverlay(hex, modoClaro) {
+                if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return;
+                const el = previewOverlay;
+                const r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+                const max = Math.max(r,g,b), min = Math.min(r,g,b);
+                let h, s, l = (max+min)/2;
+                if (max===min) { h=s=0; } else {
+                    const d=max-min; s=l>0.5?d/(2-max-min):d/(max+min);
+                    switch(max){ case r:h=((g-b)/d+(g<b?6:0))/6;break; case g:h=((b-r)/d+2)/6;break; case b:h=((r-g)/d+4)/6;break; }
+                }
+                h=Math.round(h*360); s=Math.round(s*100); l=Math.round(l*100);
+                const rgb=`${parseInt(hex.slice(1,3),16)}, ${parseInt(hex.slice(3,5),16)}, ${parseInt(hex.slice(5,7),16)}`;
+                const sAdj=Math.max(s,40);
+
+                if (modoClaro) {
+                    const hA=s<10?240:h, sA=s<10?60:Math.min(sAdj+20,90), lA=45;
+                    el.style.setProperty('--acento',`hsl(${hA},${sA}%,${lA}%)`);
+                    el.style.setProperty('--acento-rgb',`${Math.round(255*lA/100)}, ${Math.round(255*lA/100)}, 255`);
+                    el.style.setProperty('--fundo-base',`hsl(${hA},${Math.round(sA*0.08)}%,96%)`);
+                    el.style.setProperty('--fundo-glow-1',`hsla(${hA},${sA}%,60%,0.08)`);
+                    el.style.setProperty('--fundo-glow-2',`hsla(${hA-15},${sA}%,55%,0.06)`);
+                    el.style.setProperty('--glass-bg',`rgba(255,255,255,0.85)`);
+                    el.style.setProperty('--glass-borda',`hsla(${hA},${sA}%,${lA}%,0.14)`);
+                    el.style.setProperty('--glass-hover-bg',`rgba(255,255,255,0.97)`);
+                    el.style.setProperty('--glass-hover-borda',`hsla(${hA},${sA}%,${lA}%,0.38)`);
+                    el.style.setProperty('--preco-bg',`hsla(${hA},${sA}%,${lA}%,0.07)`);
+                    el.style.setProperty('--preco-borda',`hsla(${hA},${sA}%,${lA}%,0.22)`);
+                    el.style.setProperty('--preco-glow',`hsla(${hA},${sA}%,${lA}%,0.10)`);
+                    el.style.setProperty('--preco-texto',`hsl(${hA},${sA}%,${lA}%)`);
+                    el.style.setProperty('--btn-bg',`hsl(${hA},${sA}%,${lA}%)`);
+                    el.style.setProperty('--btn-borda',`hsl(${hA},${sA}%,${lA-8}%)`);
+                    el.style.setProperty('--btn-hover-bg',`hsl(${hA},${sA}%,${lA-8}%)`);
+                    el.style.setProperty('--btn-texto','#ffffff');
+                    el.style.setProperty('--btn-sombra',`hsla(${hA},${sA}%,${lA}%,0.35)`);
+                    el.style.setProperty('--texto-titulo','#111111');
+                    el.style.setProperty('--texto-rotulo','rgba(0,0,0,0.40)');
+                    el.classList.add('tema-claro'); el.classList.remove('tema-escuro');
+                } else {
+                    const lA=Math.min(Math.max(l,58),72), lBtn=Math.max(lA-12,38);
+                    el.style.setProperty('--acento',`hsl(${h},${sAdj}%,${lA}%)`);
+                    el.style.setProperty('--acento-rgb',rgb);
+                    el.style.setProperty('--fundo-base',`hsl(${h},${Math.round(sAdj*0.45)}%,7%)`);
+                    el.style.setProperty('--fundo-glow-1',`hsla(${h},${sAdj}%,${Math.min(l+5,52)}%,0.20)`);
+                    el.style.setProperty('--fundo-glow-2',`hsla(${h-12},${sAdj}%,${Math.min(l,48)}%,0.15)`);
+                    el.style.setProperty('--glass-bg',`hsla(${h},${Math.round(sAdj*0.25)}%,80%,0.055)`);
+                    el.style.setProperty('--glass-borda',`hsla(${h},${sAdj}%,75%,0.11)`);
+                    el.style.setProperty('--glass-hover-bg',`hsla(${h},${sAdj}%,${lA}%,0.10)`);
+                    el.style.setProperty('--glass-hover-borda',`hsla(${h},${sAdj}%,${lA}%,0.38)`);
+                    el.style.setProperty('--preco-bg',`hsla(${h},${sAdj}%,${lA}%,0.10)`);
+                    el.style.setProperty('--preco-borda',`hsla(${h},${sAdj}%,${lA}%,0.30)`);
+                    el.style.setProperty('--preco-glow',`hsla(${h},${sAdj}%,${lA}%,0.18)`);
+                    el.style.setProperty('--preco-texto',`hsl(${h},${Math.min(sAdj+8,88)}%,${Math.min(lA+14,86)}%)`);
+                    el.style.setProperty('--btn-bg',`hsla(${h},${Math.min(sAdj+15,95)}%,${lBtn}%,0.75)`);
+                    el.style.setProperty('--btn-borda',`hsla(${h},${sAdj}%,${lA}%,0.50)`);
+                    el.style.setProperty('--btn-hover-bg',`hsla(${h},${Math.min(sAdj+15,95)}%,${lBtn}%,0.92)`);
+                    el.style.setProperty('--btn-texto','#ffffff');
+                    el.style.setProperty('--btn-sombra',`hsla(${h},${sAdj}%,${lBtn}%,0.45)`);
+                    el.style.setProperty('--texto-titulo','#ffffff');
+                    el.style.setProperty('--texto-rotulo','rgba(255,255,255,0.40)');
+                    el.classList.add('tema-escuro'); el.classList.remove('tema-claro');
+                }
+            }
+
             if (btnVisualizar) btnVisualizar.addEventListener('click', () => {
                 document.getElementById('previewOverlayTitulo').textContent = (inpTit && inpTit.value.trim()) || 'Sejam Bem-Vindos ao Nosso Sonho!';
                 document.getElementById('previewOverlayDesc').textContent   = (inpDesc && inpDesc.value.trim()) || 'Ficamos muito felizes em compartilhar este momento tão especial com você.';
                 const welcome = document.getElementById('previewOverlayWelcome');
                 if (imagemSelecionadaParaO_Banco) welcome.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55)),url('${imagemSelecionadaParaO_Banco}')`;
                 const cor = inputCor ? inputCor.value : '#a78bfa';
-                previewOverlay.style.setProperty('--prev-acento', cor);
-                previewOverlay.style.setProperty('--prev-acento-rgb', corParaRgb(cor));
                 const isClaro = toggleModo && toggleModo.checked;
-                previewOverlay.classList.toggle('tema-claro', !!isClaro);
+                aplicarTemaNoOverlay(cor, isClaro);
                 renderPreviewCards();
                 previewOverlay.classList.add('ativo');
             });

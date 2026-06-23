@@ -289,9 +289,18 @@ body.tema-claro::before {
   padding: 18px 20px;
   position: relative;
 
-  animation: animacao-entrada 0.6s ease, animacao-saida 0.6s ease;
-  animation-timeline: view();
-  animation-range: entry 0% cover 35%, exit 60% exit 100%;
+  animation: animacao-entrada 0.45s ease both;
+}
+
+/* Escalonar entrada por posição (0 a 7 itens) */
+.conteudo:nth-child(1)  .cartao-produto { animation-delay: 0.00s; }
+.conteudo:nth-child(2)  .cartao-produto { animation-delay: 0.06s; }
+.conteudo:nth-child(3)  .cartao-produto { animation-delay: 0.12s; }
+.conteudo:nth-child(4)  .cartao-produto { animation-delay: 0.18s; }
+.conteudo:nth-child(5)  .cartao-produto { animation-delay: 0.22s; }
+.conteudo:nth-child(6)  .cartao-produto { animation-delay: 0.26s; }
+.conteudo:nth-child(7)  .cartao-produto { animation-delay: 0.30s; }
+.conteudo:nth-child(n+8) .cartao-produto { animation-delay: 0.34s; }
 }
 
 /* Linha de acento no topo do card disponível */
@@ -322,10 +331,8 @@ body.tema-claro::before {
 }
 
 @keyframes animacao-entrada {
-  from { opacity: 0.2; transform: translateY(20px); scale: 0.88; }
-}
-@keyframes animacao-saida {
-  to { opacity: 0.3; scale: 0.88; }
+  from { opacity: 0; transform: translateY(18px); scale: 0.94; }
+  to   { opacity: 1; transform: translateY(0);    scale: 1;    }
 }
 
 /* ==========================================================

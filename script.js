@@ -248,7 +248,7 @@
           wrap.innerHTML = `
             <section class="cartao-produto">
               <div class="imagem-produto">
-                <img src="${produto.imagem || 'https://via.placeholder.com/150'}"
+                <img src="${produto.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg'}"
                      alt="${produto.titulo || 'Produto'}" />
               </div>
               <div class="detalhes-produto">

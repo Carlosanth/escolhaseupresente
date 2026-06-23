@@ -1979,7 +1979,7 @@ não é clicável. */
     gap: 10px;
     width: 100%;
     max-width: 310px;
-    padding: 14px 16px;
+    padding: 9px 16px;
     border-radius: 14px;
     border: 1.5px dashed rgba(167, 139, 250, 0.4);
     background: rgba(167, 139, 250, 0.06);
@@ -1988,7 +1988,7 @@ não é clicável. */
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
-    margin-bottom: 14px;
+    margin-bottom: 8px;
     text-align: center;
 }
 .upload-area:hover {
@@ -2117,10 +2117,10 @@ não é clicável. */
 .bloco-cabecalho {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
     max-width: 310px;
-    margin-bottom: 14px;
+    margin-bottom: 8px;
 }
 .bloco-cabecalho-titulo {
     font-size: 14px;
@@ -2129,7 +2129,7 @@ não é clicável. */
 }
 .campo-cab {
     width: 100%;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border-radius: 10px;
     border: 1px solid rgba(255,255,255,0.12);
     background: rgba(255,255,255,0.04);
@@ -2145,7 +2145,7 @@ não é clicável. */
 }
 .campo-cab-area {
     resize: vertical;
-    min-height: 60px;
+    min-height: 48px;
     line-height: 1.4;
 }
 
@@ -2210,8 +2210,8 @@ não é clicável. */
     position: relative;
     overflow: hidden;
     transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-    height: 152px;
-    width: 317px;
+    height: 160px;
+    width: 100%;
 }
 
 .cartao-mini::before {
@@ -2224,8 +2224,8 @@ não é clicável. */
 }
 
 .cartao-mini-img {
-    width: 123px;
-    height: 118px;
+    width: 90px;
+    height: 90px;
     border-radius: 10px;
     border: 1px solid color-mix(in oklab, var(--mini-acento) 18%, transparent);
     flex-shrink: 0;
@@ -2324,13 +2324,13 @@ não é clicável. */
     flex-direction: column;
     gap: 8px;
     align-items: center;
-    padding: 38px 0px;
+    padding: 10px 0px;
     min-width: 250px;
 }
 
 .btn-visualizar {
     width: 80%;
-    height: 45px;
+    height: 38px;
     border-radius: 999px;
     border: 1px solid rgba(167, 139, 250, 0.4);
     background: rgba(167, 139, 250, 0.12);
@@ -2411,11 +2411,14 @@ não é clicável. */
 
 /* Overlay preview da lista */
 .preview-overlay {
-    --prev-acento: #a78bfa;
     display: none;
     position: fixed;
     inset: 0;
-    background: #0d0821;
+    background-color: var(--fundo-base, #0f0c29);
+    background-image:
+        radial-gradient(ellipse 80% 60% at 20% 10%, var(--fundo-glow-1, rgba(124,58,237,0.20)) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, var(--fundo-glow-2, rgba(79,70,229,0.15)) 0%, transparent 55%);
+    transition: background-color 0.4s;
     z-index: 250;
     overflow-y: auto;
 }
@@ -2451,11 +2454,11 @@ não é clicável. */
     padding: 12px 28px;
     border-radius: 999px;
     border: none;
-    background: var(--prev-acento);
+    background: var(--acento);
     color: #fff;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 8px 24px color-mix(in oklab, var(--prev-acento) 30%, transparent);
+    box-shadow: 0 8px 24px rgba(var(--acento-rgb), 0.30);
 }
 /* ==========================================================
    🪟 PREVIEW OVERLAY — réplica fiel da lista de presentes
@@ -2471,36 +2474,33 @@ não é clicável. */
     flex-wrap: wrap;
 }
 /* Variáveis do tema (escuro padrão) escopadas no overlay */
+/* O overlay usa EXATAMENTE as mesmas vars do Style.css
+   O JS aplica aplicarTema() com o elemento raiz sendo o overlay */
 .preview-overlay {
-    --prev-acento-rgb: 167, 139, 250;
-    --pv-glass-bg:        rgba(255, 255, 255, 0.055);
-    --pv-glass-borda:     rgba(255, 255, 255, 0.11);
-    --pv-glass-hover-bg:  rgba(var(--prev-acento-rgb), 0.10);
-    --pv-glass-hover-bd:  rgba(var(--prev-acento-rgb), 0.35);
-    --pv-preco-bg:        rgba(var(--prev-acento-rgb), 0.10);
-    --pv-preco-bd:        rgba(var(--prev-acento-rgb), 0.30);
-    --pv-preco-glow:      rgba(var(--prev-acento-rgb), 0.18);
-    --pv-preco-tx:        rgba(var(--prev-acento-rgb), 1);
-    --pv-btn-bg:          rgba(var(--prev-acento-rgb), 0.70);
-    --pv-btn-bd:          rgba(var(--prev-acento-rgb), 0.50);
-    --pv-btn-hover:       rgba(var(--prev-acento-rgb), 0.88);
-    --pv-btn-sombra:      rgba(var(--prev-acento-rgb), 0.45);
-    --pv-badge-bg:        rgba(52, 211, 153, 0.13);
-    --pv-badge-bd:        rgba(52, 211, 153, 0.30);
-    --pv-badge-tx:        #34d399;
-    --pv-titulo:          #ffffff;
-    --pv-rotulo:          rgba(255,255,255,0.40);
-}
-
-/* Tema claro do overlay */
-.preview-overlay.tema-claro {
-    background: #f6f4ff;
-    --pv-glass-bg:        rgba(255,255,255,0.85);
-    --pv-glass-borda:     rgba(0,0,0,0.08);
-    --pv-glass-hover-bg:  #ffffff;
-    --pv-glass-hover-bd:  rgba(var(--prev-acento-rgb), 0.45);
-    --pv-titulo:          #111111;
-    --pv-rotulo:          rgba(0,0,0,0.42);
+    /* vars padrão idênticas ao :root do Style.css */
+    --acento:            #a78bfa;
+    --acento-rgb:        167, 139, 250;
+    --fundo-base:        #0f0c29;
+    --fundo-glow-1:      rgba(124,58,237,0.20);
+    --fundo-glow-2:      rgba(79,70,229,0.15);
+    --glass-bg:          rgba(255,255,255,0.055);
+    --glass-borda:       rgba(255,255,255,0.11);
+    --glass-hover-bg:    rgba(167,139,250,0.10);
+    --glass-hover-borda: rgba(167,139,250,0.35);
+    --preco-bg:          rgba(167,139,250,0.10);
+    --preco-borda:       rgba(167,139,250,0.30);
+    --preco-glow:        rgba(167,139,250,0.18);
+    --preco-texto:       #c4b5fd;
+    --btn-bg:            rgba(124,58,237,0.70);
+    --btn-borda:         rgba(167,139,250,0.50);
+    --btn-hover-bg:      rgba(124,58,237,0.88);
+    --btn-texto:         #ffffff;
+    --btn-sombra:        rgba(124,58,237,0.45);
+    --badge-disp-bg:     rgba(52,211,153,0.13);
+    --badge-disp-borda:  rgba(52,211,153,0.30);
+    --badge-disp-texto:  #34d399;
+    --texto-titulo:      #ffffff;
+    --texto-rotulo:      rgba(255,255,255,0.40);
 }
 
 /* Conteúdo wrapper (mesma largura da lista) */
@@ -2509,7 +2509,7 @@ não é clicável. */
     max-width: calc(100% - 16px);
 }
 
-/* Cartão */
+/* Cartão — usa exatamente as mesmas vars do Style.css */
 .preview-overlay .cartao-produto {
     position: relative;
     display: flex;
@@ -2518,26 +2518,23 @@ não é clicável. */
     width: 100%;
     padding: 18px 20px;
     border-radius: 16px;
-    background: var(--pv-glass-bg);
-    border: 1px solid var(--pv-glass-borda);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-borda);
     box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     overflow: hidden;
     transition: all .3s ease;
 }
-.preview-overlay.tema-claro .cartao-produto {
-    box-shadow: 0 8px 32px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.9);
-}
 .preview-overlay .cartao-produto::before {
     content: '';
     position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--prev-acento), transparent);
+    background: linear-gradient(90deg, transparent, var(--acento), transparent);
     opacity: .6;
 }
 .preview-overlay .cartao-produto:hover {
-    background: var(--pv-glass-hover-bg);
-    border-color: var(--pv-glass-hover-bd);
+    background: var(--glass-hover-bg);
+    border-color: var(--glass-hover-borda);
     transform: translateY(-3px);
 }
 
@@ -2554,7 +2551,7 @@ não é clicável. */
     width: 100%;
     height: auto;
     border-radius: 10px;
-    border: 1px solid rgba(var(--prev-acento-rgb), 0.18);
+    border: 1px solid rgba(var(--acento-rgb), 0.18);
     box-shadow: 0 4px 16px rgba(0,0,0,0.30);
 }
 
@@ -2569,39 +2566,39 @@ não é clicável. */
     text-align: center;
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--pv-titulo);
+    color: var(--texto-titulo, #fff);
 }
 .preview-overlay .rodape-produto {
     display: flex; flex-direction: column; gap: 10px;
 }
 .preview-overlay .caixa-preco {
     display: flex; flex-direction: column; align-items: center;
-    padding: 10px 14px;
+    padding: 7px 14px;
     border-radius: 12px;
-    background: var(--pv-preco-bg);
-    border: 1px solid var(--pv-preco-bd);
-    box-shadow: 0 0 18px var(--pv-preco-glow);
+    background: var(--preco-bg);
+    border: 1px solid var(--preco-borda);
+    box-shadow: 0 0 18px var(--preco-glow);
 }
 .preview-overlay .rotulo-preco {
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--pv-rotulo);
+    color: var(--texto-rotulo, rgba(255,255,255,0.40));
 }
 .preview-overlay .preco {
     margin-top: 3px;
     font-size: 18px;
     font-weight: 700;
-    color: var(--pv-preco-tx);
+    color: var(--preco-texto);
 }
 .preview-overlay .disponibilidade.disponivel {
     margin-top: 6px;
     padding: 3px 12px;
     border-radius: 50px;
-    background: var(--pv-badge-bg);
-    border: 1px solid var(--pv-badge-bd);
-    color: var(--pv-badge-tx);
+    background: var(--badge-disp-bg);
+    border: 1px solid var(--badge-disp-borda);
+    color: var(--badge-disp-texto);
     font-weight: 700;
     font-size: 11px;
     text-transform: uppercase;
@@ -2623,19 +2620,17 @@ não é clicável. */
 /* Botões dos cards */
 .preview-overlay .acoes { display: flex; justify-content: center; }
 .preview-overlay .botao {
-    padding: 10px 43px;
+    padding: 7px 31px;
     border-radius: 999px;
-    border: 1px solid var(--pv-btn-bd);
-    background: var(--pv-btn-bg);
-    color: #fff;
+    border: 1px solid var(--btn-borda);
+    background: var(--btn-bg);
+    color: var(--btn-texto, #fff);
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 8px 24px var(--pv-btn-sombra);
+    box-shadow: 0 8px 24px var(--btn-sombra);
     transition: all .25s;
 }
-
-
-.preview-overlay .botao:hover { background: var(--pv-btn-hover); transform: translateY(-1px); }
+.preview-overlay .botao:hover { background: var(--btn-hover-bg); transform: translateY(-1px); }
 .preview-overlay .botao[disabled] {
     background: rgba(245, 166, 35, 0.10);
     border-color: rgba(245, 166, 35, 0.28);
@@ -2662,9 +2657,14 @@ não é clicável. */
 }
 
 @media (max-width: 560px) {
-    .preview-overlay .cartao-produto { padding: 14px; gap: 12px; }
+    .preview-overlay .conteudo { width: 100%; max-width: 100%; }
+    .preview-overlay-cards { padding: 16px 11px 60px; gap: 14px; }
+    .preview-overlay .cartao-produto { padding: 12px; gap: 12px; }
     .preview-overlay .titulo-produto { font-size: 15px; }
     .preview-overlay .preco { font-size: 16px; }
+    .preview-overlay .imagem-produto { max-width: 40%; }
+    .preview-overlay .botao { font-size: 13px !important; padding: 11px 6px !important; }
+    .preview-overlay-welcome-inner h1 { font-size: 1.9rem; }
 }
 
 /* Ajuste do scroll do painel para caber tudo */
