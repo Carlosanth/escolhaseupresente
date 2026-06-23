@@ -35,8 +35,8 @@
         <div class="area-temas">
             <button class="fechar" id="fechar">Fechar</button>
             <div class="painel">
-                <span class="nome-i" style="padding-bottom: 20px; font-size: 25px; font-weight: 600; color: #cbd9d4;">Escolha a imagem inicial</span>
-                <div class="painel-de-imagens" style="margin-bottom: 20px;">
+                <span class="nome-i" style="padding-bottom: 16px; font-size: 22px; font-weight: 600; color: #cbd9d4;">Escolha a imagem inicial</span>
+                <div class="painel-de-imagens" style="margin-bottom: 16px;">
                     <div class="painel-incial">
                         <div class="carousel-box">
                             <div class="carousel-track-outer">
@@ -58,30 +58,107 @@
                         </div>
                     </div>
                 </div>
-                <span class="painel-up">Ou faça Upload</span>
-                <input type="file" name="upload" id="upload" class="upload" accept="image/*">
-                <div class="adicionar-cores">
-                    <div class="cores">
-                        <div id="escolher">Escolha a cor da sua lista</div>
-                        <input type="color" class="cor">
+
+                <!-- UPLOAD CLICÁVEL (sem botão "Escolher arquivo") -->
+                <label for="upload" class="upload-area" id="uploadArea">
+                    <span class="upload-icone">⬆</span>
+                    <span class="upload-texto" id="uploadTexto">Ou faça Upload de uma imagem</span>
+                </label>
+                <input type="file" name="upload" id="upload" class="upload" accept="image/*" hidden>
+
+                <!-- CABEÇALHO DA LISTA -->
+                <div class="bloco-cabecalho">
+                    <span class="bloco-cabecalho-titulo">Altere a apresentação</span>
+                    <input type="text" id="inputTituloBoasVindas" class="campo-cab" maxlength="80" placeholder="Sejam Bem-Vindos ao Nosso Sonho!">
+                    <textarea id="inputDescricaoBoasVindas" class="campo-cab campo-cab-area" maxlength="280" rows="3" placeholder="Ficamos muito felizes em compartilhar este momento tão especial com você..."></textarea>
+                </div>
+
+                <!-- TÍTULO + COR/MODO LADO A LADO -->
+                <div class="bloco-cores-modo">
+                    <span class="bloco-cores-titulo">Escolha seu tema de cores</span>
+                    <div class="tema-controles">
+                        <label class="cor-pill" title="Cor de acento da lista">
+                            <span class="cor-pill-bolha" id="corBolha"></span>
+                            <span class="cor-pill-label">Cor</span>
+                            <input type="color" class="cor" id="inputCor" value="#a78bfa">
+                        </label>
+
+                        <label class="toggle-switch toggle-modo-icones" title="Modo claro / escuro">
+                            <input type="checkbox" id="toggleModo">
+                            <span class="toggle-slider toggle-slider-icones">
+                                <span class="toggle-thumb-icone" id="toggleThumbIcone">🌙</span>
+                            </span>
+                        </label>
                     </div>
                 </div>
 
-                <!-- TOGGLE MODO CLARO / ESCURO -->
-                <div class="modo-toggle-bloco">
-                    <span class="modo-icone">🌑</span>
-                    <div class="modo-toggle-textos">
-                        <span class="modo-toggle-titulo">Modo de exibição da lista</span>
-                        <span class="modo-toggle-sub" id="modoSub">Escuro — fundo preto com glassmorphism</span>
+                <!-- PREVIEW MINI DO CARD (réplica do card da lista) -->
+                <div class="preview-mini-grid" id="previewMiniGrid">
+                    <div class="cartao-mini">
+                        <div class="cartao-mini-img">
+                            <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <defs>
+                                    <linearGradient id="gMiniBox1" x1="0" x2="1" y1="0" y2="1">
+                                        <stop offset="0%" stop-color="#7c3aed"/>
+                                        <stop offset="100%" stop-color="#4f46e5"/>
+                                    </linearGradient>
+                                    <linearGradient id="gMiniLid1" x1="0" x2="1" y1="0" y2="1">
+                                        <stop offset="0%" stop-color="#f9a8d4"/>
+                                        <stop offset="100%" stop-color="#c084fc"/>
+                                    </linearGradient>
+                                </defs>
+                                <rect x="10" y="26" width="44" height="30" rx="4" fill="url(#gMiniBox1)"/>
+                                <rect x="8"  y="22" width="48" height="9"  rx="3" fill="url(#gMiniLid1)"/>
+                                <rect x="29" y="22" width="6"  height="34" fill="#ec4899" opacity="0.85"/>
+                                <path d="M32 22 C 22 10, 10 18, 22 22 Z" fill="#f0abfc"/>
+                                <path d="M32 22 C 42 10, 54 18, 42 22 Z" fill="#f0abfc"/>
+                            </svg>
+                        </div>
+                        <div class="cartao-mini-info">
+                            <div class="cartao-mini-titulo">Nome do produto</div>
+                            <div class="cartao-mini-preco-box">
+                                <div class="cartao-mini-rotulo">VALOR</div>
+                                <div class="cartao-mini-preco">R$ XXX,XX</div>
+                                <div class="cartao-mini-badge">DISPONÍVEL</div>
+                            </div>
+                            <button type="button" class="cartao-mini-btn">😊 Presentear 😊</button>
+                        </div>
                     </div>
-                    <label class="toggle-switch modo-toggle-switch">
-                        <input type="checkbox" id="toggleModo">
-                        <span class="toggle-slider"></span>
-                    </label>
                 </div>
 
-                <button class="btn-salvar" id="btn-salvar">Salvar <br>preferências</button>
+                <div class="botoes-tema">
+                    <button class="btn-visualizar" id="btn-visualizar" type="button">👁 Visualizar lista</button>
+                    <button class="btn-salvar" id="btn-salvar">Salvar preferências</button>
+                </div>
             </div>
+        </div>
+
+        <!-- POPUP CONFIRMAR FECHAR SEM SALVAR -->
+        <div class="modal-confirm-tema" id="modalConfirmFechar">
+            <div class="modal-confirm-tema-box">
+                <h3>Sair sem salvar?</h3>
+                <p>Você fez alterações no tema mas ainda não salvou. Tem certeza que deseja sair sem salvar as preferências?</p>
+                <div class="modal-confirm-tema-botoes">
+                    <button id="modalConfirmFecharNao" class="botao-confirm botao-confirm-cancel">Não, voltar</button>
+                    <button id="modalConfirmFecharSim" class="botao-confirm botao-confirm-sair">Sim, sair</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- OVERLAY VISUALIZAR LISTA (preview) -->
+        <div class="preview-overlay" id="previewOverlay">
+            <button class="preview-overlay-fechar" id="previewOverlayFechar">✕ Fechar preview</button>
+            <div class="preview-overlay-welcome" id="previewOverlayWelcome">
+                <div class="preview-overlay-welcome-inner">
+                    <h1 id="previewOverlayTitulo">Sejam Bem-Vindos ao Nosso Sonho!</h1>
+                    <p id="previewOverlayDesc">Ficamos muito felizes em compartilhar este momento tão especial com você.</p>
+                    <button class="preview-overlay-cta">Acessar Lista de Presentes</button>
+                </div>
+                <span style="position: absolute; bottom: 100px; color: aliceblue; font-weight: bolder;">
+                    PAGINA DEMOSTRATIVA <br>DESLIZE PARA CIMA<br>⇩
+                </span>
+            </div>
+            <div class="preview-overlay-cards" id="previewOverlayCards"></div>
         </div>    
 
         <!-- PAINEL CATEGORIAS DE LISTAS PRONTAS -->
@@ -545,12 +622,18 @@
                 const slideW = slides[0].offsetWidth + 10;
                 track.style.transform = `translateX(${-current * slideW + 30}px)`;
                 slides.forEach((s, i) => {
-                    s.className = 'carousel-slide ' + (i === current ? 'active' : 'inactive');
-                    if (s.dataset.selecionado === 'true') s.classList.add('selecionado');
+                    s.className = 'carousel-slide ' + (i === current ? 'active selecionado' : 'inactive');
+                    s.dataset.selecionado = (i === current) ? 'true' : 'false';
                 });
                 Array.from(dotsContainer.children).forEach((d, i) => {
                     d.className = 'carousel-dot' + (i === current ? ' active' : '');
                 });
+                // 🆕 Auto-selecionar tema visível como tema escolhido
+                const slideAtivo = slides[current];
+                if (slideAtivo && slideAtivo.dataset.url) {
+                    mudarImagemTemaEmTempoReal(slideAtivo.dataset.url);
+                    if (typeof marcarDirty === 'function') marcarDirty();
+                }
             };
 
             document.getElementById('carousel-prev').addEventListener('click', () => carouselGoTo(current - 1));
@@ -563,23 +646,15 @@
                 if (Math.abs(diff) > 40) carouselGoTo(current + (diff > 0 ? 1 : -1));
             });
 
-            track.addEventListener('click', (e) => {
-                const slide = e.target.closest('.carousel-slide');
-                if (!slide) return;
-                const url = slide.dataset.url;
-                if (!url) return;
-                mudarImagemTemaEmTempoReal(url);
-                track.querySelectorAll('.carousel-slide').forEach(s => {
-                    s.classList.remove('selecionado');
-                    s.dataset.selecionado = 'false';
-                });
-                slide.classList.add('selecionado');
-                slide.dataset.selecionado = 'true';
-                mostrarToast('Tema selecionado! Salve as preferências.', 'normal', '🎨');
-            });
-
             carouselGoTo(0);
         }
+
+        // ================================================================
+        // ESTADO DIRTY (alterações não salvas)
+        // ================================================================
+        let temaDirty = false;
+        function marcarDirty() { temaDirty = true; }
+        function limparDirty() { temaDirty = false; }
 
         // ================================================================
         // DOM READY
@@ -588,30 +663,152 @@
             const botaoTema   = document.getElementById('tema');
             const areaTemas   = document.querySelector('.area-temas');
             const botaoFechar = document.getElementById('fechar');
+            const modalConf   = document.getElementById('modalConfirmFechar');
+            const btnConfNao  = document.getElementById('modalConfirmFecharNao');
+            const btnConfSim  = document.getElementById('modalConfirmFecharSim');
 
-            if (botaoTema)   botaoTema.addEventListener('click', () => areaTemas.classList.toggle('ativo'));
-            if (botaoFechar) botaoFechar.addEventListener('click', () => areaTemas.classList.remove('ativo'));
+            if (botaoTema) botaoTema.addEventListener('click', () => areaTemas.classList.toggle('ativo'));
 
-            // Upload tema
+            function tentarFecharPainel() {
+                if (temaDirty) { modalConf.classList.add('ativo'); }
+                else { areaTemas.classList.remove('ativo'); }
+            }
+            if (botaoFechar) botaoFechar.addEventListener('click', tentarFecharPainel);
+            if (btnConfNao)  btnConfNao.addEventListener('click', () => modalConf.classList.remove('ativo'));
+            if (btnConfSim)  btnConfSim.addEventListener('click', () => {
+                modalConf.classList.remove('ativo');
+                areaTemas.classList.remove('ativo');
+                limparDirty();
+            });
+
+            // Upload tema (área clicável — sem botão "Escolher arquivo")
             const inputUploadTema = document.getElementById('upload');
+            const uploadTexto     = document.getElementById('uploadTexto');
             if (inputUploadTema) {
                 inputUploadTema.addEventListener('change', async (e) => {
                     const arquivo = e.target.files[0];
                     if (!arquivo) return;
-                    const spanUpload = document.querySelector('.painel-up');
-                    if (spanUpload) spanUpload.textContent = "Enviando imagem...";
+                    if (uploadTexto) uploadTexto.textContent = "Enviando imagem...";
                     const blob = await redimensionarImagem(arquivo, 1200, 800, 0.85);
                     const urlGerada = await fazerUploadImagemImgBB(blob);
                     if (urlGerada) {
                         mudarImagemTemaEmTempoReal(urlGerada);
-                        if (spanUpload) spanUpload.textContent = "Upload concluído! ✅";
+                        if (uploadTexto) uploadTexto.textContent = "✓ " + arquivo.name;
+                        marcarDirty();
                         mostrarToast('Imagem de tema enviada!', 'sucesso', '✅');
                     } else {
-                        if (spanUpload) spanUpload.textContent = "Ou faça Upload";
+                        if (uploadTexto) uploadTexto.textContent = "Ou faça Upload de uma imagem";
                         mostrarToast('Erro ao enviar a imagem.', 'erro', '❌');
                     }
                 });
             }
+
+            // Cor — bolinha visual + dirty + preview mini
+            const inputCor = document.getElementById('inputCor');
+            const corBolha = document.getElementById('corBolha');
+            function syncBolha() { if (corBolha && inputCor) corBolha.style.background = inputCor.value; }
+            if (inputCor) {
+                syncBolha();
+                inputCor.addEventListener('input', () => { syncBolha(); marcarDirty(); aplicarPreviewMini(); });
+            }
+
+            // Toggle modo — ícone interno (sol/lua) + dirty
+            const toggleModo  = document.getElementById('toggleModo');
+            const thumbIcone  = document.getElementById('toggleThumbIcone');
+            window.syncThumb = function() { if (thumbIcone) thumbIcone.textContent = toggleModo.checked ? '☀' : '🌙'; };
+            if (toggleModo) {
+                syncThumb();
+                toggleModo.addEventListener('change', () => { syncThumb(); marcarDirty(); aplicarPreviewMini(); });
+            }
+
+            // Cabeçalho da lista
+            const inpTit  = document.getElementById('inputTituloBoasVindas');
+            const inpDesc = document.getElementById('inputDescricaoBoasVindas');
+            [inpTit, inpDesc].forEach(el => { if (el) el.addEventListener('input', marcarDirty); });
+
+            // Preview mini reage à cor + tema (claro/escuro)
+            window.aplicarPreviewMini = function() {
+                const cor = inputCor ? inputCor.value : '#a78bfa';
+                const grid = document.getElementById('previewMiniGrid');
+                if (!grid) return;
+                grid.style.setProperty('--mini-acento', cor);
+                const isClaro = toggleModo && toggleModo.checked;
+                grid.classList.toggle('tema-claro', !!isClaro);
+            };
+            aplicarPreviewMini();
+
+            // Botão Visualizar — preview da lista sem salvar
+            const btnVisualizar  = document.getElementById('btn-visualizar');
+            const previewOverlay = document.getElementById('previewOverlay');
+            const previewFechar  = document.getElementById('previewOverlayFechar');
+
+            // SVG placeholder (mesmo ícone do card quando não há upload de imagem)
+            const SVG_PLACEHOLDER = `
+                <img src="https://i.ibb.co/YBZJdZ2N/icon-192.jpg" alt="Icon" style="width:100%;height:100%;object-fit:contain;" />
+            `;
+
+            // hex -> rgb "r, g, b"
+            function corParaRgb(hex) {
+                hex = (hex || '#a78bfa').replace('#','');
+                if (hex.length === 3) hex = hex.split('').map(c => c+c).join('');
+                return [
+                    parseInt(hex.slice(0,2),16),
+                    parseInt(hex.slice(2,4),16),
+                    parseInt(hex.slice(4,6),16)
+                ].join(', ');
+            }
+
+            // Produtos de exemplo (mostra também um "presenteado" pra dar a sensação real)
+            const PRODUTOS_DEMO = [
+                { titulo: 'Nome do produto',  preco: 'R$ XXX,XX', disponivel: true  },
+                { titulo: 'Nome do produto',  preco: 'R$ XXX,XX', disponivel: true  },
+                { titulo: 'Nome do produto',  preco: 'R$ XXX,XX', disponivel: true  },
+                { titulo: 'Nome do produto',  preco: 'R$ XXX,XX', disponivel: false },
+            ];
+
+            function renderPreviewCards() {
+                const wrap = document.getElementById('previewOverlayCards');
+                if (!wrap) return;
+                wrap.innerHTML = PRODUTOS_DEMO.map(p => {
+                    const dispClass = p.disponivel ? 'disponivel' : 'indisponivel';
+                    const dispTexto = p.disponivel ? 'Disponível' : 'Presenteado';
+                    const botao = p.disponivel
+                        ? `<button class="botao primario botao-presentear" type="button">😊 Presentear 😊</button>`
+                        : `<button class="botao" type="button" disabled>😍 Ganhamos! 😍</button>`;
+                    return `
+                      <main class="conteudo ${p.disponivel ? '' : 'item-esgotado'}">
+                        <section class="cartao-produto">
+                          <div class="imagem-produto">${SVG_PLACEHOLDER}</div>
+                          <div class="detalhes-produto">
+                            <div class="titulo-produto">${p.titulo}</div>
+                            <div class="rodape-produto">
+                              <div class="caixa-preco">
+                                <div class="rotulo-preco">Valor</div>
+                                <div class="preco">${p.preco}</div>
+                                <div class="disponibilidade ${dispClass}">${dispTexto}</div>
+                              </div>
+                              <div class="acoes">${botao}</div>
+                            </div>
+                          </div>
+                        </section>
+                      </main>`;
+                }).join('');
+            }
+
+            if (btnVisualizar) btnVisualizar.addEventListener('click', () => {
+                document.getElementById('previewOverlayTitulo').textContent = (inpTit && inpTit.value.trim()) || 'Sejam Bem-Vindos ao Nosso Sonho!';
+                document.getElementById('previewOverlayDesc').textContent   = (inpDesc && inpDesc.value.trim()) || 'Ficamos muito felizes em compartilhar este momento tão especial com você.';
+                const welcome = document.getElementById('previewOverlayWelcome');
+                if (imagemSelecionadaParaO_Banco) welcome.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55)),url('${imagemSelecionadaParaO_Banco}')`;
+                const cor = inputCor ? inputCor.value : '#a78bfa';
+                previewOverlay.style.setProperty('--prev-acento', cor);
+                previewOverlay.style.setProperty('--prev-acento-rgb', corParaRgb(cor));
+                const isClaro = toggleModo && toggleModo.checked;
+                previewOverlay.classList.toggle('tema-claro', !!isClaro);
+                renderPreviewCards();
+                previewOverlay.classList.add('ativo');
+            });
+            if (previewFechar) previewFechar.addEventListener('click', () => previewOverlay.classList.remove('ativo'));
         });
 
         function mudarImagemTemaEmTempoReal(urlDaImagem) {
@@ -844,7 +1041,7 @@
                 const centavos = parseInt(item.preco_centavos || 0);
                 const semValor = !centavos || centavos <= 0;
                 const precoFmt = (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                const imgSrc = item.imagem || 'https://i.ibb.co/0jjSyNRG/logo.png';
+                const imgSrc = item.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
                 const linha = document.createElement('div');
                 linha.className = 'item-pronto-linha';
                 linha.dataset.id = item.id;
@@ -969,7 +1166,7 @@
                     await setDoc(doc(db, "produtos_teste", produtoId), {
                         categoria:               nomeCategoria,
                         disponivel:              true,
-                        imagem:                  item.imagem || 'https://i.ibb.co/0jjSyNRG/logo.png',
+                        imagem:                  item.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg',
                         preco:                   precoParaWebhook,
                         preco_original_centavos: precoOriginalCentavos.toString(),
                         preco_centavos:          precoCentavosWebhook.toString(),
@@ -1029,7 +1226,7 @@
             btnAdicionar.value = "Salvando...";
             btnAdicionar.disabled = true;
 
-            let urlImagemFinal = 'https://i.ibb.co/0jjSyNRG/logo.png';
+            let urlImagemFinal = 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
             if (fotoArquivo) {
                 const blob = await redimensionarImagem(fotoArquivo);
                 urlImagemFinal = await fazerUploadImagemImgBB(blob);
@@ -1256,7 +1453,7 @@
             novaBaseDiv.classList.add('base');
 
             const tituloExibicao    = produto.titulo    || "Sem nome";
-            const imagemExibicao    = produto.imagem    || 'https://i.ibb.co/0jjSyNRG/logo.png';
+            const imagemExibicao    = produto.imagem    || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
             const categoriaExibicao = produto.categoria || "Sem Categoria";
             const textoStatus = produto.disponivel !== false ? "Disponível" : "Indisponível";
             const corStatus   = produto.disponivel !== false ? "#28a745" : "#6c757d";
@@ -1368,7 +1565,7 @@
         // ================================================================
         function abrirModalDetalheItem(produto) {
             const tituloExibicao    = produto.titulo    || "Sem nome";
-            const imagemExibicao    = produto.imagem    || 'https://i.ibb.co/0jjSyNRG/logo.png';
+            const imagemExibicao    = produto.imagem    || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
             const categoriaExibicao = produto.categoria || "Sem Categoria";
 
             const originalCentavos = parseInt(produto.preco_original_centavos || produto.preco_centavos || 0);
@@ -1453,7 +1650,7 @@
         // ================================================================
         function abrirModalEditar(produto, documentoId) {
             editandoId = documentoId;
-            editandoImagemAtual = produto.imagem || 'https://i.ibb.co/0jjSyNRG/logo.png';
+            editandoImagemAtual = produto.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
 
             editNome.value      = produto.titulo    || '';
             editPreco.value     = produto.preco     || '';
@@ -1890,37 +2087,33 @@
         // SALVAR PREFERÊNCIAS DE TEMA
         // ================================================================
         const btnSalvarPreferencias = document.getElementById('btn-salvar');
-        const inputCorTema = document.querySelector('.cor');
+        const inputCorTema = document.getElementById('inputCor');
         const toggleModo   = document.getElementById('toggleModo');
-        const modoSub      = document.getElementById('modoSub');
-        const modoIcone    = document.querySelector('.modo-icone');
+        const inputTitBV   = document.getElementById('inputTituloBoasVindas');
+        const inputDescBV  = document.getElementById('inputDescricaoBoasVindas');
 
-        // Atualiza o texto descritivo ao lado do toggle em tempo real
-        function atualizarTextoModo(claro) {
-            if (claro) {
-                modoSub.textContent    = 'Claro — fundo branco com textura';
-                modoIcone.textContent  = '☀️';
-            } else {
-                modoSub.textContent    = 'Escuro — fundo preto com glassmorphism';
-                modoIcone.textContent  = '🌑';
-            }
-        }
-
-        toggleModo.addEventListener('change', () => {
-            atualizarTextoModo(toggleModo.checked);
-        });
-
-        // Carrega o modo salvo no Firebase ao abrir o painel
+        // Carrega prefs salvas no Firebase ao abrir o painel
         async function carregarModoDisplay() {
             if (!usuarioAtualUid) return;
             try {
                 const snap = await getDoc(doc(db, "configuracoes", usuarioAtualUid));
-                if (snap.exists() && snap.data().modo_display) {
-                    const claro = snap.data().modo_display === 'claro';
-                    toggleModo.checked = claro;
-                    atualizarTextoModo(claro);
+                if (snap.exists()) {
+                    const d = snap.data();
+                    if (d.modo_display) {
+                        toggleModo.checked = d.modo_display === 'claro';
+                        if (typeof syncThumb === 'function') syncThumb();
+                    }
+                    if (d.cor_tema && inputCorTema) {
+                        inputCorTema.value = d.cor_tema;
+                        const bolha = document.getElementById('corBolha');
+                        if (bolha) bolha.style.background = d.cor_tema;
+                    }
+                    if (d.titulo_boas_vindas && inputTitBV) inputTitBV.value = d.titulo_boas_vindas;
+                    if (d.descricao_boas_vindas && inputDescBV) inputDescBV.value = d.descricao_boas_vindas;
+                    if (typeof aplicarPreviewMini === 'function') aplicarPreviewMini();
+                    limparDirty();
                 }
-            } catch(e) { console.error("Erro ao carregar modo:", e); }
+            } catch(e) { console.error("Erro ao carregar prefs:", e); }
         }
 
         if (btnSalvarPreferencias) {
@@ -1938,8 +2131,12 @@
                     if (imagemSelecionadaParaO_Banco !== "") {
                         dadosParaSalvar.imagem_fundo = imagemSelecionadaParaO_Banco;
                     }
+                    if (inputTitBV)  dadosParaSalvar.titulo_boas_vindas    = inputTitBV.value.trim();
+                    if (inputDescBV) dadosParaSalvar.descricao_boas_vindas = inputDescBV.value.trim();
+
                     await setDoc(doc(db, "configuracoes", usuarioAtualUid), dadosParaSalvar, { merge: true });
                     mostrarToast('Preferências salvas!', 'sucesso', '🎨');
+                    limparDirty();
                     document.querySelector('.area-temas').classList.remove('ativo');
                 } catch (error) {
                     console.error("Erro ao salvar preferências:", error);

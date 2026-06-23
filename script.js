@@ -212,6 +212,16 @@
               '--imagem-fundo', `url('${dados.imagem_fundo}')`
             );
           }
+
+          // 🆕 Título e descrição personalizáveis da tela de boas-vindas
+          if (dados.titulo_boas_vindas) {
+            const h1 = document.querySelector('.conteudo-boas-vindas h1');
+            if (h1) h1.textContent = dados.titulo_boas_vindas;
+          }
+          if (dados.descricao_boas_vindas) {
+            const p = document.querySelector('.conteudo-boas-vindas p');
+            if (p) p.textContent = dados.descricao_boas_vindas;
+          }
         }
       }, err => console.error("Erro tema:", err));
 
