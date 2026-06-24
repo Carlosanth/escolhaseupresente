@@ -268,7 +268,7 @@
     async function finalizarCompra(nomeConvidado) {
       try {
         const res = await fetch(
-          "https://us-central1-escolhaseupresente-35d3d.cloudfunctions.net/finalizarCompra",
+          "https://southamerica-east1-escolhaseupresente-35d3d.cloudfunctions.net/finalizarCompra",
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
