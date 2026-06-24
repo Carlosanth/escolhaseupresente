@@ -17,9 +17,9 @@
                 <span id="userLogadoEmail" style="font-weight: bold;">Carregando usuário...</span>
                 <button id="btnSair">Sair</button>
             </div>
-            <button class="btn-tema" id="tema">TEMAS DA LISTA</button>
-            <div class="not_saldo">
 
+            <div class="not_saldo">
+                <button class="btn-tema" id="tema">TEMAS DA LISTA</button>
                 <button class="btn-notif" id="btnNotif">
                 <span class="saldo-mini-badge" id="saldoMiniBadge" style="display:none;">
                     💰 <span id="saldoMiniValor">R$ 0,00</span>
@@ -262,12 +262,8 @@
                         <span class="taxa-subtitulo" id="taxaSubtitulo">Quem absorve o custo?</span>
                     </div>
                     <div class="taxa-toggle-wrap">
-                        <span class="taxa-opcao" id="labelConvidado">Convidado</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="toggleTaxa">
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <span class="taxa-opcao" id="labelCliente">Eu pago</span>
+                        <button type="button" class="btn-taxa" id="btnTaxaConvidado">Convidado</button>
+                        <button type="button" class="btn-taxa" id="btnTaxaCliente">Eu pago</button>
                     </div>
                 </div>
 
@@ -411,7 +407,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, deleteDoc, updateDoc, getDocs, getDoc, collection, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, deleteDoc, updateDoc, getDocs, getDoc, collection, query, where, onSnapshot, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -430,7 +426,7 @@
 
         const URL_BASE_SITE = "/lista.html";
         const LIMITE_ITENS = 1000;
-        const TAXA_PERCENTUAL = 2.8; // futuramente virá do painel admin
+        let TAXA_PERCENTUAL = 2.8; // valor real carregado do admin_config/global // futuramente virá do painel admin
 
         let usuarioAtualUid = null;
         let avisoSemValorJaMostrado = false;
@@ -950,6 +946,7 @@
                 escutarProdutosDoBanco();
                 escutarMeusSaques();
                 escutarNotificacoes();
+                escutarAvisosGlobais();
             } else {
                 usuarioAtualUid = null;
                 userLogadoEmail.textContent = "Não autenticado";
@@ -1023,7 +1020,7 @@
                 });
 
                 const response = await fetch(
-                    "https://us-central1-escolhaseupresente-35d3d.cloudfunctions.net/uploadImagem",
+                    "https://southamerica-east1-escolhaseupresente-35d3d.cloudfunctions.net/uploadImagem",
                     {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
@@ -1389,12 +1386,6 @@
                     // nos próprios produtos. Isso evita dessincronia caso o doc
                     // "configuracoes/{uid}" esteja ausente, desatualizado ou
                     // vindo do cache local do Firestore antes do servidor confirmar.
-                    const produtoComTaxa = todosOsProdutos.find(p => p.taxa_quem_paga);
-                    if (produtoComTaxa) {
-                        taxaQuemPaga = produtoComTaxa.taxa_quem_paga;
-                        document.getElementById('toggleTaxa').checked = taxaQuemPaga === 'cliente';
-                    }
-
                     document.getElementById('resumoCards').style.display = 'flex';
                     document.getElementById('taxaBloco').style.display = 'flex';
                     atualizarResumo();
@@ -1441,8 +1432,6 @@
 
             document.getElementById('resumoQtd').textContent = qtd;
 
-            const labelConvidado = document.getElementById('labelConvidado');
-            const labelCliente   = document.getElementById('labelCliente');
             const receberEl      = document.getElementById('resumoReceber');
             const receberLabel   = document.getElementById('resumoReceberLabel');
             const taxaSubtitulo  = document.getElementById('taxaSubtitulo');
@@ -1452,16 +1441,13 @@
                 receberEl.textContent = formatarBRL(totalOriginalCentavos);
                 receberLabel.textContent = '✅ Você receberá';
                 taxaSubtitulo.textContent = 'Convidado paga +' + TAXA_PERCENTUAL + '% sobre cada item';
-                labelConvidado.classList.add('ativo');
-                labelCliente.classList.remove('ativo');
             } else {
                 const totalReceber = Math.round(totalOriginalCentavos * (1 - TAXA_PERCENTUAL / 100));
                 receberEl.textContent = formatarBRL(totalReceber);
                 receberLabel.textContent = '✅ Você receberá';
                 taxaSubtitulo.textContent = 'Você absorve -' + TAXA_PERCENTUAL + '% (descontado do seu recebimento)';
-                labelConvidado.classList.remove('ativo');
-                labelCliente.classList.add('ativo');
             }
+            atualizarBotoesTaxa();
 
             // Linha discreta: quanto já foi efetivamente sacado/pago pelo admin.
             // É só um aviso para o cliente não achar que o valor de "Você
@@ -1484,10 +1470,22 @@
         async function carregarTaxaDoFirestore() {
             if (!usuarioAtualUid) return;
             try {
+                // 1. Taxa oficial vinda do admin — única fonte de verdade.
+                //    Lida aqui no servidor, não pode ser manipulada via console.
+                const adminSnap = await getDoc(doc(db, "admin_config", "global"));
+                if (adminSnap.exists() && adminSnap.data().taxa_percentual != null) {
+                    TAXA_PERCENTUAL = parseFloat(adminSnap.data().taxa_percentual);
+                    const labelTaxa = document.getElementById('taxaPercentualLabel');
+                    if (labelTaxa) {
+                        labelTaxa.textContent = TAXA_PERCENTUAL.toFixed(1).replace('.', ',') + '%';
+                    }
+                }
+
+                // 2. Preferência do cliente (convidado paga / eu pago)
                 const snap = await getDoc(doc(db, "configuracoes", usuarioAtualUid));
                 if (snap.exists() && snap.data().taxa_quem_paga) {
                     taxaQuemPaga = snap.data().taxa_quem_paga;
-                    document.getElementById('toggleTaxa').checked = taxaQuemPaga === 'cliente';
+                    atualizarBotoesTaxa();
                 }
                 // Não renderiza nada aqui: a lista de produtos (escutarProdutosDoBanco)
                 // só começa a escutar DEPOIS desta função terminar, então ela já vai
@@ -1531,8 +1529,34 @@
             }
         }
 
-        document.getElementById('toggleTaxa').addEventListener('change', async (e) => {
-            taxaQuemPaga = e.target.checked ? 'cliente' : 'convidado';
+        // ================================================================
+        // BOTÕES DE TAXA
+        // ================================================================
+        function atualizarBotoesTaxa() {
+            const btnConvidado = document.getElementById('btnTaxaConvidado');
+            const btnCliente   = document.getElementById('btnTaxaCliente');
+            if (!btnConvidado || !btnCliente) return;
+            if (taxaQuemPaga === 'convidado') {
+                btnConvidado.classList.add('ativo');
+                btnCliente.classList.remove('ativo');
+            } else {
+                btnCliente.classList.add('ativo');
+                btnConvidado.classList.remove('ativo');
+            }
+        }
+
+        document.getElementById('btnTaxaConvidado').addEventListener('click', async () => {
+            if (taxaQuemPaga === 'convidado') return;
+            taxaQuemPaga = 'convidado';
+            atualizarBotoesTaxa();
+            atualizarResumo();
+            await salvarTaxaNoFirestore();
+        });
+
+        document.getElementById('btnTaxaCliente').addEventListener('click', async () => {
+            if (taxaQuemPaga === 'cliente') return;
+            taxaQuemPaga = 'cliente';
+            atualizarBotoesTaxa();
             atualizarResumo();
             await salvarTaxaNoFirestore();
         });
@@ -1597,7 +1621,7 @@
                 </div>
                 <div class="disponibilidade">
                     ${foiVendido
-                        ? `<span class="chip-vendido">🎁 Vendido</span>
+                        ? `<span class="chip-vendido">🎁 Ganhamos</span>
                            <span class="btn-bloqueado">✏️ Editar</span>
                            <span class="btn-bloqueado">🗑️ Excluir</span>`
                         : `<span class="disp">${textoStatus}</span>
@@ -1612,7 +1636,7 @@
 
             // Botões bloqueados — toast de aviso
             novaBaseDiv.querySelectorAll('.btn-bloqueado').forEach(btn => {
-                btn.addEventListener('click', () => mostrarToast('Item vendido — não pode ser alterado.', 'aviso', '🔒'));
+                btn.addEventListener('click', () => mostrarToast('Item Ganhado — não pode ser alterado.', 'aviso', '🔒'));
             });
 
             // Botão excluir — só se existir (não vendido)
@@ -1712,7 +1736,7 @@
 
             const statusEl = document.getElementById('detalheStatus');
             if (foiVendido) {
-                statusEl.textContent = '🎁 Vendido';
+                statusEl.textContent = '🎁 Ganhamos';
                 statusEl.style.background = 'rgba(245, 166, 35, 0.18)';
                 statusEl.style.color = '#f5a623';
             } else if (produto.disponivel !== false) {
@@ -2148,10 +2172,56 @@
             });
         }
 
+        // ================================================================
+        // AVISOS GLOBAIS DO ADMIN — aparecem fixos no topo das notificações
+        // ================================================================
+        let unsubscribeAvisosGlobais = null;
+
+        function escutarAvisosGlobais() {
+            if (unsubscribeAvisosGlobais) unsubscribeAvisosGlobais();
+            const q = query(
+                collection(db, "avisos_globais"),
+                orderBy("criado_em", "desc")
+            );
+            unsubscribeAvisosGlobais = onSnapshot(q, (snapshot) => {
+                // Remove avisos anteriores do DOM (não toca nos itens de presente)
+                notifLista.querySelectorAll('.aviso-global').forEach(el => el.remove());
+                if (snapshot.empty) return;
+
+                const icones = { taxa:'💸', instabilidade:'⚠️', comprovante:'📄', info:'📢' };
+                const avisos = [];
+                snapshot.forEach(d => avisos.push({ id: d.id, ...d.data() }));
+
+                // Insere do mais antigo ao mais recente com insertBefore
+                // para que o primeiro (mais recente) fique no topo
+                [...avisos].reverse().forEach(aviso => {
+                    const icone = icones[aviso.tipo] || '📢';
+                    let dataFmt = '';
+                    if (aviso.criado_em) {
+                        const d = aviso.criado_em.toDate ? aviso.criado_em.toDate() : new Date(aviso.criado_em);
+                        dataFmt = d.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+                    }
+                    const el = document.createElement('div');
+                    el.className = 'notif-item aviso-global';
+                    el.dataset.fixo = aviso.fixo ? 'true' : 'false';
+                    el.innerHTML = `
+                        <span class="notif-item-nome aviso-global-titulo">${icone} ${aviso.titulo || 'Aviso'}</span>
+                        <span class="notif-item-presente aviso-global-msg">${aviso.mensagem || ''}</span>
+                        ${dataFmt ? `<span class="notif-item-data">📅 ${dataFmt}</span>` : ''}
+                    `;
+                    notifLista.insertBefore(el, notifLista.firstChild);
+                });
+            }, err => console.error("Erro avisos globais:", err));
+        }
+
         // Exportar lista como CSV
         document.getElementById('btnExportarNotif').addEventListener('click', () => {
             const itens = [];
             notifLista.querySelectorAll('.notif-item').forEach(el => {
+                // Avisos globais marcados como fixo não entram no CSV do cliente
+                if (el.classList.contains('aviso-global') && el.dataset.fixo === 'true') return;
+                // Avisos não fixos também não entram — CSV é só presentes recebidos
+                if (el.classList.contains('aviso-global')) return;
                 const nome    = el.querySelector('.notif-item-nome')?.textContent.replace('🎁 ', '').trim() || '';
                 const present = el.querySelector('.notif-item-presente')?.textContent.trim() || '';
                 const valor   = el.querySelector('.notif-item-valor')?.textContent.trim() || '';

@@ -282,7 +282,7 @@ html, body {
 .btn-salvar:hover { background: rgba(1, 175, 44, 0.8); }
 
 .btn-tema {
-    padding: 8px 10px;
+    padding: 10px 10px;
     margin-right: 10px;
     border: 1px solid rgba(196, 181, 253, 0.25);
     border-radius: 35px;
@@ -297,6 +297,13 @@ html, body {
     font-size: 12px;
     letter-spacing: 0.05em;
     transition: background 0.2s;
+}
+
+
+.not_saldo {
+    display: flex;
+    align-content: center;
+    align-items: center;
 }
 
 .btn-tema:hover {
@@ -969,9 +976,9 @@ não é clicável. */
     gap: 5px;
     padding: 8px 14px;
     margin-right: 4px;
-    border: 1px solid rgba(196, 181, 253, 0.25);
+    /* border: 1px solid rgba(196, 181, 253, 0.25); */
     border-radius: 35px;
-    background: rgba(120, 100, 170, 0.16);
+    background: rgb(120 100 170 / 16%);
     backdrop-filter: blur(10px);
     font-size: 13px;
     font-weight: 700;
@@ -1080,6 +1087,23 @@ não é clicável. */
     flex-direction: column;
     gap: 4px;
     animation: popIn 0.3s ease;
+}
+
+/* ── Avisos globais do admin ────────────────────────────── */
+.notif-item.aviso-global {
+    background: rgba(139, 92, 246, 0.10);
+    border: 1px solid rgba(139, 92, 246, 0.30);
+    border-left: 3px solid rgba(139, 92, 246, 0.80);
+}
+.aviso-global-titulo {
+    font-weight: 600;
+    font-size: 13px;
+    color: rgba(196, 165, 255, 0.95);
+}
+.aviso-global-msg {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.5;
 }
 
 .notif-item-nome {
@@ -1357,13 +1381,25 @@ não é clicável. */
     align-items: center;
     gap: 8px;
 }
-.taxa-opcao {
+.btn-taxa {
     font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(167,139,250,0.35);
+    background: rgba(255,255,255,0.05);
     color: rgba(255,255,255,0.5);
-    font-weight: 600;
-    transition: color 0.2s;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border-color 0.18s;
+    line-height: 1;
 }
-.taxa-opcao.ativo {
+.btn-taxa:hover {
+    background: rgba(167,139,250,0.15);
+    color: rgba(255,255,255,0.8);
+}
+.btn-taxa.ativo {
+    background: rgba(167,139,250,0.25);
+    border-color: #a78bfa;
     color: #a78bfa;
 }
 /* Toggle switch */
@@ -1869,7 +1905,7 @@ não é clicável. */
 
     .nav-itens { justify-content: center; }
 
-    .btn-tema { padding: 9px 15px; }
+    .btn-tema { padding: 10px 15px; }
 
     .T-Produtos strong { max-width: 110px; }
 
