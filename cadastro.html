@@ -1557,17 +1557,9 @@
 
             if (semValorDefinido) novaBaseDiv.classList.add('sem-valor');
 
-            const foiVendido = produto.disponivel === false && produto.presenteado_por;
-            if (foiVendido) novaBaseDiv.classList.add('vendido');
-
-            // Segunda linha: para itens ainda disponíveis, usa SEMPRE o estado global
-            // taxaQuemPaga (que é atualizado imediatamente ao clicar no toggle), e não
-            // o taxa_quem_paga salvo no produto — que pode chegar desatualizado pelo
-            // onSnapshot antes do updateDoc terminar, causando o "flip" visual do toggle.
-            // Para itens já vendidos usa o valor do produto (histórico imutável).
-            const taxaDoProduto = foiVendido
-                ? (produto.taxa_quem_paga || taxaQuemPaga)
-                : taxaQuemPaga;
+            // Segunda linha: usa taxa_quem_paga do próprio produto (fonte de verdade no banco)
+            // Isso garante que ao recarregar a página o valor exibido é sempre o correto
+            const taxaDoProduto = produto.taxa_quem_paga || taxaQuemPaga;
             let linhaExtra = '';
             if (semValorDefinido) {
                 linhaExtra = '';
@@ -1580,6 +1572,9 @@
                 const recebeFmt = (recebe / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 linhaExtra = `<small style="display:block;font-size:11px;color:#81c784;">Você recebe: ${recebeFmt}</small>`;
             }
+
+            const foiVendido = produto.disponivel === false && produto.presenteado_por;
+            if (foiVendido) novaBaseDiv.classList.add('vendido');
 
             // Linha extra só aparece em itens NÃO vendidos
             const linhaExtraFinal = foiVendido
