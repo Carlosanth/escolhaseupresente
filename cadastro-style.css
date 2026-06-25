@@ -1357,13 +1357,25 @@ não é clicável. */
     align-items: center;
     gap: 8px;
 }
-.taxa-opcao {
+.btn-taxa {
     font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(167,139,250,0.35);
+    background: rgba(255,255,255,0.05);
     color: rgba(255,255,255,0.5);
-    font-weight: 600;
-    transition: color 0.2s;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border-color 0.18s;
+    line-height: 1;
 }
-.taxa-opcao.ativo {
+.btn-taxa:hover {
+    background: rgba(167,139,250,0.15);
+    color: rgba(255,255,255,0.8);
+}
+.btn-taxa.ativo {
+    background: rgba(167,139,250,0.25);
+    border-color: #a78bfa;
     color: #a78bfa;
 }
 /* Toggle switch */

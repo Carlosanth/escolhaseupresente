@@ -262,12 +262,8 @@
                         <span class="taxa-subtitulo" id="taxaSubtitulo">Quem absorve o custo?</span>
                     </div>
                     <div class="taxa-toggle-wrap">
-                        <span class="taxa-opcao" id="labelConvidado">Convidado</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="toggleTaxa">
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <span class="taxa-opcao" id="labelCliente">Eu pago</span>
+                        <button type="button" class="btn-taxa" id="btnTaxaConvidado">Convidado</button>
+                        <button type="button" class="btn-taxa" id="btnTaxaCliente">Eu pago</button>
                     </div>
                 </div>
 
@@ -1389,12 +1385,6 @@
                     // nos próprios produtos. Isso evita dessincronia caso o doc
                     // "configuracoes/{uid}" esteja ausente, desatualizado ou
                     // vindo do cache local do Firestore antes do servidor confirmar.
-                    const produtoComTaxa = todosOsProdutos.find(p => p.taxa_quem_paga);
-                    if (produtoComTaxa) {
-                        taxaQuemPaga = produtoComTaxa.taxa_quem_paga;
-                        document.getElementById('toggleTaxa').checked = taxaQuemPaga === 'cliente';
-                    }
-
                     document.getElementById('resumoCards').style.display = 'flex';
                     document.getElementById('taxaBloco').style.display = 'flex';
                     atualizarResumo();
@@ -1441,8 +1431,6 @@
 
             document.getElementById('resumoQtd').textContent = qtd;
 
-            const labelConvidado = document.getElementById('labelConvidado');
-            const labelCliente   = document.getElementById('labelCliente');
             const receberEl      = document.getElementById('resumoReceber');
             const receberLabel   = document.getElementById('resumoReceberLabel');
             const taxaSubtitulo  = document.getElementById('taxaSubtitulo');
@@ -1452,16 +1440,13 @@
                 receberEl.textContent = formatarBRL(totalOriginalCentavos);
                 receberLabel.textContent = '✅ Você receberá';
                 taxaSubtitulo.textContent = 'Convidado paga +' + TAXA_PERCENTUAL + '% sobre cada item';
-                labelConvidado.classList.add('ativo');
-                labelCliente.classList.remove('ativo');
             } else {
                 const totalReceber = Math.round(totalOriginalCentavos * (1 - TAXA_PERCENTUAL / 100));
                 receberEl.textContent = formatarBRL(totalReceber);
                 receberLabel.textContent = '✅ Você receberá';
                 taxaSubtitulo.textContent = 'Você absorve -' + TAXA_PERCENTUAL + '% (descontado do seu recebimento)';
-                labelConvidado.classList.remove('ativo');
-                labelCliente.classList.add('ativo');
             }
+            atualizarBotoesTaxa();
 
             // Linha discreta: quanto já foi efetivamente sacado/pago pelo admin.
             // É só um aviso para o cliente não achar que o valor de "Você
@@ -1487,7 +1472,7 @@
                 const snap = await getDoc(doc(db, "configuracoes", usuarioAtualUid));
                 if (snap.exists() && snap.data().taxa_quem_paga) {
                     taxaQuemPaga = snap.data().taxa_quem_paga;
-                    document.getElementById('toggleTaxa').checked = taxaQuemPaga === 'cliente';
+                    atualizarBotoesTaxa();
                 }
                 // Não renderiza nada aqui: a lista de produtos (escutarProdutosDoBanco)
                 // só começa a escutar DEPOIS desta função terminar, então ela já vai
@@ -1531,8 +1516,34 @@
             }
         }
 
-        document.getElementById('toggleTaxa').addEventListener('change', async (e) => {
-            taxaQuemPaga = e.target.checked ? 'cliente' : 'convidado';
+        // ================================================================
+        // BOTÕES DE TAXA
+        // ================================================================
+        function atualizarBotoesTaxa() {
+            const btnConvidado = document.getElementById('btnTaxaConvidado');
+            const btnCliente   = document.getElementById('btnTaxaCliente');
+            if (!btnConvidado || !btnCliente) return;
+            if (taxaQuemPaga === 'convidado') {
+                btnConvidado.classList.add('ativo');
+                btnCliente.classList.remove('ativo');
+            } else {
+                btnCliente.classList.add('ativo');
+                btnConvidado.classList.remove('ativo');
+            }
+        }
+
+        document.getElementById('btnTaxaConvidado').addEventListener('click', async () => {
+            if (taxaQuemPaga === 'convidado') return;
+            taxaQuemPaga = 'convidado';
+            atualizarBotoesTaxa();
+            atualizarResumo();
+            await salvarTaxaNoFirestore();
+        });
+
+        document.getElementById('btnTaxaCliente').addEventListener('click', async () => {
+            if (taxaQuemPaga === 'cliente') return;
+            taxaQuemPaga = 'cliente';
+            atualizarBotoesTaxa();
             atualizarResumo();
             await salvarTaxaNoFirestore();
         });
