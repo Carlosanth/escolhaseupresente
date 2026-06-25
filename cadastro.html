@@ -17,9 +17,9 @@
                 <span id="userLogadoEmail" style="font-weight: bold;">Carregando usuário...</span>
                 <button id="btnSair">Sair</button>
             </div>
-            <button class="btn-tema" id="tema">TEMAS DA LISTA</button>
-            <div class="not_saldo">
 
+            <div class="not_saldo">
+                <button class="btn-tema" id="tema">TEMAS DA LISTA</button>
                 <button class="btn-notif" id="btnNotif">
                 <span class="saldo-mini-badge" id="saldoMiniBadge" style="display:none;">
                     💰 <span id="saldoMiniValor">R$ 0,00</span>
@@ -1608,7 +1608,7 @@
                 </div>
                 <div class="disponibilidade">
                     ${foiVendido
-                        ? `<span class="chip-vendido">🎁 Vendido</span>
+                        ? `<span class="chip-vendido">🎁 Ganhamos</span>
                            <span class="btn-bloqueado">✏️ Editar</span>
                            <span class="btn-bloqueado">🗑️ Excluir</span>`
                         : `<span class="disp">${textoStatus}</span>
@@ -1623,7 +1623,7 @@
 
             // Botões bloqueados — toast de aviso
             novaBaseDiv.querySelectorAll('.btn-bloqueado').forEach(btn => {
-                btn.addEventListener('click', () => mostrarToast('Item vendido — não pode ser alterado.', 'aviso', '🔒'));
+                btn.addEventListener('click', () => mostrarToast('Item Ganhado — não pode ser alterado.', 'aviso', '🔒'));
             });
 
             // Botão excluir — só se existir (não vendido)
@@ -1723,7 +1723,7 @@
 
             const statusEl = document.getElementById('detalheStatus');
             if (foiVendido) {
-                statusEl.textContent = '🎁 Vendido';
+                statusEl.textContent = '🎁 Ganhamos';
                 statusEl.style.background = 'rgba(245, 166, 35, 0.18)';
                 statusEl.style.color = '#f5a623';
             } else if (produto.disponivel !== false) {
