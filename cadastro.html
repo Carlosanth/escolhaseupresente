@@ -1526,8 +1526,7 @@
                         preco_centavos: novoCentavos.toString(),
                         preco: novoPreco,
                         taxa_quem_paga: taxaQuemPaga
-                        // taxa_percentual não é regravada — valor original do cadastro é mantido
-                    });
+                    }); // taxa_percentual não é regravada — valor original do cadastro é mantido
                 });
                 await Promise.all(promises);
                 mostrarToast('Taxa atualizada nos itens disponíveis!', 'sucesso', '💸');
