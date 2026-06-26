@@ -352,6 +352,9 @@
         .card-metrica.roxo { border-color: rgba(124,58,237,0.2); }
         .card-metrica.roxo .metrica-valor { color: var(--purple-light); }
         .card-metrica.amarelo { border-color: rgba(245,158,11,0.2); }
+        .card-metrica.verde-escuro { border-color: rgba(16,185,129,0.3); background: linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.04) 100%); }
+        .card-metrica.verde-escuro .metrica-valor { color: #34d399; }
+        .card-metrica.verde-escuro .metrica-icon { filter: hue-rotate(120deg); }
         .card-metrica.amarelo .metrica-valor { color: var(--yellow); }
         .card-metrica.azul { border-color: rgba(59,130,246,0.2); }
         .card-metrica.azul .metrica-valor { color: var(--blue); }
@@ -1225,9 +1228,6 @@
             <button class="nav-item" data-secao="listas-prontas">
                 <span class="icon">🎁</span><span>Listas Prontas</span>
             </button>
-            <button class="nav-item" data-secao="comunicados">
-                <span class="icon">📢</span><span>Comunicados</span>
-            </button>
             <button class="nav-item" data-secao="configuracoes">
                 <span class="icon">⚙️</span><span>Configurações</span>
             </button>
@@ -1273,10 +1273,16 @@
                     <div class="metrica-sub">pagamentos confirmados</div>
                 </div>
                 <div class="card-metrica amarelo">
-                    <div class="metrica-icon">💰</div>
-                    <div class="metrica-label">Meu lucro previsto</div>
+                    <div class="metrica-icon">🔮</div>
+                    <div class="metrica-label">Lucro previsto</div>
                     <div class="metrica-valor" id="metricaLucro">—</div>
-                    <div class="metrica-sub" id="metricaLucroSub">taxa de <span id="taxaAtualLabel">2,8</span>%</div>
+                    <div class="metrica-sub">itens ainda disponíveis · <span id="taxaAtualLabel">2,8</span>%</div>
+                </div>
+                <div class="card-metrica verde-escuro">
+                    <div class="metrica-icon">💸</div>
+                    <div class="metrica-label">Lucro real</div>
+                    <div class="metrica-valor" id="metricaLucroReal">—</div>
+                    <div class="metrica-sub" id="metricaLucroRealSub">presentes já entregues</div>
                 </div>
             </div>
 
@@ -1430,61 +1436,6 @@
                 </div>
                 <div class="lp-grid-itens" id="lpGridItens"></div>
             </div>
-        </section>
-
-        <section class="secao" id="secao-comunicados">
-
-            <!-- FORMULÁRIO DE NOVO AVISO -->
-            <div class="taxa-config-card" style="margin-bottom:20px;">
-                <h3>📢 Novo comunicado global</h3>
-                <p style="font-size:13px; color:var(--text2); margin-bottom:16px;">
-                    A mensagem aparece no painel de notificações de <strong>todos os clientes</strong> em tempo real.
-                </p>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
-                    <div>
-                        <span class="label-form-admin">Tipo</span>
-                        <select id="comunicadoTipo" class="campo-form-admin" style="width:100%;">
-                            <option value="info">📢 Informação geral</option>
-                            <option value="taxa">💸 Atualização de taxa</option>
-                            <option value="instabilidade">⚠️ Instabilidade / manutenção</option>
-                            <option value="comprovante">📄 Comprovantes / pagamentos</option>
-                        </select>
-                    </div>
-                    <div>
-                        <span class="label-form-admin">Fixo? (não sai do CSV)</span>
-                        <select id="comunicadoFixo" class="campo-form-admin" style="width:100%;">
-                            <option value="false">Não — pode ser ignorado</option>
-                            <option value="true">Sim — permanece sempre visível</option>
-                        </select>
-                    </div>
-                </div>
-
-                <span class="label-form-admin">Título</span>
-                <input type="text" id="comunicadoTitulo" class="campo-form-admin"
-                       placeholder="Ex: Taxa atualizada para 3,2%" style="margin-bottom:12px;">
-
-                <span class="label-form-admin">Mensagem</span>
-                <textarea id="comunicadoMensagem" class="campo-form-admin" rows="3"
-                          placeholder="Detalhe o comunicado aqui..."
-                          style="resize:vertical; font-family:inherit;"></textarea>
-
-                <div style="display:flex; justify-content:flex-end; margin-top:14px;">
-                    <button class="btn-salvar-taxa" id="btnEnviarComunicado">Enviar comunicado</button>
-                </div>
-            </div>
-
-            <!-- LISTA DE AVISOS ENVIADOS -->
-            <div class="card-tabela">
-                <div class="card-tabela-header">
-                    <h3>📋 Comunicados enviados</h3>
-                    <span style="font-size:11px; color:var(--text3);">Em tempo real</span>
-                </div>
-                <div id="listaComunicados" style="padding:8px 0;">
-                    <p style="font-size:13px; color:var(--text3); padding:16px;">Carregando...</p>
-                </div>
-            </div>
-
         </section>
 
         <section class="secao" id="secao-configuracoes">
@@ -1669,7 +1620,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, writeBatch, addDoc, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -1830,7 +1781,6 @@
         'saques':         ['Solicitações de Saque', 'Gerencie os repasses'],
         'relatorio':      ['Relatório de Presentes', 'Histórico completo com dados de taxa'],
         'listas-prontas': ['Listas Prontas', 'Categorias e itens sugeridos para os clientes'],
-        'comunicados':    ['Comunicados', 'Envie avisos globais para todos os clientes'],
         'configuracoes':  ['Configurações', 'Parâmetros globais da plataforma']
     };
 
@@ -2853,12 +2803,23 @@
         const totalOriginalCentavos = entregues.reduce((acc, p) => {
             return acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0);
         }, 0);
-        const meuLucro = Math.round(totalOriginalCentavos * taxaGlobal / 100);
+        // Lucro real — já recebido (itens entregues)
+        const meuLucroReal = Math.round(totalOriginalCentavos * taxaGlobal / 100);
+
+        // Lucro previsto — se TODOS os itens disponíveis forem presenteados
+        const disponiveis = todosOsProdutos.filter(p => p.disponivel !== false);
+        const totalDisponiveisCentavos = disponiveis.reduce((acc, p) => {
+            return acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+        }, 0);
+        const meuLucroPrevisto = Math.round(totalDisponiveisCentavos * taxaGlobal / 100);
 
         document.getElementById('metricaClientes').textContent = uids.length;
         document.getElementById('metricaListas').textContent = todosOsProdutos.length;
         document.getElementById('metricaEntregues').textContent = entregues.length;
-        document.getElementById('metricaLucro').textContent = brl(meuLucro);
+        document.getElementById('metricaLucro').textContent = brl(meuLucroPrevisto);
+        document.getElementById('metricaLucroReal').textContent = brl(meuLucroReal);
+        document.getElementById('metricaLucroRealSub').textContent =
+            `${entregues.length} presente${entregues.length !== 1 ? 's' : ''} entregue${entregues.length !== 1 ? 's' : ''}`;
 
         renderizarGraficoMensal(entregues);
 
@@ -3298,95 +3259,6 @@
             </div>`;
         }).join('');
     }
-
-    // ================================================================
-    // COMUNICADOS GLOBAIS
-    // ================================================================
-    const listaComunicadosEl = document.getElementById('listaComunicados');
-
-    // Escuta em tempo real os avisos já enviados
-    function escutarComunicados() {
-        const q = query(collection(db, "avisos_globais"), orderBy("criado_em", "desc"));
-        onSnapshot(q, (snapshot) => {
-            if (!listaComunicadosEl) return;
-            if (snapshot.empty) {
-                listaComunicadosEl.innerHTML = '<p style="font-size:13px; color:var(--text3); padding:16px;">Nenhum comunicado enviado ainda.</p>';
-                return;
-            }
-            const icones = { taxa:'💸', instabilidade:'⚠️', comprovante:'📄', info:'📢' };
-            listaComunicadosEl.innerHTML = '';
-            snapshot.forEach(docSnap => {
-                const a = docSnap.data();
-                const id = docSnap.id;
-                let dataFmt = '—';
-                if (a.criado_em) {
-                    const d = a.criado_em.toDate ? a.criado_em.toDate() : new Date(a.criado_em);
-                    dataFmt = d.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-                }
-                const row = document.createElement('div');
-                row.style.cssText = 'display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border1);';
-                row.innerHTML = `
-                    <div style="flex:1; min-width:0;">
-                        <div style="font-size:13px; font-weight:600; color:var(--text); margin-bottom:3px;">
-                            ${icones[a.tipo] || '📢'} ${a.titulo || '—'}
-                            ${a.fixo ? '<span style="font-size:10px; background:rgba(139,92,246,0.25); color:#c4a5ff; border-radius:4px; padding:1px 6px; margin-left:6px;">fixo</span>' : ''}
-                        </div>
-                        <div style="font-size:12px; color:var(--text2); margin-bottom:4px; white-space:pre-wrap;">${a.mensagem || ''}</div>
-                        <div style="font-size:11px; color:var(--text3);">📅 ${dataFmt}</div>
-                    </div>
-                    <button onclick="excluirComunicado('${id}')"
-                            style="flex-shrink:0; background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.28); color:#f87171; border-radius:8px; padding:6px 12px; font-size:12px; cursor:pointer;">
-                        🗑 Excluir
-                    </button>
-                `;
-                listaComunicadosEl.appendChild(row);
-            });
-        }, err => console.error("Erro comunicados:", err));
-    }
-
-    // Enviar novo comunicado
-    document.getElementById('btnEnviarComunicado')?.addEventListener('click', async () => {
-        const titulo   = document.getElementById('comunicadoTitulo')?.value.trim();
-        const mensagem = document.getElementById('comunicadoMensagem')?.value.trim();
-        const tipo     = document.getElementById('comunicadoTipo')?.value || 'info';
-        const fixo     = document.getElementById('comunicadoFixo')?.value === 'true';
-
-        if (!titulo)   { toast('⚠️ Informe o título do comunicado.'); return; }
-        if (!mensagem) { toast('⚠️ Informe a mensagem do comunicado.'); return; }
-
-        try {
-            await addDoc(collection(db, "avisos_globais"), {
-                tipo,
-                titulo,
-                mensagem,
-                fixo,
-                criado_em: serverTimestamp()
-            });
-            // Limpa o formulário
-            document.getElementById('comunicadoTitulo').value  = '';
-            document.getElementById('comunicadoMensagem').value = '';
-            toast('✅ Comunicado enviado para todos os clientes!');
-        } catch(e) {
-            console.error(e);
-            toast('❌ Erro ao enviar comunicado.');
-        }
-    });
-
-    // Excluir comunicado
-    window.excluirComunicado = async (id) => {
-        if (!confirm('Excluir este comunicado? Ele sumirá do painel de todos os clientes.')) return;
-        try {
-            await deleteDoc(doc(db, "avisos_globais", id));
-            toast('🗑 Comunicado excluído.');
-        } catch(e) {
-            toast('❌ Erro ao excluir.');
-        }
-    };
-
-    // Inicia escuta ao entrar na seção
-    document.querySelector('[data-secao="comunicados"]')?.addEventListener('click', () => {
-        escutarComunicados();
-    });
 
     </script>
 

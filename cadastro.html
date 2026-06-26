@@ -767,7 +767,7 @@
 
             // SVG placeholder (mesmo ícone do card quando não há upload de imagem)
             const SVG_PLACEHOLDER = `
-                <img src="https://i.ibb.co/YBZJdZ2N/icon-192.jpg" alt="Icon" style="width:100%;height:100%;object-fit:contain;" />
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%237c3aed' opacity='.15'/%3E%3Ctext y='.9em' font-size='72' x='50%25' text-anchor='middle'%3E🎁%3C/text%3E%3C/svg%3E" alt="Icon" style="width:100%;height:100%;object-fit:contain;" />
             `;
 
             // hex -> rgb "r, g, b"
@@ -1040,7 +1040,7 @@
                 else throw new Error("Sem URL");
             } catch (error) {
                 console.error("Erro no upload:", error);
-                return 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+                return 'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%237c3aed' opacity='.15'/%3E%3Ctext y='.9em' font-size='72' x='50%25' text-anchor='middle'%3E🎁%3C/text%3E%3C/svg%3E';
             }
         }
 
@@ -1138,7 +1138,7 @@
                 const centavos = parseInt(item.preco_centavos || 0);
                 const semValor = !centavos || centavos <= 0;
                 const precoFmt = (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                const imgSrc = item.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+                const imgSrc = item.imagem || 'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%237c3aed' opacity='.15'/%3E%3Ctext y='.9em' font-size='72' x='50%25' text-anchor='middle'%3E🎁%3C/text%3E%3C/svg%3E';
                 const linha = document.createElement('div');
                 linha.className = 'item-pronto-linha';
                 linha.dataset.id = item.id;
@@ -1263,7 +1263,7 @@
                     await setDoc(doc(db, "produtos_teste", produtoId), {
                         categoria:               nomeCategoria,
                         disponivel:              true,
-                        imagem:                  item.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg',
+                        imagem:                  item.imagem || 'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%237c3aed' opacity='.15'/%3E%3Ctext y='.9em' font-size='72' x='50%25' text-anchor='middle'%3E🎁%3C/text%3E%3C/svg%3E',
                         preco:                   precoParaWebhook,
                         preco_original_centavos: precoOriginalCentavos.toString(),
                         preco_centavos:          precoCentavosWebhook.toString(),
@@ -1323,7 +1323,7 @@
             btnAdicionar.value = "Salvando...";
             btnAdicionar.disabled = true;
 
-            let urlImagemFinal = 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+            let urlImagemFinal = 'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%237c3aed' opacity='.15'/%3E%3Ctext y='.9em' font-size='72' x='50%25' text-anchor='middle'%3E🎁%3C/text%3E%3C/svg%3E';
             if (fotoArquivo) {
                 const blob = await redimensionarImagem(fotoArquivo);
                 urlImagemFinal = await fazerUploadImagemImgBB(blob);
@@ -1505,7 +1505,7 @@
             if (!usuarioAtualUid) return;
             try {
                 await setDoc(doc(db, "configuracoes", usuarioAtualUid),
-                    { taxa_quem_paga: taxaQuemPaga, taxa_percentual: TAXA_PERCENTUAL },
+                    { taxa_quem_paga: taxaQuemPaga }, // taxa_percentual vem do admin_config, não é gravada aqui
                     { merge: true }
                 );
                 // Atualizar preco_centavos apenas dos itens AINDA DISPONÍVEIS.
@@ -1525,8 +1525,8 @@
                         preco_original_centavos: original.toString(),
                         preco_centavos: novoCentavos.toString(),
                         preco: novoPreco,
-                        taxa_quem_paga: taxaQuemPaga,
-                        taxa_percentual: TAXA_PERCENTUAL
+                        taxa_quem_paga: taxaQuemPaga
+                        // taxa_percentual não é regravada — valor original do cadastro é mantido
                     });
                 });
                 await Promise.all(promises);
@@ -1577,7 +1577,7 @@
             novaBaseDiv.classList.add('base');
 
             const tituloExibicao    = produto.titulo    || "Sem nome";
-            const imagemExibicao    = produto.imagem    || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+            const imagemExibicao    = produto.imagem    || 'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%237c3aed' opacity='.15'/%3E%3Ctext y='.9em' font-size='72' x='50%25' text-anchor='middle'%3E🎁%3C/text%3E%3C/svg%3E';
             const categoriaExibicao = produto.categoria || "Sem Categoria";
             const textoStatus = produto.disponivel !== false ? "Disponível" : "Indisponível";
             const corStatus   = produto.disponivel !== false ? "#28a745" : "#6c757d";
@@ -1619,7 +1619,7 @@
 
             novaBaseDiv.innerHTML = `
                 <div class="base-card">
-                    <img src="${imagemExibicao}" alt="${tituloExibicao}" loading="lazy">
+                    <img src="${imagemExibicao}" alt="${tituloExibicao}" loading="lazy" onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%237c3aed' opacity='.15'/%3E%3Ctext y='.9em' font-size='72' x='50%25' text-anchor='middle'%3E🎁%3C/text%3E%3C/svg%3E'">
                     <div class="T-Produtos">
                         <strong>${tituloExibicao}</strong>
                         ${precoOuAviso}
@@ -1689,7 +1689,7 @@
         // ================================================================
         function abrirModalDetalheItem(produto) {
             const tituloExibicao    = produto.titulo    || "Sem nome";
-            const imagemExibicao    = produto.imagem    || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+            const imagemExibicao    = produto.imagem    || 'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%237c3aed' opacity='.15'/%3E%3Ctext y='.9em' font-size='72' x='50%25' text-anchor='middle'%3E🎁%3C/text%3E%3C/svg%3E';
             const categoriaExibicao = produto.categoria || "Sem Categoria";
 
             const originalCentavos = parseInt(produto.preco_original_centavos || produto.preco_centavos || 0);
@@ -1774,7 +1774,7 @@
         // ================================================================
         function abrirModalEditar(produto, documentoId) {
             editandoId = documentoId;
-            editandoImagemAtual = produto.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+            editandoImagemAtual = produto.imagem || 'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='16' fill='%237c3aed' opacity='.15'/%3E%3Ctext y='.9em' font-size='72' x='50%25' text-anchor='middle'%3E🎁%3C/text%3E%3C/svg%3E';
 
             editNome.value      = produto.titulo    || '';
             editPreco.value     = produto.preco     || '';
