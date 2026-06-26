@@ -2,12 +2,16 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Cadastro de Presentes</title>
     <link rel="stylesheet" href="cadastro-style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#110a1f">
+    <!-- Performance hints -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 
@@ -487,7 +491,11 @@
             const toast = document.createElement('div');
             toast.className = `toast ${tipo}`;
             toast.innerHTML = `${icone ? `<span>${icone}</span>` : ''}${mensagem}`;
-            container.appendChild(toast);
+            // rAF garante que o browser aplica o estilo inicial antes de animar
+            requestAnimationFrame(() => {
+                container.appendChild(toast);
+                requestAnimationFrame(() => toast.classList.add('visivel'));
+            });
             setTimeout(() => toast.remove(), 3100);
         }
 

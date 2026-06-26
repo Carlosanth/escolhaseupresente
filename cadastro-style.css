@@ -5,6 +5,12 @@
     font-family: 'Arial', sans-serif;
 }
 
+html {
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+}
+
 html, body {
     width: 100%;
     height: 100%;
@@ -85,7 +91,8 @@ html, body {
     height: 100vh;
     flex-wrap: wrap;
     right: -380px;
-    transition: right 0.5s ease-in-out;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: right;
 }
 
 .area-temas.ativo {
@@ -932,7 +939,9 @@ h3 {
     to { opacity: 0; transform: translateY(16px); }
 }
 @keyframes popIn {
-    from { opacity: 0; transform: scale(0.92); }
+    from { opacity: 0; transform: scale(0.94) translateY(6px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
     to   { opacity: 1; transform: scale(1); }
 }
 
@@ -1086,7 +1095,8 @@ não é clicável. */
     display: flex;
     flex-direction: column;
     gap: 4px;
-    animation: popIn 0.3s ease;
+    animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform, opacity;
 }
 
 /* ── Avisos globais do admin ────────────────────────────── */
@@ -2543,6 +2553,8 @@ não é clicável. */
 .preview-overlay .conteudo {
     width: 480px;
     max-width: calc(100% - 16px);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 /* Cartão — usa exatamente as mesmas vars do Style.css */
@@ -2556,7 +2568,8 @@ não é clicável. */
     border-radius: 16px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-borda);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 0
+    will-change: transform, opacity; rgba(255,255,255,0.08);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     overflow: hidden;
@@ -2705,3 +2718,58 @@ não é clicável. */
 
 /* Ajuste do scroll do painel para caber tudo */
 .area-temas { overflow-y: auto; padding-bottom: 130px; }
+
+/* ═══════════════════════════════════════════════════════════
+   OTIMIZAÇÕES DE FLUIDEZ — 120hz / GPU acceleration
+   ═══════════════════════════════════════════════════════════ */
+
+/* Scroll suave com inércia nativa em todos os containers */
+.wrapper-lista,
+.painel-lateral,
+.painel-saques,
+.painel-notificacoes,
+.aba-conteudo,
+.modal-conteudo,
+.lista-itens-prontos {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+}
+
+/* Botões: feedback de toque imediato via transform (GPU) */
+.botao,
+.btn-acao,
+.btn-salvar-taxa,
+.btn-layout,
+.btn-acessar,
+.carousel-btn,
+.mini-btn,
+.upload-btn {
+    touch-action: manipulation; /* elimina delay de 300ms no mobile */
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+}
+.botao:active,
+.btn-acao:active,
+.btn-salvar-taxa:active,
+.mini-btn:active {
+    transform: scale(0.96);
+    transition: transform 0.08s ease;
+}
+
+/* Imagens: renderização suave */
+img {
+    image-rendering: auto;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+/* Campos de input: sem zoom no iOS (font-size >= 16px) */
+input[type="text"],
+input[type="number"],
+input[type="email"],
+textarea,
+select {
+    font-size: max(16px, 1em); /* evita zoom automático no iOS */
+    touch-action: manipulation;
+}
