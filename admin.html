@@ -643,12 +643,88 @@
 
         /* RESPONSIVO */
         @media (max-width: 768px) {
-            .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; padding: 12px; }
-            .sidebar-nav { flex-direction: row; padding: 0; gap: 4px; }
+            /* ── Layout geral ───────────────────────────── */
+            .sidebar { width: 100%; height: auto; position: relative; flex-direction: row; padding: 8px 12px; }
+            .sidebar-nav { flex-direction: row; padding: 0; gap: 2px; overflow-x: auto; flex-wrap: nowrap; }
             .sidebar-logo { display: none; }
             .sidebar-footer { display: none; }
-            .main { margin-left: 0; padding: 16px; }
+            .main { margin-left: 0; padding: 12px; }
             .nav-item span:not(.icon) { display: none; }
+            .nav-item { padding: 8px; min-width: 40px; justify-content: center; }
+
+            /* ── Scroll nas seções ──────────────────────── */
+            .secao.ativa {
+                max-height: calc(100dvh - 110px);
+                overflow-y: auto;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+                padding-bottom: 24px;
+            }
+
+            /* ── Grid de métricas: 2 colunas ────────────── */
+            .grid-metricas {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
+            }
+            .card-metrica {
+                padding: 14px 12px;
+            }
+            .metrica-valor { font-size: 18px; }
+            .metrica-icon { font-size: 20px; }
+
+            /* ── Modais ─────────────────────────────────── */
+            .modal-admin-content {
+                padding: 18px 14px;
+                border-radius: 16px;
+                max-height: 90dvh;
+                width: calc(100vw - 16px);
+            }
+
+            /* ── Tabelas com scroll horizontal ──────────── */
+            .card-tabela-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+            /* ── Topbar ─────────────────────────────────── */
+            .topbar { flex-wrap: wrap; gap: 8px; }
+            .topbar button { font-size: 11px; padding: 5px 10px; }
+
+            /* ── Filtros de relatório: 1 coluna ─────────── */
+            #secao-relatorio .config-saque-card div[style*="grid-template-columns:1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* ── Saques header: empilha ─────────────────── */
+            .card-tabela-header { flex-wrap: wrap; gap: 8px; }
+            #btnMarcarTodosPago { font-size: 11px; padding: 4px 8px; white-space: nowrap; }
+
+            /* ── Detalhe cliente: 1 coluna ──────────────── */
+            .detalhe-grid { grid-template-columns: 1fr !important; }
+
+            /* ── Taxa input: empilha ────────────────────── */
+            .taxa-input-wrap { flex-wrap: wrap; }
+            .taxa-input { width: 100%; text-align: left; }
+
+            /* ── Listas prontas: 2 colunas ──────────────── */
+            .lp-grid-categorias { grid-template-columns: repeat(2, 1fr) !important; }
+            .lp-grid-itens { grid-template-columns: repeat(2, 1fr) !important; }
+            .lp-toolbar { flex-direction: column; align-items: stretch; }
+            .lp-toolbar-acoes { flex-wrap: wrap; }
+
+            /* ── Comunicados: 1 coluna ──────────────────── */
+            .taxa-config-card div[style*="grid-template-columns:1fr 1fr"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .grid-metricas { grid-template-columns: repeat(2, 1fr) !important; gap: 6px !important; }
+            .card-metrica { padding: 12px 10px; }
+            .metrica-valor { font-size: 16px; }
+            .metrica-label { font-size: 11px; }
+            .lp-grid-categorias { grid-template-columns: repeat(2, 1fr) !important; }
+            .lp-grid-itens { grid-template-columns: 1fr !important; }
+            .main { padding: 8px; }
+            .secao.ativa { max-height: calc(100dvh - 100px); }
         }
 
         /* MODAL DETALHE CLIENTE */
@@ -1186,6 +1262,35 @@
             display: block;
             background: var(--surface2);
         }
+        /* ── Scroll horizontal em tabelas ───────────────── */
+        .card-tabela-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+        }
+        .card-tabela-scroll table {
+            min-width: 600px;
+        }
+
+        /* ── Card azul (saques) ─────────────────────────── */
+        .card-metrica.azul { border-color: rgba(59,130,246,0.3); background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(37,99,235,0.04) 100%); }
+        .card-metrica.azul .metrica-valor { color: #60a5fa; }
+
+        /* ── Modo impressão / PDF ────────────────────────── */
+        @media print {
+            .sidebar, .btn-salvar-taxa, .btn-salvar-config,
+            .btn-tabela, .saque-acoes, #btnMarcarTodosPago,
+            #btnExportarRelatorio, #btnExportarXLSX,
+            #filtroStatusSaque, #filtroClienteRelatorio { display: none !important; }
+            .main { margin-left: 0 !important; padding: 16px !important; }
+            .secao { display: block !important; max-height: none !important; overflow: visible !important; }
+            .card-metrica { border: 1px solid #ccc !important; background: #fff !important; color: #000 !important; }
+            .metrica-valor, .metrica-label, .metrica-sub { color: #000 !important; }
+            body { background: #fff !important; color: #000 !important; }
+            .card-tabela { border: 1px solid #ccc !important; background: #fff !important; }
+            th, td { color: #000 !important; border-color: #ccc !important; }
+        }
+
     </style>
 </head>
 <body>
@@ -1219,14 +1324,18 @@
             <button class="nav-item" data-secao="clientes">
                 <span class="icon">👥</span><span>Clientes</span>
             </button>
-            <button class="nav-item" data-secao="saques">
+            <button class="nav-item" data-secao="saques" id="navBtnSaques">
                 <span class="icon">💸</span><span>Saques</span>
+                <span id="badgeSaquesPendentes" style="display:none; background:#ef4444; color:#fff; font-size:10px; font-weight:700; border-radius:50px; padding:1px 6px; margin-left:4px; min-width:16px; text-align:center; line-height:16px;">0</span>
             </button>
             <button class="nav-item" data-secao="relatorio">
                 <span class="icon">📋</span><span>Relatório</span>
             </button>
             <button class="nav-item" data-secao="listas-prontas">
                 <span class="icon">🎁</span><span>Listas Prontas</span>
+            </button>
+            <button class="nav-item" data-secao="comunicados">
+                <span class="icon">📢</span><span>Comunicados</span>
             </button>
             <button class="nav-item" data-secao="configuracoes">
                 <span class="icon">⚙️</span><span>Configurações</span>
@@ -1246,6 +1355,9 @@
                 <h1 id="tituloPagina">Visão Geral</h1>
                 <div class="topbar-sub" id="subtituloPagina">Dados em tempo real</div>
             </div>
+            <button onclick="window.print()" style="margin-left:auto;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#a78bfa;padding:7px 16px;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;" title="Imprimir ou salvar como PDF">
+                🖨️ Imprimir / PDF
+            </button>
             <div class="badge-live">
                 <div class="dot-live"></div> Ao vivo
             </div>
@@ -1286,6 +1398,36 @@
                 </div>
             </div>
 
+            <!-- Resumo financeiro consolidado -->
+            <div class="card-tabela" style="margin-bottom:20px;">
+                <div class="card-tabela-header">
+                    <h3>💼 Resumo financeiro</h3>
+                    <span style="font-size:11px; color:var(--text3);">Acumulado total</span>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1px; background:var(--border);">
+                    <div style="background:var(--surface); padding:16px 20px;">
+                        <div style="font-size:11px; color:var(--text3); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;">Total movimentado</div>
+                        <div id="resumoTotalMovimentado" style="font-size:20px; font-weight:700; font-family:var(--mono); color:var(--text);">—</div>
+                        <div style="font-size:11px; color:var(--text3); margin-top:2px;">soma dos presentes pagos</div>
+                    </div>
+                    <div style="background:var(--surface); padding:16px 20px;">
+                        <div style="font-size:11px; color:var(--text3); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;">Já sacado pelos clientes</div>
+                        <div id="resumoJaSacado" style="font-size:20px; font-weight:700; font-family:var(--mono); color:#60a5fa;">—</div>
+                        <div style="font-size:11px; color:var(--text3); margin-top:2px;">repasses realizados</div>
+                    </div>
+                    <div style="background:var(--surface); padding:16px 20px;">
+                        <div style="font-size:11px; color:var(--text3); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;">Aguardando saque</div>
+                        <div id="resumoAguardando" style="font-size:20px; font-weight:700; font-family:var(--mono); color:#fbbf24;">—</div>
+                        <div style="font-size:11px; color:var(--text3); margin-top:2px;">disponível para clientes</div>
+                    </div>
+                    <div style="background:var(--surface); padding:16px 20px;">
+                        <div style="font-size:11px; color:var(--text3); font-weight:600; text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;">Minha receita líquida</div>
+                        <div id="resumoMinhaReceita" style="font-size:20px; font-weight:700; font-family:var(--mono); color:#34d399;">—</div>
+                        <div style="font-size:11px; color:var(--text3); margin-top:2px;">taxa retida acumulada</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card-tabela" style="margin-bottom:20px;">
                 <div class="card-tabela-header">
                     <h3>📈 Presentes recebidos por mês</h3>
@@ -1294,11 +1436,29 @@
                 <div id="graficoMensal" style="padding:20px 10px 10px;"></div>
             </div>
 
+            <div class="card-tabela" style="margin-bottom:20px;">
+                <div class="card-tabela-header">
+                    <h3>💰 Meu lucro por mês</h3>
+                    <span style="font-size:11px; color:var(--text3);">Últimos 6 meses</span>
+                </div>
+                <div id="graficoLucroMensal" style="padding:20px 10px 10px;"></div>
+            </div>
+
+            <!-- Gráfico de pizza por categoria -->
+            <div class="card-tabela" style="margin-bottom:20px;">
+                <div class="card-tabela-header">
+                    <h3>🥧 Presentes por categoria</h3>
+                    <span style="font-size:11px; color:var(--text3);">Distribuição dos pagos</span>
+                </div>
+                <div id="graficoCategorias" style="padding:20px;"></div>
+            </div>
+
             <div class="card-tabela">
                 <div class="card-tabela-header">
                     <h3>Últimos presentes recebidos</h3>
                     <span id="labelUltimosPresentes">carregando...</span>
                 </div>
+                <div class="card-tabela-scroll">
                 <table>
                     <thead>
                         <tr>
@@ -1313,6 +1473,7 @@
                         <tr class="loading-row"><td colspan="5">Carregando...</td></tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         </section>
 
@@ -1332,6 +1493,7 @@
                     <h3>Todos os clientes</h3>
                     <span id="labelTotalClientes">—</span>
                 </div>
+                <div class="card-tabela-scroll">
                 <table>
                     <thead>
                         <tr>
@@ -1350,21 +1512,53 @@
                         <tr class="loading-row"><td colspan="9">Carregando...</td></tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         </section>
 
         <!-- ===== SEÇÃO: SAQUES ===== -->
         <section class="secao" id="secao-saques">
+            <!-- Resumo financeiro de saques -->
+            <div class="grid-metricas" style="margin-bottom:20px;">
+                <div class="card-metrica amarelo">
+                    <div class="metrica-icon">⏳</div>
+                    <div class="metrica-label">Pendente a pagar</div>
+                    <div class="metrica-valor" id="saqPendente">—</div>
+                    <div class="metrica-sub" id="saqPendenteQtd">solicitações</div>
+                </div>
+                <div class="card-metrica verde">
+                    <div class="metrica-icon">✅</div>
+                    <div class="metrica-label">Total já pago</div>
+                    <div class="metrica-valor" id="saqPago">—</div>
+                    <div class="metrica-sub" id="saqPagoQtd">repasses realizados</div>
+                </div>
+                <div class="card-metrica azul">
+                    <div class="metrica-icon">💰</div>
+                    <div class="metrica-label">Meu lucro nos saques</div>
+                    <div class="metrica-valor" id="saqLucro">—</div>
+                    <div class="metrica-sub">taxa retida total</div>
+                </div>
+            </div>
+
             <div class="config-saque-card">
                 <label for="inputValorMinimoSaque">💰 Valor mínimo para saque</label>
                 <input type="tel" id="inputValorMinimoSaque" placeholder="R$ 0,00">
                 <button class="btn-salvar-config" id="btnSalvarValorMinimo">Salvar</button>
                 <span style="font-size:11px; color: var(--text3);">Vale para todos os clientes.</span>
             </div>
+
             <div class="card-tabela" style="margin-bottom:20px;">
                 <div class="card-tabela-header">
                     <h3>Solicitações de saque</h3>
-                    <span id="labelTotalSaques">—</span>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <select id="filtroStatusSaque" style="background:var(--surface2); border:1px solid var(--border2); color:var(--text); border-radius:8px; padding:4px 10px; font-size:12px; cursor:pointer;">
+                            <option value="">Todos</option>
+                            <option value="pendente">⏳ Pendentes</option>
+                            <option value="pago">✅ Pagos</option>
+                        </select>
+                        <button id="btnMarcarTodosPago" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); color:#34d399; border-radius:8px; padding:4px 12px; font-size:12px; cursor:pointer; font-weight:600;">✅ Marcar todos pendentes como pago</button>
+                        <span id="labelTotalSaques" style="font-size:11px; color:var(--text3);">—</span>
+                    </div>
                 </div>
                 <div id="listaSaques" style="padding: 8px 0;"></div>
             </div>
@@ -1373,7 +1567,19 @@
         <!-- ===== SEÇÃO: RELATÓRIO ===== -->
         <section class="secao" id="secao-relatorio">
             <div class="config-saque-card">
-                <label for="buscaRelatorio">🔍 Buscar</label>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+                    <div>
+                        <label for="buscaRelatorio" style="font-size:12px; color:var(--text3); display:block; margin-bottom:6px;">🔍 Buscar por nome ou presente</label>
+                        <input type="text" id="buscaRelatorio" placeholder="Nome do convidado, título..." class="campo-form-admin">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:var(--text3); display:block; margin-bottom:6px;">👤 Filtrar por cliente</label>
+                        <select id="filtroClienteRelatorio" class="campo-form-admin" style="width:100%;">
+                            <option value="">Todos os clientes</option>
+                        </select>
+                    </div>
+                </div>
+                <label for="buscaRelatorio" style="display:none;">🔍 Buscar</label>
                 <input type="text" id="buscaRelatorio" placeholder="Cliente, presente ou convidado..." style="width:220px;">
                 <label for="dataInicioRelatorio">De</label>
                 <input type="date" id="dataInicioRelatorio">
@@ -1385,7 +1591,9 @@
                 <div class="card-tabela-header">
                     <h3>📋 Relatório de Presentes</h3>
                     <button id="btnExportarRelatorio" style="background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.3);color:#a78bfa;padding:6px 14px;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;">⬇️ Exportar CSV</button>
+                        <button id="btnExportarXLSX" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;padding:6px 14px;border-radius:50px;font-size:12px;font-weight:600;cursor:pointer;">📊 Exportar XLSX</button>
                 </div>
+                <div class="card-tabela-scroll">
                 <table>
                     <thead>
                         <tr>
@@ -1404,6 +1612,7 @@
                         <tr class="loading-row"><td colspan="9">Carregando...</td></tr>
                     </tbody>
                 </table>
+                </div>
             </div>
         </section>
 
@@ -1435,6 +1644,47 @@
                     </div>
                 </div>
                 <div class="lp-grid-itens" id="lpGridItens"></div>
+            </div>
+        </section>
+
+        <section class="secao" id="secao-comunicados">
+            <div class="taxa-config-card" style="margin-bottom:20px;">
+                <h3>📢 Novo comunicado global</h3>
+                <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Aparece no painel de notificações de <strong>todos os clientes</strong> em tempo real.</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                    <div>
+                        <span class="label-form-admin">Tipo</span>
+                        <select id="comunicadoTipo" class="campo-form-admin" style="width:100%;">
+                            <option value="info">📢 Informação geral</option>
+                            <option value="taxa">💸 Atualização de taxa</option>
+                            <option value="instabilidade">⚠️ Instabilidade / manutenção</option>
+                            <option value="comprovante">📄 Comprovantes / pagamentos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span class="label-form-admin">Fixo?</span>
+                        <select id="comunicadoFixo" class="campo-form-admin" style="width:100%;">
+                            <option value="false">Não — pode ser ignorado</option>
+                            <option value="true">Sim — permanece sempre visível</option>
+                        </select>
+                    </div>
+                </div>
+                <span class="label-form-admin">Título</span>
+                <input type="text" id="comunicadoTitulo" class="campo-form-admin" placeholder="Ex: Taxa atualizada para 3,2%" style="margin-bottom:12px;">
+                <span class="label-form-admin">Mensagem</span>
+                <textarea id="comunicadoMensagem" class="campo-form-admin" rows="3" placeholder="Detalhe o comunicado aqui..." style="resize:vertical;font-family:inherit;"></textarea>
+                <div style="display:flex;justify-content:flex-end;margin-top:14px;">
+                    <button class="btn-salvar-taxa" id="btnEnviarComunicado">Enviar comunicado</button>
+                </div>
+            </div>
+            <div class="card-tabela">
+                <div class="card-tabela-header">
+                    <h3>📋 Comunicados enviados</h3>
+                    <span style="font-size:11px;color:var(--text3);">Tempo real</span>
+                </div>
+                <div id="listaComunicados" style="padding:8px 0;">
+                    <p style="font-size:13px;color:var(--text3);padding:16px;">Carregando...</p>
+                </div>
             </div>
         </section>
 
@@ -1781,6 +2031,7 @@
         'saques':         ['Solicitações de Saque', 'Gerencie os repasses'],
         'relatorio':      ['Relatório de Presentes', 'Histórico completo com dados de taxa'],
         'listas-prontas': ['Listas Prontas', 'Categorias e itens sugeridos para os clientes'],
+        'comunicados':    ['Comunicados', 'Avisos globais para todos os clientes'],
         'configuracoes':  ['Configurações', 'Parâmetros globais da plataforma']
     };
 
@@ -2206,6 +2457,7 @@
                     tabela.innerHTML = '<p style="padding:14px; font-size:12px; color:var(--text3);">Nenhum item encontrado na planilha.</p>';
                 } else {
                     tabela.innerHTML = `
+                        <div class="card-tabela-scroll">
                         <table>
                             <thead><tr><th></th><th>Nome</th><th>Valor</th></tr></thead>
                             <tbody>
@@ -2218,6 +2470,7 @@
                                 `).join('')}
                             </tbody>
                         </table>
+                        </div>
                     `;
                 }
                 previewWrap.style.display = 'block';
@@ -2366,6 +2619,7 @@
                     tabela.innerHTML = '<p style="padding:14px; font-size:12px; color:var(--text3);">Nenhum item encontrado na planilha.</p>';
                 } else {
                     tabela.innerHTML = `
+                        <div class="card-tabela-scroll">
                         <table>
                             <thead><tr><th></th><th>Nome</th><th>Valor</th><th>Categoria</th></tr></thead>
                             <tbody>
@@ -2379,6 +2633,7 @@
                                 `).join('')}
                             </tbody>
                         </table>
+                        </div>
                     `;
                 }
                 previewWrap.style.display = 'block';
@@ -2788,6 +3043,12 @@
             todosOsSaques = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderizarSaques(todosOsSaques);
             document.getElementById('labelTotalSaques').textContent = todosOsSaques.length + ' solicitação(ões)';
+            atualizarBadgeSaques(todosOsSaques);
+            atualizarResumoSaques(todosOsSaques);
+            atualizarResumoFinanceiro(
+                todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por),
+                todosOsSaques
+            );
             // O saldo pendente exibido na aba Clientes depende dos saques —
             // recalcula a tabela quando chegam novos dados.
             atualizarTabelaClientes();
@@ -2822,6 +3083,14 @@
             `${entregues.length} presente${entregues.length !== 1 ? 's' : ''} entregue${entregues.length !== 1 ? 's' : ''}`;
 
         renderizarGraficoMensal(entregues);
+        renderizarGraficoLucroMensal(entregues);
+        renderizarGraficoCategorias(entregues);
+        atualizarResumoFinanceiro(entregues, todosOsSaques);
+        popularFiltroClientes();
+
+        // Tendência nos cards principais
+        const tendencia = calcularTendencia(entregues);
+        exibirTendencia('metricaEntregues', tendencia);
 
         // Tabela últimos presentes
         const ultimos = [...entregues]
@@ -3099,6 +3368,12 @@
         const termo = (document.getElementById('buscaRelatorio')?.value || '').trim().toLowerCase();
         const dataIni = document.getElementById('dataInicioRelatorio')?.value;
         const dataFim = document.getElementById('dataFimRelatorio')?.value;
+        const uidFiltro = document.getElementById('filtroClienteRelatorio')?.value || '';
+
+        // Filtro por cliente específico
+        if (uidFiltro) {
+            entregues = entregues.filter(p => p.usuario_id === uidFiltro);
+        }
 
         if (termo) {
             entregues = entregues.filter(p => {
@@ -3259,6 +3534,356 @@
             </div>`;
         }).join('');
     }
+
+    // ══════════════════════════════════════════════════════════
+    // BADGE SAQUES PENDENTES
+    // ══════════════════════════════════════════════════════════
+    function atualizarBadgeSaques(saques) {
+        const pendentes = saques.filter(s => s.status !== 'pago');
+        const badge = document.getElementById('badgeSaquesPendentes');
+        if (!badge) return;
+        if (pendentes.length > 0) {
+            badge.textContent = pendentes.length > 99 ? '99+' : pendentes.length;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // RESUMO FINANCEIRO DOS SAQUES
+    // ══════════════════════════════════════════════════════════
+    function atualizarResumoSaques(saques) {
+        const pendentes = saques.filter(s => s.status !== 'pago');
+        const pagos     = saques.filter(s => s.status === 'pago');
+
+        const totalPendente = pendentes.reduce((a, s) => a + parseInt(s.repasse_centavos || 0), 0);
+        const totalPago     = pagos.reduce((a, s) => a + parseInt(s.repasse_centavos || 0), 0);
+        const totalLucro    = saques.reduce((a, s) => a + parseInt(s.lucro_centavos || 0), 0);
+
+        const el = (id) => document.getElementById(id);
+        if (el('saqPendente'))   el('saqPendente').textContent   = brl(totalPendente);
+        if (el('saqPendenteQtd')) el('saqPendenteQtd').textContent = `${pendentes.length} solicitação(ões)`;
+        if (el('saqPago'))       el('saqPago').textContent       = brl(totalPago);
+        if (el('saqPagoQtd'))    el('saqPagoQtd').textContent    = `${pagos.length} repasse(s) realizado(s)`;
+        if (el('saqLucro'))      el('saqLucro').textContent      = brl(totalLucro);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // FILTRO POR STATUS DOS SAQUES
+    // ══════════════════════════════════════════════════════════
+    document.getElementById('filtroStatusSaque')?.addEventListener('change', function() {
+        const filtro = this.value;
+        const todos = todosOsSaques;
+        const filtrados = filtro ? todos.filter(s => s.status === filtro) : todos;
+        renderizarSaques(filtrados);
+        document.getElementById('labelTotalSaques').textContent = filtrados.length + ' solicitação(ões)';
+    });
+
+    // ══════════════════════════════════════════════════════════
+    // MARCAR TODOS PENDENTES COMO PAGO
+    // ══════════════════════════════════════════════════════════
+    document.getElementById('btnMarcarTodosPago')?.addEventListener('click', async () => {
+        const pendentes = todosOsSaques.filter(s => s.status !== 'pago');
+        if (pendentes.length === 0) { toast('Não há saques pendentes.'); return; }
+        if (!confirm(`Marcar ${pendentes.length} saque(s) como pago? Esta ação não pode ser desfeita.`)) return;
+        try {
+            const batch = writeBatch(db);
+            pendentes.forEach(s => {
+                batch.update(doc(db, "saques", s.id), {
+                    status: "pago",
+                    data_pagamento: serverTimestamp()
+                });
+            });
+            await batch.commit();
+            toast(`✅ ${pendentes.length} saque(s) marcado(s) como pago!`);
+        } catch(e) {
+            console.error(e);
+            toast('❌ Erro ao atualizar saques.');
+        }
+    });
+
+    // ══════════════════════════════════════════════════════════
+    // RESUMO FINANCEIRO VISÃO GERAL
+    // ══════════════════════════════════════════════════════════
+    function atualizarResumoFinanceiro(entregues, saques) {
+        // Total movimentado = soma dos presentes pagos (valor original)
+        const totalMovimentado = entregues.reduce((a, p) =>
+            a + parseInt(p.preco_original_centavos || p.preco_centavos || 0), 0);
+
+        // Já sacado = repasses já pagos
+        const jaSacado = saques
+            .filter(s => s.status === 'pago')
+            .reduce((a, s) => a + parseInt(s.repasse_centavos || 0), 0);
+
+        // Aguardando saque = repasses pendentes
+        const aguardando = saques
+            .filter(s => s.status !== 'pago')
+            .reduce((a, s) => a + parseInt(s.repasse_centavos || 0), 0);
+
+        // Minha receita = meu lucro acumulado nos saques já feitos
+        const minhaReceita = saques
+            .filter(s => s.status === 'pago')
+            .reduce((a, s) => a + parseInt(s.lucro_centavos || 0), 0);
+
+        const el = (id) => document.getElementById(id);
+        if (el('resumoTotalMovimentado')) el('resumoTotalMovimentado').textContent = brl(totalMovimentado);
+        if (el('resumoJaSacado'))         el('resumoJaSacado').textContent         = brl(jaSacado);
+        if (el('resumoAguardando'))       el('resumoAguardando').textContent       = brl(aguardando);
+        if (el('resumoMinhaReceita'))     el('resumoMinhaReceita').textContent     = brl(minhaReceita);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // GRÁFICO DE LUCRO MENSAL
+    // ══════════════════════════════════════════════════════════
+    function renderizarGraficoLucroMensal(entregues) {
+        const container = document.getElementById('graficoLucroMensal');
+        if (!container) return;
+
+        const hoje = new Date();
+        const meses = [];
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+            meses.push({ ano: d.getFullYear(), mes: d.getMonth(), lucro: 0 });
+        }
+
+        entregues.forEach(p => {
+            const d = p.data_presente?.toDate ? p.data_presente.toDate() : null;
+            if (!d) return;
+            const alvo = meses.find(m => m.ano === d.getFullYear() && m.mes === d.getMonth());
+            if (alvo) {
+                const orig = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                alvo.lucro += Math.round(orig * taxaGlobal / 100);
+            }
+        });
+
+        const maxLucro = Math.max(1, ...meses.map(m => m.lucro));
+        const nomeMes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+        if (entregues.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text3); font-size:13px; padding:30px 0;">Nenhum dado ainda.</p>';
+            return;
+        }
+
+        container.innerHTML = `<div class="grafico-barras">
+            ${meses.map(m => {
+                const pct = Math.round((m.lucro / maxLucro) * 100);
+                const label = brl(m.lucro);
+                return `<div class="grafico-coluna">
+                    <div class="grafico-valor" style="color:#34d399;">${m.lucro > 0 ? label : ''}</div>
+                    <div class="grafico-barra" style="height:${Math.max(pct,3)}%; background:linear-gradient(180deg,#34d399,#059669);"></div>
+                    <div class="grafico-label">${nomeMes[m.mes]}</div>
+                </div>`;
+            }).join('')}
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // GRÁFICO DE PIZZA POR CATEGORIA (CSS puro)
+    // ══════════════════════════════════════════════════════════
+    function renderizarGraficoCategorias(entregues) {
+        const container = document.getElementById('graficoCategorias');
+        if (!container) return;
+
+        if (entregues.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:var(--text3); font-size:13px; padding:20px 0;">Nenhum dado ainda.</p>';
+            return;
+        }
+
+        // Agrupar por categoria
+        const cats = {};
+        entregues.forEach(p => {
+            const cat = p.categoria || 'Sem categoria';
+            if (!cats[cat]) cats[cat] = { qtd: 0, valor: 0 };
+            cats[cat].qtd++;
+            cats[cat].valor += parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+        });
+
+        const total = entregues.length;
+        const cores = ['#7c3aed','#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#84cc16'];
+        const items = Object.entries(cats).sort((a,b) => b[1].qtd - a[1].qtd);
+
+        // Barras horizontais (mais legível que pizza em CSS puro)
+        container.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:10px; max-width:500px;">
+                ${items.map(([cat, dados], i) => {
+                    const pct = Math.round((dados.qtd / total) * 100);
+                    const cor = cores[i % cores.length];
+                    return `<div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                            <span style="font-size:12px; color:var(--text); font-weight:500;">${cat}</span>
+                            <span style="font-size:12px; color:var(--text3);">${dados.qtd} presente${dados.qtd !== 1 ? 's' : ''} · ${pct}%</span>
+                        </div>
+                        <div style="height:8px; background:var(--surface2); border-radius:4px; overflow:hidden;">
+                            <div style="height:100%; width:${pct}%; background:${cor}; border-radius:4px; transition:width .4s ease;"></div>
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>
+            <div style="margin-top:16px; font-size:11px; color:var(--text3);">
+                Total de ${total} presente${total !== 1 ? 's' : ''} pago${total !== 1 ? 's' : ''}
+            </div>`;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // INDICADOR DE TENDÊNCIA NOS CARDS
+    // ══════════════════════════════════════════════════════════
+    function calcularTendencia(entregues) {
+        const hoje = new Date();
+        const mesAtual  = { ano: hoje.getFullYear(), mes: hoje.getMonth() };
+        const mesAnterior = hoje.getMonth() === 0
+            ? { ano: hoje.getFullYear() - 1, mes: 11 }
+            : { ano: hoje.getFullYear(), mes: hoje.getMonth() - 1 };
+
+        const contarMes = (m) => entregues.filter(p => {
+            const d = p.data_presente?.toDate ? p.data_presente.toDate() : null;
+            return d && d.getFullYear() === m.ano && d.getMonth() === m.mes;
+        }).length;
+
+        const atual    = contarMes(mesAtual);
+        const anterior = contarMes(mesAnterior);
+
+        if (anterior === 0) return null;
+        return Math.round(((atual - anterior) / anterior) * 100);
+    }
+
+    function exibirTendencia(elementId, pct) {
+        if (pct === null) return;
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        const sinal = pct >= 0 ? '↑' : '↓';
+        const cor   = pct >= 0 ? '#34d399' : '#f87171';
+        const sub = el.closest('.card-metrica')?.querySelector('.metrica-sub');
+        if (sub) {
+            sub.innerHTML += ` <span style="color:${cor}; font-weight:700;">${sinal}${Math.abs(pct)}% vs mês ant.</span>`;
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // EXPORTAR XLSX (SheetJS)
+    // ══════════════════════════════════════════════════════════
+    document.getElementById('btnExportarXLSX')?.addEventListener('click', async () => {
+        try {
+            if (!window.XLSX) {
+                await new Promise((res, rej) => {
+                    const s = document.createElement('script');
+                    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+                    s.onload = res; s.onerror = rej;
+                    document.head.appendChild(s);
+                });
+            }
+            const entregues = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
+            if (entregues.length === 0) { toast('Nenhum dado para exportar.'); return; }
+
+            const rows = entregues.map(p => {
+                const orig    = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                const lucro   = Math.round(orig * taxaGlobal / 100);
+                const repasse = orig - lucro;
+                const d = p.data_presente?.toDate ? p.data_presente.toDate() : null;
+                return {
+                    'Presenteador':   p.presenteado_por || '—',
+                    'Presente':       p.titulo || '—',
+                    'Categoria':      p.categoria || '—',
+                    'Valor (R$)':     (orig / 100).toFixed(2).replace('.', ','),
+                    'Meu lucro (R$)': (lucro / 100).toFixed(2).replace('.', ','),
+                    'Repasse (R$)':   (repasse / 100).toFixed(2).replace('.', ','),
+                    'Data':           d ? d.toLocaleDateString('pt-BR') : '—',
+                    'Quem paga taxa': p.taxa_quem_paga || '—',
+                };
+            });
+
+            const ws = window.XLSX.utils.json_to_sheet(rows);
+            ws['!cols'] = [{wch:22},{wch:30},{wch:18},{wch:14},{wch:16},{wch:14},{wch:14},{wch:16}];
+            const wb = window.XLSX.utils.book_new();
+            window.XLSX.utils.book_append_sheet(wb, ws, 'Presentes');
+
+            // Aba resumo
+            const totalOrig = entregues.reduce((a,p)=>a+parseInt(p.preco_original_centavos||p.preco_centavos||0),0);
+            const wsR = window.XLSX.utils.json_to_sheet([
+                { 'Métrica': 'Total de presentes pagos', 'Valor': entregues.length },
+                { 'Métrica': 'Total movimentado (R$)', 'Valor': (totalOrig/100).toFixed(2).replace('.',',') },
+                { 'Métrica': `Meu lucro total (${taxaGlobal}%)`, 'Valor': (Math.round(totalOrig*taxaGlobal/100)/100).toFixed(2).replace('.',',') },
+                { 'Métrica': 'Data de exportação', 'Valor': new Date().toLocaleString('pt-BR') },
+            ]);
+            wsR['!cols'] = [{wch:35},{wch:20}];
+            window.XLSX.utils.book_append_sheet(wb, wsR, 'Resumo');
+
+            window.XLSX.writeFile(wb, `relatorio-${new Date().toISOString().slice(0,10)}.xlsx`);
+            toast('✅ XLSX exportado!');
+        } catch(e) { console.error(e); toast('❌ Erro ao exportar XLSX.'); }
+    });
+
+    // ══════════════════════════════════════════════════════════
+    // FILTRO POR CLIENTE NO RELATÓRIO
+    // ══════════════════════════════════════════════════════════
+    function popularFiltroClientes() {
+        const sel = document.getElementById('filtroClienteRelatorio');
+        if (!sel) return;
+        const uids = [...new Set(todosOsProdutos.map(p => p.usuario_id).filter(Boolean))];
+        // Buscar nome de cada cliente nos perfis já carregados
+        sel.innerHTML = '<option value="">Todos os clientes</option>';
+        uids.forEach(uid => {
+            const opt = document.createElement('option');
+            opt.value = uid;
+            opt.textContent = uid.slice(0, 12) + '...'; // fallback — será substituído se tiver nome
+            sel.appendChild(opt);
+        });
+    }
+
+    document.getElementById('filtroClienteRelatorio')?.addEventListener('change', function() {
+        atualizarRelatorio();
+    });
+
+    function aplicarFiltrosRelatorio(uid, busca) {
+        const entregues = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
+        const filtrados = entregues.filter(p => {
+            const matchUid   = !uid   || p.usuario_id === uid;
+            const matchBusca = !busca || (p.presenteado_por||'').toLowerCase().includes(busca)
+                                      || (p.titulo||'').toLowerCase().includes(busca);
+            return matchUid && matchBusca;
+        });
+        atualizarRelatorio(filtrados);
+    }
+
+    // COMUNICADOS
+    const listaComunicadosEl = document.getElementById('listaComunicados');
+    function escutarComunicados() {
+        const q = query(collection(db, "avisos_globais"), orderBy("criado_em", "desc"));
+        onSnapshot(q, snap => {
+            if (!listaComunicadosEl) return;
+            if (snap.empty) { listaComunicadosEl.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:16px;">Nenhum comunicado enviado ainda.</p>'; return; }
+            const icones = { taxa:'💸', instabilidade:'⚠️', comprovante:'📄', info:'📢' };
+            listaComunicadosEl.innerHTML = '';
+            snap.forEach(d => {
+                const a = d.data(), id = d.id;
+                const dt = a.criado_em ? (a.criado_em.toDate ? a.criado_em.toDate() : new Date(a.criado_em)).toLocaleString('pt-BR') : '—';
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border1);';
+                row.innerHTML = `<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;">${icones[a.tipo]||'📢'} ${a.titulo||'—'}${a.fixo?'<span style="font-size:10px;background:rgba(139,92,246,0.25);color:#c4a5ff;border-radius:4px;padding:1px 6px;margin-left:6px;">fixo</span>':''}</div><div style="font-size:12px;color:var(--text2);margin-bottom:4px;white-space:pre-wrap;">${a.mensagem||''}</div><div style="font-size:11px;color:var(--text3);">📅 ${dt}</div></div><button onclick="excluirComunicado('${id}')" style="flex-shrink:0;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.28);color:#f87171;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">🗑 Excluir</button>`;
+                listaComunicadosEl.appendChild(row);
+            });
+        }, err => console.error("Erro comunicados:", err));
+    }
+    document.getElementById('btnEnviarComunicado')?.addEventListener('click', async () => {
+        const titulo = document.getElementById('comunicadoTitulo')?.value.trim();
+        const mensagem = document.getElementById('comunicadoMensagem')?.value.trim();
+        const tipo = document.getElementById('comunicadoTipo')?.value || 'info';
+        const fixo = document.getElementById('comunicadoFixo')?.value === 'true';
+        if (!titulo) { toast('⚠️ Informe o título.'); return; }
+        if (!mensagem) { toast('⚠️ Informe a mensagem.'); return; }
+        try {
+            await addDoc(collection(db, "avisos_globais"), { tipo, titulo, mensagem, fixo, criado_em: serverTimestamp() });
+            document.getElementById('comunicadoTitulo').value = '';
+            document.getElementById('comunicadoMensagem').value = '';
+            toast('✅ Comunicado enviado!');
+        } catch(e) { console.error(e); toast('❌ Erro ao enviar.'); }
+    });
+    window.excluirComunicado = async (id) => {
+        if (!confirm('Excluir este comunicado?')) return;
+        try { await deleteDoc(doc(db, "avisos_globais", id)); toast('🗑 Excluído.'); }
+        catch(e) { toast('❌ Erro ao excluir.'); }
+    };
+    document.querySelector('[data-secao="comunicados"]')?.addEventListener('click', () => escutarComunicados());
 
     </script>
 
