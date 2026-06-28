@@ -173,19 +173,6 @@
             </div>
         </div>
 
-        <!-- OVERLAY VISUALIZAR LISTA (preview) -->
-        <div class="preview-overlay" id="previewOverlay">
-            <button class="preview-overlay-fechar" id="previewOverlayFechar">✕ Fechar visualização</button>
-            <div class="preview-overlay-welcome" id="previewOverlayWelcome">
-                <div class="preview-overlay-welcome-inner">
-                    <h1 id="previewOverlayTitulo">Sejam Bem-Vindos ao Nosso Sonho!</h1>
-                    <p id="previewOverlayDesc">Ficamos muito felizes em compartilhar este momento tão especial com você.</p>
-                    <button class="preview-overlay-cta" onclick="document.getElementById('previewOverlayCards').scrollIntoView({behavior:'smooth'})">Acessar Lista de Presentes</button>
-                </div>
-            </div>
-            <div class="preview-overlay-cards" id="previewOverlayCards"></div>
-        </div>    
-
         <!-- PAINEL CATEGORIAS DE LISTAS PRONTAS -->
         <div class="area-listas" id="areaListas">
             <button class="fechar" id="fecharListas">Fechar</button>
@@ -2503,5 +2490,22 @@
         });
       }
     </script>
-</body>
+
+    <!-- OVERLAY VISUALIZAR LISTA — fora do div.cartao para evitar stacking context -->
+    <div class="preview-overlay" id="previewOverlay">
+        <button class="preview-overlay-fechar" id="previewOverlayFechar">✕ Fechar visualização</button>
+        <div class="preview-overlay-welcome" id="previewOverlayWelcome">
+            <div class="preview-overlay-welcome-inner">
+                <h1 id="previewOverlayTitulo">Sejam Bem-Vindos ao Nosso Sonho!</h1>
+                <p id="previewOverlayDesc">Ficamos muito felizes em compartilhar este momento tão especial com você.</p>
+                <button class="preview-overlay-cta" onclick="document.getElementById('previewOverlayCards').scrollIntoView({behavior:'smooth'})">Acessar Lista de Presentes</button>
+            </div>
+        </div>
+        <div class="wrapper-produtos" style="position:relative;z-index:1;">
+            <div class="controle-layout">
+                <button class="btn-layout" style="pointer-events:none;opacity:0.7;"><span>📱</span> Alternar Visualização</button>
+            </div>
+            <div id="previewOverlayCards" class="preview-overlay-cards"></div>
+        </div>
+    </div>
 </html>

@@ -2686,8 +2686,8 @@ não é clicável. */
     border-radius: 16px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-borda);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 0
-    will-change: transform, opacity; rgba(255,255,255,0.08);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
+    will-change: transform, opacity;
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     overflow: hidden;
@@ -2789,16 +2789,24 @@ não é clicável. */
 .preview-overlay .botao {
     padding: 7px 31px;
     border-radius: 999px;
-    border: 1px solid var(--btn-borda);
-    background: var(--btn-bg);
-    color: var(--btn-texto, #fff);
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.65);
     font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 8px 24px var(--btn-sombra);
+    cursor: default;
     transition: all .25s;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
 }
-.preview-overlay .botao:hover { background: var(--btn-hover-bg); transform: translateY(-1px); }
-.preview-overlay .botao[disabled] {
+/* Botão PRESENTEAR — herda o tema exatamente como na lista real */
+.preview-overlay .botao.primario {
+    background: var(--btn-bg);
+    border: 1px solid var(--btn-borda);
+    color: var(--btn-texto, #fff);
+    box-shadow: 0 4px 20px var(--btn-sombra);
+}
+/* Botão "Ganhamos" (item presenteado) — amarelo âmbar como no Style.css */
+.preview-overlay .item-esgotado .botao[disabled] {
     background: rgba(245, 166, 35, 0.10);
     border-color: rgba(245, 166, 35, 0.28);
     color: rgba(245, 166, 35, 0.65);
