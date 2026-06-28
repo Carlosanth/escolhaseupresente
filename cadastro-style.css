@@ -50,19 +50,137 @@ html, body {
     margin: 8px 0;
 }
 
-#btnSair {
-    background: rgba(239, 68, 68, 0.15);
-    color: #f87171;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    padding: 4px 14px;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s;
+/* ===== NAV z-index ===== */
+.nav {
+    position: relative;
+    z-index: 500; /* acima do .cartao que tem position:relative sem z-index */
 }
 
-#btnSair:hover {
-    background: rgba(239, 68, 68, 0.28);
+/* ===== AVATAR DROPDOWN ===== */
+#usuario-barra {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#avatarBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(196, 181, 253, 0.45);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.55), rgba(79, 70, 229, 0.55));
+    color: #e9d5ff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 0 0 0 rgba(167, 139, 250, 0);
+    padding: 0;
+}
+
+#avatarBtn:hover {
+    border-color: rgba(196, 181, 253, 0.85);
+    transform: scale(1.07);
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.18);
+}
+
+.avatar-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    min-width: 230px;
+    background: rgba(18, 10, 45, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(167, 139, 250, 0.22);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(167, 139, 250, 0.08);
+    padding: 14px;
+    z-index: 200;
+    animation: dropdownIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: top left;
+}
+
+.avatar-dropdown.ativo {
+    display: block;
+}
+
+@keyframes dropdownIn {
+    from { opacity: 0; transform: scale(0.93) translateY(-6px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0);    }
+}
+
+.avatar-dropdown-perfil {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 12px;
+}
+
+.avatar-dropdown-circulo {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    border: 2px solid rgba(196, 181, 253, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar-dropdown-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.avatar-dropdown-nome {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e9d5ff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: capitalize;
+}
+
+.avatar-dropdown-email {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.45);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.avatar-dropdown-divider {
+    height: 1px;
+    background: rgba(167, 139, 250, 0.15);
+    margin-bottom: 10px;
+}
+
+.avatar-dropdown-sair {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    background: rgba(239, 68, 68, 0.10);
+    color: #f87171;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s;
+}
+
+.avatar-dropdown-sair:hover {
+    background: rgba(239, 68, 68, 0.22);
+    border-color: rgba(239, 68, 68, 0.45);
 }
 
 /* ===== PAINEL DE TEMAS ===== */
@@ -87,7 +205,7 @@ html, body {
     align-content: flex-start;
     position: fixed;
     top: 0;
-    z-index: 100;
+    z-index: 600;
     height: 100vh;
     flex-wrap: wrap;
     right: -380px;
@@ -322,7 +440,7 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 10px 3px 10px;
+    padding: 0px 10px 0px 10px;
     border-radius: 8px;
     font-size: 14px;
     color: rgba(255, 255, 255, 0.55);
@@ -1026,7 +1144,7 @@ não é clicável. */
     position: fixed;
     top: 0;
     right: -420px;
-    z-index: 101;
+    z-index: 600;
     height: 100vh;
     width: min(400px, 100vw);
     transition: right 0.5s ease-in-out;

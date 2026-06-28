@@ -17,12 +17,36 @@
 
     <div class="nav">
         <div class="nav-itens">
-            <div id="usuario-barra">
-                <span id="userLogadoEmail" style="font-weight: bold;">Carregando usuário...</span>
-                <button id="btnSair">Sair</button>
-            </div>
-
+            <!-- AVATAR DROPDOWN -->
             <div class="not_saldo">
+                <div id="usuario-barra">
+                    <button id="avatarBtn" aria-label="Menu do usuário">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#e9d5ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="8" r="4"/>
+                            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                        </svg>
+                    </button>
+                    <div id="avatarDropdown" class="avatar-dropdown" role="menu" aria-hidden="true">
+                        <div class="avatar-dropdown-perfil">
+                            <div class="avatar-dropdown-circulo" id="avatarDropCirculo">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#e9d5ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="8" r="4"/>
+                                    <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+                                </svg>
+                            </div>
+                            <div class="avatar-dropdown-info">
+                                <span class="avatar-dropdown-nome" id="avatarNome">—</span>
+                                <span class="avatar-dropdown-email" id="userLogadoEmail">Carregando...</span>
+                            </div>
+                        </div>
+                        <div class="avatar-dropdown-divider"></div>
+                        <button id="btnSair" class="avatar-dropdown-sair">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                            Sair da conta
+                        </button>
+                    </div>
+                </div>
+
                 <button class="btn-tema" id="tema">TEMAS DA LISTA</button>
                 <button class="btn-notif" id="btnNotif">
                 <span class="saldo-mini-badge" id="saldoMiniBadge" style="display:none;">
@@ -453,9 +477,7 @@
         const inputCategoriaManual = document.getElementById('categoriaManual');
         const inputFoto            = document.getElementById('fotoProduto');
         const containerRegistros   = document.getElementById('registros');
-        const userLogadoEmail      = document.getElementById('userLogadoEmail');
         const btnSair              = document.getElementById('btnSair');
-        const contadorItens        = document.getElementById('contadorItens');
 
         const modalQR     = document.getElementById('modalQR');
         const canvasQR    = document.getElementById('canvas-qrcode');
@@ -611,6 +633,8 @@
             }
         }
 
+        let carouselInitializing = false;
+
         function inicializarCarrosel() {
             const track = document.getElementById('carouselTrack');
             const dotsContainer = document.getElementById('carouselDots');
@@ -631,11 +655,11 @@
                 Array.from(dotsContainer.children).forEach((d, i) => {
                     d.className = 'carousel-dot' + (i === current ? ' active' : '');
                 });
-                // 🆕 Auto-selecionar tema visível como tema escolhido
+                // Auto-selecionar tema visível — só marca dirty se NÃO for a inicialização
                 const slideAtivo = slides[current];
                 if (slideAtivo && slideAtivo.dataset.url) {
                     mudarImagemTemaEmTempoReal(slideAtivo.dataset.url);
-                    if (typeof marcarDirty === 'function') marcarDirty();
+                    if (!carouselInitializing && typeof marcarDirty === 'function') marcarDirty();
                 }
             };
 
@@ -649,7 +673,9 @@
                 if (Math.abs(diff) > 40) carouselGoTo(current + (diff > 0 ? 1 : -1));
             });
 
+            carouselInitializing = true;
             carouselGoTo(0);
+            carouselInitializing = false;
         }
 
         // ================================================================
@@ -670,7 +696,14 @@
             const btnConfNao  = document.getElementById('modalConfirmFecharNao');
             const btnConfSim  = document.getElementById('modalConfirmFecharSim');
 
-            if (botaoTema) botaoTema.addEventListener('click', () => areaTemas.classList.toggle('ativo'));
+            if (botaoTema) botaoTema.addEventListener('click', () => {
+                // Fecha painel de notificações e dropdown de avatar se estiverem abertos
+                const areaNotifEl = document.getElementById('areaNotif');
+                if (areaNotifEl) areaNotifEl.classList.remove('ativo');
+                const avatarDrop = document.getElementById('avatarDropdown');
+                if (avatarDrop) { avatarDrop.classList.remove('ativo'); avatarDrop.setAttribute('aria-hidden','true'); }
+                areaTemas.classList.toggle('ativo');
+            });
 
             function tentarFecharPainel() {
                 if (temaDirty) { modalConf.classList.add('ativo'); }
@@ -893,6 +926,36 @@
                 renderPreviewCards();
                 previewOverlay.classList.add('ativo');
             });
+            // Avatar dropdown
+            const avatarBtn      = document.getElementById('avatarBtn');
+            const avatarDropdown = document.getElementById('avatarDropdown');
+            if (avatarBtn && avatarDropdown) {
+                avatarBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Fecha painéis de temas e notificações ao abrir o dropdown
+                    const areaTemaEl = document.querySelector('.area-temas');
+                    if (areaTemaEl) areaTemaEl.classList.remove('ativo');
+                    const areaNotifEl = document.getElementById('areaNotif');
+                    if (areaNotifEl) areaNotifEl.classList.remove('ativo');
+
+                    const aberto = avatarDropdown.classList.toggle('ativo');
+                    avatarDropdown.setAttribute('aria-hidden', aberto ? 'false' : 'true');
+                });
+                document.addEventListener('click', (e) => {
+                    if (!avatarDropdown.contains(e.target) && e.target !== avatarBtn) {
+                        avatarDropdown.classList.remove('ativo');
+                        avatarDropdown.setAttribute('aria-hidden', 'true');
+                    }
+                });
+                // Fecha dropdown ao pressionar Escape
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        avatarDropdown.classList.remove('ativo');
+                        avatarDropdown.setAttribute('aria-hidden', 'true');
+                    }
+                });
+            }
+
             if (previewFechar) previewFechar.addEventListener('click', () => previewOverlay.classList.remove('ativo'));
         });
 
@@ -937,7 +1000,19 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 usuarioAtualUid = user.uid;
-                userLogadoEmail.textContent = user.email;
+                // Preenche avatar dropdown com dados do usuário
+                const email = user.email || '';
+                const displayName = user.displayName || '';
+                const nomeExibicao = displayName || email.split('@')[0] || 'Usuário';
+                const letra = nomeExibicao.charAt(0).toUpperCase();
+
+                const avatarDropCirculo = document.getElementById('avatarDropCirculo'); // SVG, não precisa de letra
+                const avatarNome = document.getElementById('avatarNome');
+                const userLogadoEmail = document.getElementById('userLogadoEmail');
+
+                if (avatarNome) avatarNome.textContent = nomeExibicao;
+                if (userLogadoEmail) userLogadoEmail.textContent = email;
+
                 // Salva e-mail nas configurações para o painel admin conseguir identificar o cliente
                 setDoc(doc(db, "configuracoes", user.uid), { email: user.email }, { merge: true }).catch(() => {});
                 escutarCategoriasDoBanco();
@@ -953,11 +1028,11 @@
                 await carregarModoDisplay();
                 escutarProdutosDoBanco();
                 escutarMeusSaques();
-                escutarNotificacoes();
                 escutarAvisosGlobais();
             } else {
                 usuarioAtualUid = null;
-                userLogadoEmail.textContent = "Não autenticado";
+                const userLogadoEmailEl = document.getElementById('userLogadoEmail');
+                if (userLogadoEmailEl) userLogadoEmailEl.textContent = "Não autenticado";
                 containerRegistros.innerHTML = '<p style="padding:10px;">Redirecionando...</p>';
                 if (unsubscribeProdutos)   unsubscribeProdutos();
                 if (unsubscribeCategorias) unsubscribeCategorias();
@@ -1399,6 +1474,7 @@
                     atualizarResumo();
                     atualizarSaldo();
                     todosOsProdutos.forEach(p => renderizarItemNaTela(p, p.id));
+                    atualizarNotificacoes();
 
                     // Aviso único (não um por item) se houver itens sem valor definido
                     const qtdSemValor = todosOsProdutos.filter(p => {
@@ -1588,42 +1664,23 @@
 
             if (semValorDefinido) novaBaseDiv.classList.add('sem-valor');
 
-            // Segunda linha: usa taxa_quem_paga do próprio produto (fonte de verdade no banco)
-            // Isso garante que ao recarregar a página o valor exibido é sempre o correto
+            // Fonte de verdade da taxa vem do próprio documento do produto
             const taxaDoProduto = produto.taxa_quem_paga || taxaQuemPaga;
-            let linhaExtra = '';
-            if (semValorDefinido) {
-                linhaExtra = '';
-            } else if (taxaDoProduto === 'convidado') {
-                const cobrado = Math.round(originalCentavos * (1 + TAXA_PERCENTUAL / 100));
-                const cobradoFmt = (cobrado / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                linhaExtra = `<small style="display:block;font-size:11px;color:#f9a825;">Convidado paga: ${cobradoFmt}</small>`;
-            } else {
-                const recebe = Math.round(originalCentavos * (1 - TAXA_PERCENTUAL / 100));
-                const recebeFmt = (recebe / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                linhaExtra = `<small style="display:block;font-size:11px;color:#81c784;">Você recebe: ${recebeFmt}</small>`;
-            }
 
             const foiVendido = produto.disponivel === false && produto.presenteado_por;
             if (foiVendido) novaBaseDiv.classList.add('vendido');
 
-            // Linha extra só aparece em itens NÃO vendidos
-            const linhaExtraFinal = foiVendido
-                ? `<small style="display:block;font-size:11px;color:#f59e0b;">🎁 Presenteado por: ${produto.presenteado_por}</small>`
-                : linhaExtra;
-
-            const precoOuAviso = semValorDefinido
-                ? `<span class="selo-sem-valor">⚠️ Defina o valor deste item</span>`
-                : `<span>${precoOriginalFmt}</span>`;
-
             novaBaseDiv.innerHTML = `
                 <div class="base-card">
-                    <img src="${imagemExibicao}" alt="${tituloExibicao}" loading="lazy" onerror="this.onerror=null;this.src='https://i.ibb.co/YBZJdZ2N/icon-192.jpg'">
+                    <img src="" alt="" loading="lazy" onerror="this.onerror=null;this.src='https://i.ibb.co/YBZJdZ2N/icon-192.jpg'">
                     <div class="T-Produtos">
-                        <strong>${tituloExibicao}</strong>
-                        ${precoOuAviso}
-                        ${linhaExtraFinal}
-                        <small style="display:block;font-size:11px;opacity:0.6;">Cat: ${categoriaExibicao}</small>
+                        <strong class="item-titulo-txt"></strong>
+                        ${semValorDefinido
+                            ? `<span class="selo-sem-valor">⚠️ Defina o valor deste item</span>`
+                            : `<span class="item-preco-txt"></span>`
+                        }
+                        <small class="item-extra-txt" style="display:block;font-size:11px;"></small>
+                        <small class="item-cat-txt" style="display:block;font-size:11px;opacity:0.6;"></small>
                     </div>
                 </div>
                 <div class="disponibilidade">
@@ -1631,12 +1688,47 @@
                         ? `<span class="chip-vendido">🎁 Ganhamos</span>
                            <span class="btn-bloqueado">✏️ Editar</span>
                            <span class="btn-bloqueado">🗑️ Excluir</span>`
-                        : `<span class="disp">${textoStatus}</span>
+                        : `<span class="disp"></span>
                            <span class="btn-editar-item">✏️ Editar</span>
                            <span class="excl">🗑️ Excluir</span>`
                     }
                 </div>
             `;
+
+            // Preenche com textContent para evitar XSS
+            const imgEl = novaBaseDiv.querySelector('img');
+            imgEl.src = imagemExibicao;
+            imgEl.alt = tituloExibicao;
+            novaBaseDiv.querySelector('.item-titulo-txt').textContent = tituloExibicao;
+            novaBaseDiv.querySelector('.item-cat-txt').textContent = 'Cat: ' + categoriaExibicao;
+
+            if (!semValorDefinido) {
+                novaBaseDiv.querySelector('.item-preco-txt').textContent = precoOriginalFmt;
+            }
+
+            const extraEl = novaBaseDiv.querySelector('.item-extra-txt');
+            if (foiVendido) {
+                extraEl.style.color = '#f59e0b';
+                extraEl.textContent = '🎁 Presenteado por: ' + (produto.presenteado_por || '');
+            } else if (!semValorDefinido) {
+                if (taxaDoProduto === 'convidado') {
+                    const cobrado = Math.round(originalCentavos * (1 + TAXA_PERCENTUAL / 100));
+                    extraEl.style.color = '#f9a825';
+                    extraEl.textContent = 'Convidado paga: ' + (cobrado / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                } else {
+                    const recebe = Math.round(originalCentavos * (1 - TAXA_PERCENTUAL / 100));
+                    extraEl.style.color = '#81c784';
+                    extraEl.textContent = 'Você recebe: ' + (recebe / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                }
+            }
+
+            if (!foiVendido) {
+                const dispEl = novaBaseDiv.querySelector('.disp');
+                if (dispEl) {
+                    dispEl.textContent = textoStatus;
+                    dispEl.style.color = corStatus;
+                }
+            }
 
             // Item sem valor definido — o aviso resumido (1x por carregamento)
             // é mostrado fora desta função, depois que todos os itens carregam.
@@ -1892,26 +1984,41 @@
         });
 
         // ================================================================
-        // SALDO E SOLICITAÇÃO DE SAQUE
+        // CÁLCULO DE SALDO — função única, sem duplicação
         // ================================================================
-        function atualizarSaldo() {
+        function calcularSaldo() {
             const vendidos = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
-
-            // Saldo bruto = soma de tudo que já foi vendido (líquido da taxa)
-            const totalOriginal = vendidos.reduce((acc, p) => {
-                return acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-            }, 0);
+            const totalOriginalCentavos = vendidos.reduce((acc, p) =>
+                acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0), 0);
             const taxa = parseFloat(TAXA_PERCENTUAL);
-            const saldoBruto = Math.round(totalOriginal * (1 - taxa / 100));
+            const lucroTotal   = Math.round(totalOriginalCentavos * taxa / 100);
+            const repasseTotal = totalOriginalCentavos - lucroTotal;
 
-            // Desconta o que já foi pago em saques anteriores — assim o saldo
-            // disponível nunca mostra de novo um valor que já caiu na conta.
             const totalJaSacadoCentavos = meusSaques
                 .filter(s => s.status === 'pago')
                 .reduce((acc, s) => acc + parseInt(s.repasse_centavos || 0), 0);
 
-            const saldoDisponivelCentavos = Math.max(0, saldoBruto - totalJaSacadoCentavos);
-            const saldoFmt = formatarBRL(saldoDisponivelCentavos);
+            const repasseDisponivel = Math.max(0, repasseTotal - totalJaSacadoCentavos);
+            const lucroAdmin = repasseTotal > 0
+                ? Math.round(lucroTotal * (repasseDisponivel / repasseTotal))
+                : 0;
+
+            return {
+                totalOriginalCentavos,
+                lucroTotal,
+                repasseTotal,
+                totalJaSacadoCentavos,
+                repasseDisponivel,
+                lucroAdmin
+            };
+        }
+
+        // ================================================================
+        // SALDO E SOLICITAÇÃO DE SAQUE
+        // ================================================================
+        function atualizarSaldo() {
+            const { repasseDisponivel, totalJaSacadoCentavos } = calcularSaldo();
+            const saldoFmt = formatarBRL(repasseDisponivel);
 
             // O bloco fica SEMPRE visível, mesmo com saldo zerado.
             document.getElementById('saldoBloco').style.display = 'flex';
@@ -1929,7 +2036,7 @@
             // configurado pelo admin (válido para todos os clientes).
             const btnSaque = document.getElementById('btnSolicitarSaque');
             if (btnSaque) {
-                const habilitado = saldoDisponivelCentavos >= valorMinimoSaqueCentavos;
+                const habilitado = repasseDisponivel >= valorMinimoSaqueCentavos;
                 btnSaque.disabled = !habilitado;
                 btnSaque.title = habilitado
                     ? ''
@@ -2018,24 +2125,7 @@
                 return;
             }
 
-            // Calcula o saldo disponível ATUAL (descontando o que já foi pago
-            // em saques anteriores), para suportar saques parciais sem
-            // duplicar valor já recebido em um saque anterior.
-            const vendidos = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
-            const totalOriginal = vendidos.reduce((acc, p) => {
-                return acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-            }, 0);
-            const taxa       = parseFloat(TAXA_PERCENTUAL);
-            const lucroTotal = Math.round(totalOriginal * taxa / 100);
-            const repasseTotal = totalOriginal - lucroTotal;
-
-            const totalJaSacadoCentavos = meusSaques
-                .filter(s => s.status === 'pago')
-                .reduce((acc, s) => acc + parseInt(s.repasse_centavos || 0), 0);
-
-            const repasse    = Math.max(0, repasseTotal - totalJaSacadoCentavos);
-            // Proporção do lucro/total referente apenas ao valor ainda não sacado
-            const lucroAdmin = repasseTotal > 0 ? Math.round(lucroTotal * (repasse / repasseTotal)) : 0;
+            const { repasseDisponivel: repasse, lucroAdmin } = calcularSaldo();
 
             if (repasse <= 0) {
                 mostrarToast('Não há saldo disponível para saque no momento.', 'aviso', '⚠️');
@@ -2052,12 +2142,13 @@
 
             try {
                 const saqueId = `${usuarioAtualUid}-${Date.now()}`;
+                const { totalOriginalCentavos } = calcularSaldo();
                 await setDoc(doc(db, "saques", saqueId), {
                     usuario_id:       usuarioAtualUid,
                     nome,
                     cpf,
                     whatsapp,
-                    total_centavos:   totalOriginal.toString(),
+                    total_centavos:   totalOriginalCentavos.toString(),
                     lucro_centavos:   lucroAdmin.toString(),
                     repasse_centavos: repasse.toString(),
                     status:           'pendente',
@@ -2089,6 +2180,12 @@
         let notifJaVistas = new Set(); // IDs já vistos para controlar badge
 
         btnNotif.addEventListener('click', () => {
+            // Fecha painel de temas e dropdown de avatar se estiverem abertos
+            const areaTemaEl = document.querySelector('.area-temas');
+            if (areaTemaEl) areaTemaEl.classList.remove('ativo');
+            const avatarDrop = document.getElementById('avatarDropdown');
+            if (avatarDrop) { avatarDrop.classList.remove('ativo'); avatarDrop.setAttribute('aria-hidden','true'); }
+
             areaNotif.classList.toggle('ativo');
             // Zera badge ao abrir
             if (areaNotif.classList.contains('ativo')) {
@@ -2104,78 +2201,84 @@
             areaNotif.classList.remove('ativo');
         });
 
+        // ================================================================
+        // NOTIFICAÇÕES — derivado de todosOsProdutos (sem segundo listener)
+        // ================================================================
+        function toMs(ts) {
+            if (!ts) return 0;
+            if (ts.seconds) return ts.seconds * 1000;
+            if (typeof ts.toDate === 'function') return ts.toDate().getTime();
+            return new Date(ts).getTime() || 0;
+        }
+
         function escutarNotificacoes() {
-            if (!usuarioAtualUid) return;
-            const q = query(
-                collection(db, "produtos_teste"),
-                where("usuario_id", "==", usuarioAtualUid)
-            );
-            unsubscribeNotif = onSnapshot(q, (snapshot) => {
-                const presenteados = [];
-                snapshot.forEach(docSnap => {
-                    const d = docSnap.data();
-                    if (d.presenteado_por && d.disponivel === false) {
-                        presenteados.push({ id: docSnap.id, ...d });
+            // Não abre novo listener — reutiliza todosOsProdutos que já vem
+            // do onSnapshot de escutarProdutosDoBanco(). Esta função é chamada
+            // a partir de atualizarNotificacoes() sempre que o cache muda.
+        }
+
+        function atualizarNotificacoes() {
+            const presenteados = todosOsProdutos.filter(p => p.presenteado_por && p.disponivel === false);
+
+            // Atualizar badge com novos não vistos
+            const novos = presenteados.filter(p => !notifJaVistas.has(p.id));
+            if (novos.length > 0 && !areaNotif.classList.contains('ativo')) {
+                notifBadge.style.display = 'flex';
+                notifBadge.textContent = novos.length > 9 ? '9+' : novos.length;
+            }
+
+            if (presenteados.length === 0) {
+                notifLista.innerHTML = '<p class="notif-vazia">Nenhum presente recebido ainda.</p>';
+                return;
+            }
+
+            // Ordenar do mais recente para o mais antigo
+            presenteados.sort((a, b) => toMs(b.data_presente) - toMs(a.data_presente));
+
+            // Preserva apenas os avisos globais (não mexe neles)
+            notifLista.querySelectorAll('.notif-item:not(.aviso-global)').forEach(el => el.remove());
+
+            presenteados.forEach(p => {
+                const originalCentavos = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                const valorFmt = (originalCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                let dataFmt = 'Data não registrada';
+                if (p.data_presente) {
+                    let dataObj = null;
+                    if (p.data_presente.seconds) {
+                        dataObj = new Date(p.data_presente.seconds * 1000);
+                    } else if (typeof p.data_presente.toDate === 'function') {
+                        dataObj = p.data_presente.toDate();
+                    } else {
+                        dataObj = new Date(p.data_presente);
                     }
-                });
-
-                // Atualizar badge com novos não vistos
-                const novos = presenteados.filter(p => !notifJaVistas.has(p.id));
-                if (novos.length > 0 && !areaNotif.classList.contains('ativo')) {
-                    notifBadge.style.display = 'flex';
-                    notifBadge.textContent = novos.length > 9 ? '9+' : novos.length;
-                }
-
-                // Renderizar lista
-                if (presenteados.length === 0) {
-                    notifLista.innerHTML = '<p class="notif-vazia">Nenhum presente recebido ainda.</p>';
-                    return;
-                }
-
-                // Ordenar do mais recente para o mais antigo
-                function toMs(ts) {
-                    if (!ts) return 0;
-                    if (ts.seconds) return ts.seconds * 1000;
-                    if (typeof ts.toDate === 'function') return ts.toDate().getTime();
-                    return new Date(ts).getTime() || 0;
-                }
-                presenteados.sort((a, b) => toMs(b.data_presente) - toMs(a.data_presente));
-
-                notifLista.innerHTML = '';
-                presenteados.forEach(p => {
-                    const originalCentavos = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-                    const valorFmt = (originalCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    let dataFmt = 'Data não registrada';
-                    if (p.data_presente) {
-                        let dataObj = null;
-                        // Timestamp do Firestore (objeto com seconds)
-                        if (p.data_presente.seconds) {
-                            dataObj = new Date(p.data_presente.seconds * 1000);
-                        // Timestamp do Firestore SDK (método toDate)
-                        } else if (typeof p.data_presente.toDate === 'function') {
-                            dataObj = p.data_presente.toDate();
-                        // String ou number normal
-                        } else {
-                            dataObj = new Date(p.data_presente);
-                        }
-                        if (dataObj && !isNaN(dataObj)) {
-                            dataFmt = dataObj.toLocaleString('pt-BR', {
-                                day: '2-digit', month: '2-digit', year: 'numeric',
-                                hour: '2-digit', minute: '2-digit'
-                            });
-                        }
+                    if (dataObj && !isNaN(dataObj)) {
+                        dataFmt = dataObj.toLocaleString('pt-BR', {
+                            day: '2-digit', month: '2-digit', year: 'numeric',
+                            hour: '2-digit', minute: '2-digit'
+                        });
                     }
+                }
 
-                    const item = document.createElement('div');
-                    item.className = 'notif-item';
-                    item.innerHTML = `
-                        <span class="notif-item-nome">🎁 ${p.presenteado_por}</span>
-                        <span class="notif-item-presente">${p.titulo || 'Presente'}</span>
-                        <span class="notif-item-valor">${valorFmt}</span>
-                        <span class="notif-item-data">📅 ${dataFmt}</span>
-                    `;
-                    notifLista.appendChild(item);
-                });
+                const item = document.createElement('div');
+                item.className = 'notif-item';
+                // Usa textContent para evitar XSS — dados vêm do Firestore
+                const spanNome = document.createElement('span');
+                spanNome.className = 'notif-item-nome';
+                spanNome.textContent = '🎁 ' + (p.presenteado_por || '');
+                const spanPresente = document.createElement('span');
+                spanPresente.className = 'notif-item-presente';
+                spanPresente.textContent = p.titulo || 'Presente';
+                const spanValor = document.createElement('span');
+                spanValor.className = 'notif-item-valor';
+                spanValor.textContent = valorFmt;
+                const spanData = document.createElement('span');
+                spanData.className = 'notif-item-data';
+                spanData.textContent = '📅 ' + dataFmt;
+                item.appendChild(spanNome);
+                item.appendChild(spanPresente);
+                item.appendChild(spanValor);
+                item.appendChild(spanData);
+                notifLista.appendChild(item);
             });
         }
 
@@ -2211,11 +2314,21 @@
                     const el = document.createElement('div');
                     el.className = 'notif-item aviso-global';
                     el.dataset.fixo = aviso.fixo ? 'true' : 'false';
-                    el.innerHTML = `
-                        <span class="notif-item-nome aviso-global-titulo">${icone} ${aviso.titulo || 'Aviso'}</span>
-                        <span class="notif-item-presente aviso-global-msg">${aviso.mensagem || ''}</span>
-                        ${dataFmt ? `<span class="notif-item-data">📅 ${dataFmt}</span>` : ''}
-                    `;
+                    // Usa textContent para evitar XSS
+                    const spanTitulo = document.createElement('span');
+                    spanTitulo.className = 'notif-item-nome aviso-global-titulo';
+                    spanTitulo.textContent = icone + ' ' + (aviso.titulo || 'Aviso');
+                    const spanMsg = document.createElement('span');
+                    spanMsg.className = 'notif-item-presente aviso-global-msg';
+                    spanMsg.textContent = aviso.mensagem || '';
+                    el.appendChild(spanTitulo);
+                    el.appendChild(spanMsg);
+                    if (dataFmt) {
+                        const spanData = document.createElement('span');
+                        spanData.className = 'notif-item-data';
+                        spanData.textContent = '📅 ' + dataFmt;
+                        el.appendChild(spanData);
+                    }
                     notifLista.insertBefore(el, notifLista.firstChild);
                 });
             }, err => console.error("Erro avisos globais:", err));
