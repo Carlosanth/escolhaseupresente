@@ -440,7 +440,7 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0px 10px 0px 10px;
+    padding: 10px 10px 3px 10px;
     border-radius: 8px;
     font-size: 14px;
     color: rgba(255, 255, 255, 0.55);
@@ -2583,7 +2583,7 @@ não é clicável. */
         radial-gradient(ellipse 80% 60% at 20% 10%, var(--fundo-glow-1, rgba(124,58,237,0.20)) 0%, transparent 60%),
         radial-gradient(ellipse 60% 50% at 80% 80%, var(--fundo-glow-2, rgba(79,70,229,0.15)) 0%, transparent 55%);
     transition: background-color 0.4s;
-    z-index: 250;
+    z-index: 700;
     overflow-y: auto;
 }
 .preview-overlay.ativo { display: block; }
@@ -2591,7 +2591,7 @@ não é clicável. */
     position: fixed;
     top: 18px;
     right: 18px;
-    z-index: 260;
+    z-index: 710;
     padding: 8px 16px;
     border-radius: 999px;
     border: 1px solid rgba(239,68,68,0.4);
