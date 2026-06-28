@@ -790,14 +790,65 @@
             aplicarPreviewMini();
 
 
-            // Botão Visualizar — abre a lista real em nova aba
-            const btnVisualizar = document.getElementById('btn-visualizar');
+            // ================================================================
+            // PREVIEW DA LISTA — iframe fullscreen com tema em tempo real
+            // Os valores do painel são enviados via postMessage ao iframe.
+            // Nada é salvo no Firebase até clicar em "Salvar preferências".
+            // ================================================================
+            const btnVisualizar    = document.getElementById('btn-visualizar');
+            const previewOverlay   = document.getElementById('previewIframeOverlay');
+            const previewIframe    = document.getElementById('previewIframe');
+            const previewFecharBtn = document.getElementById('previewIframeFechar');
+
+            function coletarEstadoAtualDoTema() {
+                return {
+                    tipo:              'ESP_PREVIEW_TEMA',
+                    cor_tema:          (document.getElementById('inputCor')?.value)          || '#a78bfa',
+                    modo_display:      (document.getElementById('toggleModo')?.checked)      ? 'claro' : 'escuro',
+                    imagem_fundo:      imagemSelecionadaParaO_Banco                          || '',
+                    titulo_boas_vindas:   (document.getElementById('inputTituloBoasVindas')?.value.trim())  || '',
+                    descricao_boas_vindas:(document.getElementById('inputDescricaoBoasVindas')?.value.trim()) || '',
+                    data_evento:       (document.getElementById('inputDataEvento')?.value)   || '',
+                };
+            }
+
+            function enviarTemaParaIframe() {
+                try {
+                    previewIframe?.contentWindow?.postMessage(coletarEstadoAtualDoTema(), '*');
+                } catch(e) {}
+            }
+
             if (btnVisualizar) btnVisualizar.addEventListener('click', () => {
                 if (!usuarioAtualUid) {
                     mostrarToast('Você precisa estar logado para visualizar.', 'aviso', '⚠️');
                     return;
                 }
-                window.open(`${URL_BASE_SITE}?id=${usuarioAtualUid}`, '_blank');
+                // Carrega o iframe com a lista real do usuário
+                const url = `${URL_BASE_SITE}?id=${usuarioAtualUid}&preview=1`;
+                if (previewIframe.src !== url) previewIframe.src = url;
+
+                previewOverlay.classList.add('ativo');
+                document.body.style.overflow = 'hidden';
+
+                // Envia tema assim que o iframe carregar
+                previewIframe.onload = () => {
+                    setTimeout(enviarTemaParaIframe, 300);
+                };
+                // Se já estava carregado, envia direto
+                setTimeout(enviarTemaParaIframe, 400);
+            });
+
+            if (previewFecharBtn) previewFecharBtn.addEventListener('click', () => {
+                previewOverlay.classList.remove('ativo');
+                document.body.style.overflow = '';
+            });
+
+            // Fecha com Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && previewOverlay?.classList.contains('ativo')) {
+                    previewOverlay.classList.remove('ativo');
+                    document.body.style.overflow = '';
+                }
             });
 
             // Avatar dropdown
@@ -2336,5 +2387,17 @@
         });
       }
     </script>
+
+    <!-- OVERLAY PREVIEW — iframe fullscreen da lista real -->
+    <div id="previewIframeOverlay" class="preview-iframe-overlay">
+        <div class="preview-iframe-topbar">
+            <div class="preview-iframe-topbar-left">
+                <span class="preview-iframe-badge">👁 Pré-visualização</span>
+                <span class="preview-iframe-hint">As alterações não são salvas até clicar em "Salvar preferências"</span>
+            </div>
+            <button id="previewIframeFechar" class="preview-iframe-fechar">✕ Fechar</button>
+        </div>
+        <iframe id="previewIframe" class="preview-iframe-frame" allow="same-origin"></iframe>
+    </div>
 
 </html>
