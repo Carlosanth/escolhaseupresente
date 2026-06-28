@@ -166,62 +166,214 @@
             const p = document.querySelector('.conteudo-boas-vindas p');
             if (p) p.textContent = dados.descricao_boas_vindas;
           }
+          if (dados.data_evento) {
+            iniciarContagem(dados.data_evento);
+          } else {
+            const bloco = document.getElementById('countdown-bloco');
+            if (bloco) bloco.style.display = 'none';
+          }
         }
       }, err => console.error("Erro tema:", err));
+
+    // ── Contagem regressiva ────────────────────────────────────
+    let countdownInterval = null;
+
+    function iniciarContagem(dataEvento) {
+      const bloco = document.getElementById('countdown-bloco');
+      if (!bloco) return;
+
+      // Limpa intervalo anterior se existir
+      if (countdownInterval) clearInterval(countdownInterval);
+
+      const alvo = new Date(dataEvento).getTime();
+      if (isNaN(alvo)) { bloco.style.display = 'none'; return; }
+
+      bloco.style.display = 'flex';
+
+      function atualizar() {
+        const agora = Date.now();
+        const diff  = alvo - agora;
+
+        if (diff <= 0) {
+          clearInterval(countdownInterval);
+          document.getElementById('cd-dias').textContent  = '00';
+          document.getElementById('cd-horas').textContent = '00';
+          document.getElementById('cd-min').textContent   = '00';
+          document.getElementById('cd-seg').textContent   = '00';
+          const label = bloco.querySelector('.cd-evento-label');
+          if (label) label.textContent = '🎉 O grande dia chegou!';
+          return;
+        }
+
+        const dias  = Math.floor(diff / 86400000);
+        const horas = Math.floor((diff % 86400000) / 3600000);
+        const min   = Math.floor((diff % 3600000)  / 60000);
+        const seg   = Math.floor((diff % 60000)    / 1000);
+
+        document.getElementById('cd-dias').textContent  = String(dias).padStart(2,'0');
+        document.getElementById('cd-horas').textContent = String(horas).padStart(2,'0');
+        document.getElementById('cd-min').textContent   = String(min).padStart(2,'0');
+        document.getElementById('cd-seg').textContent   = String(seg).padStart(2,'0');
+      }
+
+      atualizar();
+      countdownInterval = setInterval(atualizar, 1000);
+    }
+
+    // ── Filtro de categorias ───────────────────────────────────
+    let categoriaAtiva = 'todos';
+    let todosProdutosCache = [];
+
+    function renderizarFiltros(categorias) {
+      const wrap = document.getElementById('filtro-categorias');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+
+      // Chip "Todos"
+      const chipTodos = document.createElement('button');
+      chipTodos.className = 'chip-categoria' + (categoriaAtiva === 'todos' ? ' ativo' : '');
+      chipTodos.textContent = 'Todos';
+      chipTodos.addEventListener('click', () => {
+        categoriaAtiva = 'todos';
+        aplicarFiltro();
+        atualizarChips();
+      });
+      wrap.appendChild(chipTodos);
+
+      // Chips por categoria
+      categorias.forEach(cat => {
+        const chip = document.createElement('button');
+        chip.className = 'chip-categoria' + (categoriaAtiva === cat ? ' ativo' : '');
+        chip.textContent = cat;
+        chip.addEventListener('click', () => {
+          categoriaAtiva = cat;
+          aplicarFiltro();
+          atualizarChips();
+        });
+        wrap.appendChild(chip);
+      });
+    }
+
+    function atualizarChips() {
+      document.querySelectorAll('.chip-categoria').forEach(chip => {
+        const cat = chip.textContent;
+        chip.classList.toggle('ativo',
+          cat === 'Todos' ? categoriaAtiva === 'todos' : categoriaAtiva === cat
+        );
+      });
+    }
+
+    function aplicarFiltro() {
+      const cards = listaContainer.querySelectorAll('main.conteudo');
+      cards.forEach(card => {
+        if (categoriaAtiva === 'todos') {
+          card.style.display = '';
+        } else {
+          card.style.display = card.dataset.categoria === categoriaAtiva ? '' : 'none';
+        }
+      });
+    }
 
     // ── Produtos em tempo real ─────────────────────────────────
     db.collection("produtos_teste").where("usuario_id", "==", usuarioIdUrl)
       .onSnapshot((snapshot) => {
         listaContainer.innerHTML = "";
+        todosProdutosCache = [];
 
         if (snapshot.empty) {
           listaContainer.innerHTML = "<p style='text-align:center;padding:40px;color:rgba(255,255,255,0.40)'>Esta lista ainda não possui produtos cadastrados.</p>";
+          document.getElementById('filtro-categorias').innerHTML = '';
           return;
         }
 
+        // Coleta categorias únicas com pelo menos 1 item
+        const categoriasSet = new Set();
+
         snapshot.forEach((doc) => {
-          const produto  = doc.data();
-          const id       = doc.id;
+          const produto = doc.data();
+          const id      = doc.id;
+          todosProdutosCache.push({ id, ...produto });
+
+          if (produto.categoria && produto.categoria.trim()) {
+            categoriasSet.add(produto.categoria.trim());
+          }
+
           const dispClass = produto.disponivel ? "disponivel" : "indisponivel";
           const dispTexto = produto.disponivel ? "Disponível"  : "Presenteado";
 
           const wrap = document.createElement('main');
           wrap.className = 'conteudo';
+          wrap.dataset.categoria = produto.categoria?.trim() || '';
           if (!produto.disponivel) wrap.classList.add('item-esgotado');
 
-          wrap.innerHTML = `
-            <section class="cartao-produto">
-              <div class="imagem-produto">
-                <img src="${produto.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg'}"
-                     alt="${produto.titulo || 'Produto'}" />
-              </div>
-              <div class="detalhes-produto">
-                <div class="titulo-produto">${produto.titulo || 'Sem título'}</div>
-                <div class="rodape-produto">
-                  <div class="caixa-preco">
-                    <div class="rotulo-preco">Valor</div>
-                    <div class="preco">${produto.preco || 'Consulte'}</div>
-                    <div class="disponibilidade ${dispClass}">${dispTexto}</div>
-                  </div>
-                  <div class="acoes">
-                    ${produto.disponivel
-                      ? `<button class="botao primario botao-presentear"
-                              data-id="${id}" data-titulo="${produto.titulo}">
-                           😊 Presentear 😊
-                         </button>`
-                      : `<button class="botao" disabled>😍 Ganhamos! 😍</button>`
-                    }
-                  </div>
-                </div>
-              </div>
-            </section>
-          `;
+          // Usa DOM seguro para campos vindos do Firestore
+          const section = document.createElement('section');
+          section.className = 'cartao-produto';
 
+          const imgDiv = document.createElement('div');
+          imgDiv.className = 'imagem-produto';
+          const img = document.createElement('img');
+          img.src = produto.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+          img.alt = produto.titulo || 'Produto';
+          img.onerror = () => { img.src = 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg'; };
+          imgDiv.appendChild(img);
+
+          const detalhes = document.createElement('div');
+          detalhes.className = 'detalhes-produto';
+
+          const titulo = document.createElement('div');
+          titulo.className = 'titulo-produto';
+          titulo.textContent = produto.titulo || 'Sem título';
+
+          const rodape = document.createElement('div');
+          rodape.className = 'rodape-produto';
+
+          const caixaPreco = document.createElement('div');
+          caixaPreco.className = 'caixa-preco';
+          caixaPreco.innerHTML = `
+            <div class="rotulo-preco">Valor</div>
+            <div class="preco"></div>
+            <div class="disponibilidade ${dispClass}"></div>`;
+          caixaPreco.querySelector('.preco').textContent          = produto.preco || 'Consulte';
+          caixaPreco.querySelector('.disponibilidade').textContent = dispTexto;
+
+          const acoes = document.createElement('div');
+          acoes.className = 'acoes';
+
+          if (produto.disponivel) {
+            const btn = document.createElement('button');
+            btn.className = 'botao primario botao-presentear';
+            btn.dataset.id     = id;
+            btn.dataset.titulo = produto.titulo || '';
+            btn.textContent    = '😊 Presentear 😊';
+            acoes.appendChild(btn);
+          } else {
+            const btn = document.createElement('button');
+            btn.className = 'botao';
+            btn.disabled  = true;
+            btn.textContent = '😍 Ganhamos! 😍';
+            acoes.appendChild(btn);
+          }
+
+          rodape.appendChild(caixaPreco);
+          rodape.appendChild(acoes);
+          detalhes.appendChild(titulo);
+          detalhes.appendChild(rodape);
+          section.appendChild(imgDiv);
+          section.appendChild(detalhes);
+          wrap.appendChild(section);
           listaContainer.appendChild(wrap);
         });
 
-        // Eventos dos botões
-        document.querySelectorAll('.botao-presentear').forEach(btn => {
+        // Atualiza chips (só categorias com itens)
+        const categoriasOrdenadas = [...categoriasSet].sort();
+        renderizarFiltros(categoriasOrdenadas);
+
+        // Reaplica filtro ativo
+        aplicarFiltro();
+
+        // Eventos dos botões presentear
+        listaContainer.querySelectorAll('.botao-presentear').forEach(btn => {
           btn.addEventListener('click', function() {
             produtoAtualId     = this.dataset.id;
             produtoAtualTitulo = this.dataset.titulo;

@@ -99,6 +99,13 @@
                     <span class="bloco-cabecalho-titulo">Altere a apresentação</span>
                     <input type="text" id="inputTituloBoasVindas" class="campo-cab" maxlength="80" placeholder="Sejam Bem-Vindos ao Nosso Sonho!">
                     <textarea id="inputDescricaoBoasVindas" class="campo-cab campo-cab-area" maxlength="280" rows="3" placeholder="Ficamos muito felizes em compartilhar este momento tão especial com você..."></textarea>
+
+                    <!-- DATA DO EVENTO — contagem regressiva -->
+                    <label class="campo-cab-label" for="inputDataEvento" style="margin-top:10px;">
+                        ⏳ Data do evento (contagem regressiva)
+                    </label>
+                    <input type="datetime-local" id="inputDataEvento" class="campo-cab" style="cursor:pointer;">
+                    <span style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:-6px;">Deixe em branco para não exibir a contagem</span>
                 </div>
 
                 <!-- TÍTULO + COR/MODO LADO A LADO -->
@@ -744,7 +751,8 @@
             // Cabeçalho da lista
             const inpTit  = document.getElementById('inputTituloBoasVindas');
             const inpDesc = document.getElementById('inputDescricaoBoasVindas');
-            [inpTit, inpDesc].forEach(el => { if (el) el.addEventListener('input', marcarDirty); });
+            const inpData = document.getElementById('inputDataEvento');
+            [inpTit, inpDesc, inpData].forEach(el => { if (el) el.addEventListener('input', marcarDirty); });
 
             // Preview mini — aplica as mesmas vars da lista diretamente no grid
             window.aplicarPreviewMini = function() {
@@ -2441,6 +2449,11 @@
                     }
                     if (d.titulo_boas_vindas && inputTitBV) inputTitBV.value = d.titulo_boas_vindas;
                     if (d.descricao_boas_vindas && inputDescBV) inputDescBV.value = d.descricao_boas_vindas;
+                    if (d.data_evento) {
+                        const inpDataEvento = document.getElementById('inputDataEvento');
+                        // Firestore salva como string ISO; datetime-local precisa de "YYYY-MM-DDTHH:MM"
+                        if (inpDataEvento) inpDataEvento.value = d.data_evento.slice(0, 16);
+                    }
                     if (typeof aplicarPreviewMini === 'function') aplicarPreviewMini();
                     limparDirty();
                 }
@@ -2464,6 +2477,12 @@
                     }
                     if (inputTitBV)  dadosParaSalvar.titulo_boas_vindas    = inputTitBV.value.trim();
                     if (inputDescBV) dadosParaSalvar.descricao_boas_vindas = inputDescBV.value.trim();
+                    const inpDataEvento = document.getElementById('inputDataEvento');
+                    if (inpDataEvento) {
+                        // Salva como ISO string ou remove se vazio
+                        const val = inpDataEvento.value;
+                        dadosParaSalvar.data_evento = val ? new Date(val).toISOString() : '';
+                    }
 
                     await setDoc(doc(db, "configuracoes", usuarioAtualUid), dadosParaSalvar, { merge: true });
                     mostrarToast('Preferências salvas!', 'sucesso', '🎨');

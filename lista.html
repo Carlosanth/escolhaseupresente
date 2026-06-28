@@ -12,12 +12,42 @@
         <div class="conteudo-boas-vindas">
             <h1>Sejam Bem-Vindos ao Nosso Sonho!</h1>
             <p>Ficamos muito felizes em compartilhar este momento tão especial com você. Navegue pela nossa lista e nos ajude a montar o nosso novo lar!</p>
+
+            <!-- CONTAGEM REGRESSIVA -->
+            <div id="countdown-bloco" class="countdown-bloco" style="display:none;">
+                <span class="cd-evento-label">Faltam para o grande dia</span>
+                <div class="cd-unidades">
+                    <div class="cd-unidade">
+                        <span class="cd-valor" id="cd-dias">00</span>
+                        <span class="cd-label">dias</span>
+                    </div>
+                    <span class="cd-sep">:</span>
+                    <div class="cd-unidade">
+                        <span class="cd-valor" id="cd-horas">00</span>
+                        <span class="cd-label">horas</span>
+                    </div>
+                    <span class="cd-sep">:</span>
+                    <div class="cd-unidade">
+                        <span class="cd-valor" id="cd-min">00</span>
+                        <span class="cd-label">min</span>
+                    </div>
+                    <span class="cd-sep">:</span>
+                    <div class="cd-unidade">
+                        <span class="cd-valor" id="cd-seg">00</span>
+                        <span class="cd-label">seg</span>
+                    </div>
+                </div>
+            </div>
+
             <button class="btn-acessar" onclick="rolarParaLista()">Acessar Lista de Presentes</button>
         </div>
     </div>
     
     <div class="wrapper-produtos">
         <div class="controle-layout">
+          <!-- CHIPS DE CATEGORIA -->
+          <div id="filtro-categorias" class="filtro-categorias"></div>
+
           <button id="btn-alternar-layout" class="btn-layout">
             <span class="icone-layout">📱</span> Alternar Visualização
           </button>

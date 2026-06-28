@@ -717,3 +717,148 @@ body.tema-claro::before {
   .preco { font-size: 16px; }
   .conteudo-boas-vindas h1 { font-size: 1.9rem; }
 }
+/* ==========================================================
+   ⏳ CONTAGEM REGRESSIVA
+   ========================================================== */
+.countdown-bloco {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 20px auto 28px;
+  padding: 18px 28px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 20px;
+  max-width: 380px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.22);
+}
+
+.cd-evento-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: rgba(255,255,255,0.65);
+}
+
+.cd-unidades {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cd-unidade {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 52px;
+}
+
+.cd-valor {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 24px rgba(var(--acento-rgb), 0.55);
+}
+
+.cd-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.45);
+}
+
+.cd-sep {
+  font-size: 1.8rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 14px;
+}
+
+/* Modo claro */
+body.tema-claro .countdown-bloco {
+  background: rgba(255,255,255,0.75);
+  border-color: rgba(0,0,0,0.10);
+}
+body.tema-claro .cd-valor { color: #111; text-shadow: none; }
+body.tema-claro .cd-evento-label { color: rgba(0,0,0,0.55); }
+body.tema-claro .cd-label { color: rgba(0,0,0,0.40); }
+body.tema-claro .cd-sep { color: rgba(0,0,0,0.25); }
+
+/* ==========================================================
+   🏷️ CHIPS DE CATEGORIA
+   ========================================================== */
+.controle-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 28px;
+  margin-bottom: 20px;
+}
+
+.filtro-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.chip-categoria {
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.60);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.chip-categoria:hover {
+  background: rgba(var(--acento-rgb), 0.12);
+  border-color: rgba(var(--acento-rgb), 0.35);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.chip-categoria.ativo {
+  background: rgba(var(--acento-rgb), 0.22);
+  border-color: rgba(var(--acento-rgb), 0.55);
+  color: var(--acento);
+  box-shadow: 0 0 12px rgba(var(--acento-rgb), 0.20);
+}
+
+/* Modo claro */
+body.tema-claro .chip-categoria {
+  background: rgba(255,255,255,0.80);
+  border-color: rgba(0,0,0,0.10);
+  color: rgba(0,0,0,0.55);
+}
+body.tema-claro .chip-categoria:hover {
+  background: rgba(255,255,255,0.97);
+  color: #111;
+}
+body.tema-claro .chip-categoria.ativo {
+  background: rgba(var(--acento-rgb), 0.12);
+  border-color: rgba(var(--acento-rgb), 0.40);
+  color: var(--acento);
+}
+
+@media (max-width: 450px) {
+  .cd-valor { font-size: 1.8rem; }
+  .cd-unidade { min-width: 42px; }
+  .countdown-bloco { padding: 14px 16px; }
+}
