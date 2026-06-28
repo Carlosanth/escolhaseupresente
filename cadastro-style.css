@@ -184,37 +184,41 @@ html, body {
 }
 
 /* ===== PAINEL DE TEMAS ===== */
-.painel {
-    display: flex;
-    flex-direction: column;
-    margin-top: 20px;
-    align-items: center;
-}
-
+/* ===== PAINEL DE TEMAS — drawer lateral ===== */
 .area-temas {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    padding: 30px;
-    background: rgba(18, 10, 45, 0.92);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(167, 139, 250, 0.2);
-    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.4);
-    border-radius: 5px 0 20px 0;
-    align-content: flex-start;
     position: fixed;
     top: 0;
+    right: -420px;
     z-index: 600;
+    width: min(380px, 100vw);
     height: 100vh;
-    flex-wrap: wrap;
-    right: -380px;
+    display: flex;
+    flex-direction: column;
+    background: rgba(18, 10, 45, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(167, 139, 250, 0.2);
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.4);
     transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: right;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 20px;
 }
 
 .area-temas.ativo {
-    right: -12px;
+    right: 0;
+}
+
+/* Conteúdo interno centralizado */
+.painel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 52px 20px 20px;
+    gap: 4px;
+    box-sizing: border-box;
 }
 
 .fechar {
@@ -236,60 +240,70 @@ html, body {
 }
 
 /* ===== CARROSSEL ===== */
+
+/* Wrapper externo — define o "viewport" visível do carrossel */
+.carousel-track-outer {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
 .carousel-box {
     position: relative;
-    max-width: 320px;
-    max-height: 180px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(167, 139, 250, 0.2);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border-radius: 10px;
-    padding: 14px 10px 12px;
+    width: 100%;
+    max-width: 340px;
+    background: transparent;
+    border-radius: 14px;
+    padding: 0 0 8px;
     box-sizing: border-box;
-    overflow: hidden;
 }
 
+/* Faixa deslizante — cada slide tem 82% da largura do box */
 .carousel-track {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     transition: transform 0.4s cubic-bezier(.4, 0, .2, 1);
     will-change: transform;
-    align-content: center;
-    justify-content: space-between;
-    align-items: center;
+    align-items: stretch;
 }
 
+/* Cada slide ocupa 82% — as vizinhas aparecem ~9% de cada lado */
 .carousel-slide {
-    background: transparent;
-    padding-bottom: 0;
-    display: flex;
-    align-content: center;
-    align-items: center;
+    flex: 0 0 82%;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: opacity 0.3s, transform 0.3s;
 }
 
 .carousel-slide img {
-    width: 239px;
-    height: 123px;
-    border-radius: 10px;
-    margin-top: 0;
+    width: 100%;
+    height: 140px;
     object-fit: cover;
+    display: block;
+    border-radius: 12px;
+    transition: transform 0.3s;
 }
 
+/* Label do nome do tema — overlay sobre a imagem */
 .carousel-slide span {
-    margin-top: 5px;
-    font-size: 14px;
-    color: #ffffff;
-    font-weight: 600;
-    margin-bottom: 5px;
     position: absolute;
     bottom: 0;
-    right: 80px;
+    left: 0;
+    right: 0;
+    padding: 22px 10px 8px;
+    background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%);
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    letter-spacing: 0.02em;
+    border-radius: 0 0 12px 12px;
 }
 
 .carousel-slide.inactive {
-    opacity: 0.5;
-    transform: scale(0.92);
+    opacity: 0.45;
+    transform: scale(0.97);
 }
 
 .carousel-slide.active {
@@ -299,7 +313,7 @@ html, body {
 
 .carousel-slide.selecionado img {
     outline: 3px solid #a78bfa;
-    outline-offset: 2px;
+    outline-offset: -3px;
 }
 
 /* Bolinhas */
@@ -311,26 +325,28 @@ html, body {
 }
 
 .carousel-dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: rgba(255,255,255,0.2);
     border: none;
     cursor: pointer;
     padding: 0;
-    transition: background 0.3s, transform 0.2s;
+    transition: background 0.3s, transform 0.2s, width 0.3s;
 }
 
 .carousel-dot.active {
     background: #a78bfa;
-    transform: scale(1.2);
+    transform: scale(1);
+    width: 20px;
+    border-radius: 99px;
 }
 
-/* Setas */
+/* Setas — posicionadas sobre a imagem, verticalmente centradas */
 .carousel-btn {
     position: absolute;
-    top: 50%;
-    transform: translateY(-70%);
+    top: calc(50% - 8px);  /* metade da img (140px/2) menos metade do botão */
+    transform: translateY(-50%);
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -1060,8 +1076,6 @@ h3 {
     from { opacity: 0; transform: scale(0.94) translateY(6px); }
     to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
-    to   { opacity: 1; transform: scale(1); }
-}
 
 /* ===== CONTADOR DE ITENS ===== */
 .contador-itens {
@@ -1480,14 +1494,15 @@ não é clicável. */
 .taxa-info {
     flex: 1;
     min-width: 0;
-}
-.taxa-toggle-wrap {
-    flex-shrink: 0;
-}
-.taxa-info {
     display: flex;
     flex-direction: column;
     gap: 2px;
+}
+.taxa-toggle-wrap {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 .taxa-titulo {
     font-size: 13px;
@@ -1503,11 +1518,6 @@ não é clicável. */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-.taxa-toggle-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 .btn-taxa {
     font-size: 12px;
@@ -2023,10 +2033,10 @@ não é clicável. */
 }
 
 @media (max-width: 471px) {
+    /* Em mobile o drawer ocupa 100% da tela */
     .area-temas {
-        right: -500px;
-        width: 104%;
-        justify-content: center;
+        width: 100vw;
+        right: -100vw;
     }
 
     .area-temas.ativo { right: 0; }
@@ -2051,22 +2061,10 @@ não é clicável. */
     }
 
     .taxa-info {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
         align-items: center;
     }
-
-
 }
 
-
-
-
-
-
-
-}
 /* ==========================================================
    🌗 TOGGLE MODO CLARO / ESCURO — bloco no painel de temas
    ========================================================== */
@@ -2142,7 +2140,7 @@ não é clicável. */
     justify-content: center;
     gap: 10px;
     width: 100%;
-    max-width: 310px;
+    max-width: 340px;
     padding: 9px 16px;
     border-radius: 14px;
     border: 1.5px dashed rgba(167, 139, 250, 0.4);
@@ -2154,6 +2152,7 @@ não é clicável. */
     transition: all 0.2s ease;
     margin-bottom: 8px;
     text-align: center;
+    box-sizing: border-box;
 }
 .upload-area:hover {
     background: rgba(167, 139, 250, 0.14);
@@ -2176,9 +2175,10 @@ não é clicável. */
     align-items: center;
     gap: 10px;
     width: 100%;
-    max-width: 310px;
+    max-width: 340px;
     margin-bottom: 14px;
     margin-top: 24px;
+    box-sizing: border-box;
 }
 
 .bloco-cores-titulo {
@@ -2283,8 +2283,9 @@ não é clicável. */
     flex-direction: column;
     gap: 6px;
     width: 100%;
-    max-width: 310px;
+    max-width: 340px;
     margin-bottom: 8px;
+    box-sizing: border-box;
 }
 .bloco-cabecalho-titulo {
     font-size: 14px;
@@ -2342,7 +2343,9 @@ não é clicável. */
     flex-direction: column;
     gap: 10px;
     width: 100%;
+    max-width: 340px;
     margin-bottom: 14px;
+    box-sizing: border-box;
 }
 
 /* Modo claro — quando o toggle está em sol */
@@ -2481,19 +2484,18 @@ não é clicável. */
 
 /* Botões finais (visualizar + salvar) */
 .botoes-tema {
-    bottom: 20px;
-    left: 0;
-    right: 0;
     display: flex;
     flex-direction: column;
     gap: 8px;
     align-items: center;
-    padding: 10px 0px;
-    min-width: 250px;
+    padding: 10px 0;
+    width: 100%;
+    max-width: 340px;
+    box-sizing: border-box;
 }
 
 .btn-visualizar {
-    width: 80%;
+    width: 100%;
     height: 38px;
     border-radius: 999px;
     border: 1px solid rgba(167, 139, 250, 0.4);
@@ -2510,7 +2512,7 @@ não é clicável. */
 /* Sobrescreve o .btn-salvar antigo (era position:absolute bottom:36px) */
 .botoes-tema .btn-salvar {
     position: static;
-    width: 80%;
+    width: 100%;
     margin: 0;
 }
 
@@ -2522,7 +2524,7 @@ não é clicável. */
     background: rgba(10, 5, 25, 0.65);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    z-index: 200;
+    z-index: 700;
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -2573,277 +2575,6 @@ não é clicável. */
 }
 .botao-confirm-sair:hover { background: rgba(239, 68, 68, 0.3); }
 
-/* Overlay preview da lista */
-.preview-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background-color: var(--fundo-base, #0f0c29);
-    background-image:
-        radial-gradient(ellipse 80% 60% at 20% 10%, var(--fundo-glow-1, rgba(124,58,237,0.20)) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 80% 80%, var(--fundo-glow-2, rgba(79,70,229,0.15)) 0%, transparent 55%);
-    transition: background-color 0.4s;
-    z-index: 700;
-    overflow-y: auto;
-}
-.preview-overlay.ativo { display: block; }
-.preview-overlay-fechar {
-    position: fixed;
-    top: 18px;
-    right: 18px;
-    z-index: 710;
-    padding: 8px 16px;
-    border-radius: 999px;
-    border: 1px solid rgba(239,68,68,0.4);
-    background: rgba(239,68,68,0.18);
-    color: #f87171;
-    font-weight: 600;
-    cursor: pointer;
-}
-.preview-overlay-welcome {
-    min-height: 100vh;
-    background: linear-gradient(rgba(0,0,0,0.55),rgba(0,0,0,0.55));
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 40px 20px;
-}
-.preview-overlay-welcome-inner { max-width: 600px; color: #fff; }
-.preview-overlay-welcome-inner h1 { font-size: 2.2rem; margin-bottom: 14px; }
-.preview-overlay-welcome-inner p { font-size: 1rem; opacity: 0.9; margin-bottom: 22px; }
-.preview-overlay-cta {
-    padding: 12px 28px;
-    border-radius: 999px;
-    border: none;
-    background: var(--acento);
-    color: #fff;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(var(--acento-rgb), 0.30);
-}
-/* ==========================================================
-   🪟 PREVIEW OVERLAY — réplica fiel da lista de presentes
-   ========================================================== */
-.preview-overlay-cards {
-    padding: 30px 20px 60px;
-    display: flex;
-    flex-direction: row;
-    align-items: baseline;
-    gap: 20px;
-    justify-content: space-evenly;
-    align-content: stretch;
-    flex-wrap: wrap;
-}
-/* Variáveis do tema (escuro padrão) escopadas no overlay */
-/* O overlay usa EXATAMENTE as mesmas vars do Style.css
-   O JS aplica aplicarTema() com o elemento raiz sendo o overlay */
-.preview-overlay {
-    /* vars padrão idênticas ao :root do Style.css */
-    --acento:            #a78bfa;
-    --acento-rgb:        167, 139, 250;
-    --fundo-base:        #0f0c29;
-    --fundo-glow-1:      rgba(124,58,237,0.20);
-    --fundo-glow-2:      rgba(79,70,229,0.15);
-    --glass-bg:          rgba(255,255,255,0.055);
-    --glass-borda:       rgba(255,255,255,0.11);
-    --glass-hover-bg:    rgba(167,139,250,0.10);
-    --glass-hover-borda: rgba(167,139,250,0.35);
-    --preco-bg:          rgba(167,139,250,0.10);
-    --preco-borda:       rgba(167,139,250,0.30);
-    --preco-glow:        rgba(167,139,250,0.18);
-    --preco-texto:       #c4b5fd;
-    --btn-bg:            rgba(124,58,237,0.70);
-    --btn-borda:         rgba(167,139,250,0.50);
-    --btn-hover-bg:      rgba(124,58,237,0.88);
-    --btn-texto:         #ffffff;
-    --btn-sombra:        rgba(124,58,237,0.45);
-    --badge-disp-bg:     rgba(52,211,153,0.13);
-    --badge-disp-borda:  rgba(52,211,153,0.30);
-    --badge-disp-texto:  #34d399;
-    --texto-titulo:      #ffffff;
-    --texto-rotulo:      rgba(255,255,255,0.40);
-}
-
-/* Conteúdo wrapper (mesma largura da lista) */
-.preview-overlay .conteudo {
-    width: 480px;
-    max-width: calc(100% - 16px);
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-}
-
-/* Cartão — usa exatamente as mesmas vars do Style.css */
-.preview-overlay .cartao-produto {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    width: 100%;
-    padding: 18px 20px;
-    border-radius: 16px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-borda);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
-    will-change: transform, opacity;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    overflow: hidden;
-    transition: all .3s ease;
-}
-.preview-overlay .cartao-produto::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--acento), transparent);
-    opacity: .6;
-}
-.preview-overlay .cartao-produto:hover {
-    background: var(--glass-hover-bg);
-    border-color: var(--glass-hover-borda);
-    transform: translateY(-3px);
-}
-
-/* Imagem */
-.preview-overlay .imagem-produto {
-    flex: 1;
-    max-width: 45%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.preview-overlay .imagem-produto svg,
-.preview-overlay .imagem-produto img {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    border: 1px solid rgba(var(--acento-rgb), 0.18);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.30);
-}
-
-/* Detalhes */
-.preview-overlay .detalhes-produto {
-    flex: 1.2;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.preview-overlay .titulo-produto {
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--texto-titulo, #fff);
-}
-.preview-overlay .rodape-produto {
-    display: flex; flex-direction: column; gap: 10px;
-}
-.preview-overlay .caixa-preco {
-    display: flex; flex-direction: column; align-items: center;
-    padding: 7px 14px;
-    border-radius: 12px;
-    background: var(--preco-bg);
-    border: 1px solid var(--preco-borda);
-    box-shadow: 0 0 18px var(--preco-glow);
-}
-.preview-overlay .rotulo-preco {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--texto-rotulo, rgba(255,255,255,0.40));
-}
-.preview-overlay .preco {
-    margin-top: 3px;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--preco-texto);
-}
-.preview-overlay .disponibilidade.disponivel {
-    margin-top: 6px;
-    padding: 3px 12px;
-    border-radius: 50px;
-    background: var(--badge-disp-bg);
-    border: 1px solid var(--badge-disp-borda);
-    color: var(--badge-disp-texto);
-    font-weight: 700;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-.preview-overlay .disponibilidade.indisponivel {
-    margin-top: 6px;
-    padding: 3px 12px;
-    border-radius: 50px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.4);
-    font-weight: 700;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-}
-
-/* Botões dos cards */
-.preview-overlay .acoes { display: flex; justify-content: center; }
-.preview-overlay .botao {
-    padding: 7px 31px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.06);
-    color: rgba(255,255,255,0.65);
-    font-weight: 700;
-    cursor: default;
-    transition: all .25s;
-    font-family: 'Inter', sans-serif;
-    font-size: 15px;
-}
-/* Botão PRESENTEAR — herda o tema exatamente como na lista real */
-.preview-overlay .botao.primario {
-    background: var(--btn-bg);
-    border: 1px solid var(--btn-borda);
-    color: var(--btn-texto, #fff);
-    box-shadow: 0 4px 20px var(--btn-sombra);
-}
-/* Botão "Ganhamos" (item presenteado) — amarelo âmbar como no Style.css */
-.preview-overlay .item-esgotado .botao[disabled] {
-    background: rgba(245, 166, 35, 0.10);
-    border-color: rgba(245, 166, 35, 0.28);
-    color: rgba(245, 166, 35, 0.65);
-    box-shadow: none;
-    cursor: default;
-}
-
-/* Item esgotado — mesma aparência apagada da lista */
-.preview-overlay .item-esgotado .cartao-produto {
-    background: rgba(255,255,255,0.02);
-    border-color: rgba(255,255,255,0.05);
-    box-shadow: none;
-    transform: none !important;
-}
-.preview-overlay .item-esgotado .cartao-produto::before { display: none; }
-.preview-overlay .item-esgotado .imagem-produto svg { filter: grayscale(1) opacity(.35); }
-.preview-overlay .item-esgotado .titulo-produto { color: rgba(255,255,255,0.30) !important; }
-.preview-overlay .item-esgotado .preco { color: rgba(255,255,255,0.25) !important; }
-.preview-overlay .item-esgotado .caixa-preco {
-    background: rgba(255,255,255,0.03) !important;
-    border-color: rgba(255,255,255,0.07) !important;
-    box-shadow: none !important;
-}
-
-@media (max-width: 560px) {
-    .preview-overlay .conteudo { width: 100%; max-width: 100%; }
-    .preview-overlay-cards { padding: 16px 11px 60px; gap: 14px; }
-    .preview-overlay .cartao-produto { padding: 12px; gap: 12px; }
-    .preview-overlay .titulo-produto { font-size: 15px; }
-    .preview-overlay .preco { font-size: 16px; }
-    .preview-overlay .imagem-produto { max-width: 40%; }
-    .preview-overlay .botao { font-size: 13px !important; padding: 11px 6px !important; }
-    .preview-overlay-welcome-inner h1 { font-size: 1.9rem; }
-}
-
-/* Ajuste do scroll do painel para caber tudo */
-.area-temas { overflow-y: auto; padding-bottom: 130px; }
 
 /* ═══════════════════════════════════════════════════════════
    OTIMIZAÇÕES DE FLUIDEZ — 120hz / GPU acceleration
