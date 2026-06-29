@@ -169,19 +169,12 @@
     </div>
 
     <script type="module">
+        import { firebaseConfig } from "./firebase-config.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
-            authDomain: "escolhaseupresente-35d3d.firebaseapp.com",
-            projectId: "escolhaseupresente-35d3d",
-            storageBucket: "escolhaseupresente-35d3d.firebasestorage.app",
-            messagingSenderId: "374767023277",
-            appId: "1:374767023277:web:0a6d45cb62136ba4040224",
-            measurementId: "G-DJZFYZSGMV"
-        };
+        
 
         const app  = initializeApp(firebaseConfig);
         const auth = getAuth(app);

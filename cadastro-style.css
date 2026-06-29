@@ -2630,3 +2630,407 @@ select {
     font-size: max(16px, 1em); /* evita zoom automático no iOS */
     touch-action: manipulation;
 }
+
+/* ==========================================================
+   👁 OVERLAY DE PREVIEW — renderização direta da lista
+   ========================================================== */
+.preview-iframe-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 800;
+    display: flex;
+    flex-direction: column;
+    background: #0D0821;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.preview-iframe-overlay.ativo {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* Barra superior */
+.preview-iframe-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(13, 8, 33, 0.97);
+    border-bottom: 1px solid rgba(167, 139, 250, 0.2);
+    flex-shrink: 0;
+    gap: 12px;
+    z-index: 1;
+}
+
+.preview-iframe-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.preview-iframe-badge {
+    background: rgba(167, 139, 250, 0.15);
+    border: 1px solid rgba(167, 139, 250, 0.35);
+    color: #c4b5fd;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.preview-iframe-hint {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.35);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.preview-iframe-fechar {
+    flex-shrink: 0;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.30);
+    color: #f87171;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    font-family: inherit;
+}
+
+.preview-iframe-fechar:hover {
+    background: rgba(239, 68, 68, 0.24);
+    transform: scale(1.04);
+}
+
+/* Corpo scrollável — herda as CSS vars de tema definidas via JS */
+.preview-lista-corpo {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: var(--fundo-base, #0f0c29);
+    background-image:
+        radial-gradient(ellipse 80% 60% at 20% 10%, var(--fundo-glow-1, rgba(124,58,237,0.20)) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, var(--fundo-glow-2, rgba(79,70,229,0.15)) 0%, transparent 55%);
+    background-attachment: local;
+    transition: background-color 0.4s;
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+/* Estilos da lista dentro do preview */
+.preview-lista-corpo .tela-boas-vindas {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    min-height: 400px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.preview-lista-corpo .tela-boas-vindas::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--acento, #a78bfa);
+    opacity: 0.8;
+}
+
+.preview-lista-corpo .conteudo-boas-vindas {
+    color: white;
+    padding: 24px;
+    max-width: 600px;
+}
+
+.preview-lista-corpo .conteudo-boas-vindas h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -1px;
+    margin-bottom: 14px;
+    color: #fff;
+}
+
+.preview-lista-corpo .conteudo-boas-vindas p {
+    font-size: 1.1rem;
+    font-weight: 300;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.82);
+    margin-bottom: 28px;
+}
+
+.preview-lista-corpo .btn-acessar {
+    padding: 14px 36px;
+    font-size: 1rem;
+    background: rgba(var(--acento-rgb, 167,139,250), 0.22);
+    color: #fff;
+    border: 1px solid rgba(var(--acento-rgb, 167,139,250), 0.50);
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 700;
+    font-family: inherit;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.preview-lista-corpo .wrapper-produtos {
+    padding: 8px 16px 40px;
+}
+
+.preview-lista-corpo .controle-layout {
+    display: flex;
+    justify-content: center;
+    margin: 28px 0 20px;
+}
+
+.preview-lista-corpo .btn-layout {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 10px 22px;
+    border-radius: 50px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 13px;
+    color: rgba(255,255,255,0.70);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.preview-lista-corpo .cartao-produto {
+    background: var(--glass-bg, rgba(255,255,255,0.055));
+    border: 1px solid var(--glass-borda, rgba(255,255,255,0.11));
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 18px 20px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.preview-lista-corpo .cartao-produto::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--acento, #a78bfa), transparent);
+    opacity: 0.6;
+}
+
+.preview-lista-corpo .item-esgotado .cartao-produto {
+    background: rgba(255,255,255,0.02);
+    border-color: rgba(255,255,255,0.05);
+    box-shadow: none;
+}
+
+.preview-lista-corpo .item-esgotado .cartao-produto::before { display: none; }
+
+.preview-lista-corpo .item-esgotado .imagem-produto img {
+    filter: grayscale(1) opacity(0.35);
+}
+
+.preview-lista-corpo .imagem-produto {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 45%;
+}
+
+.preview-lista-corpo .imagem-produto img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid rgba(var(--acento-rgb, 167,139,250), 0.18);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.30);
+}
+
+.preview-lista-corpo .detalhes-produto {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preview-lista-corpo .titulo-produto {
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--texto-titulo, #fff);
+}
+
+.preview-lista-corpo .rodape-produto {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preview-lista-corpo .caixa-preco {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--preco-bg, rgba(167,139,250,0.10));
+    border: 1px solid var(--preco-borda, rgba(167,139,250,0.30));
+    box-shadow: 0 0 18px var(--preco-glow, rgba(167,139,250,0.18));
+}
+
+.preview-lista-corpo .rotulo-preco {
+    font-size: 11px;
+    color: rgba(255,255,255,0.40);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.preview-lista-corpo .preco {
+    margin-top: 3px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--preco-texto, #c4b5fd);
+}
+
+.preview-lista-corpo .disponibilidade.disponivel {
+    margin-top: 6px;
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 50px;
+    background: rgba(52,211,153,0.13);
+    border: 1px solid rgba(52,211,153,0.30);
+    color: #34d399;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.preview-lista-corpo .disponibilidade.indisponivel {
+    margin-top: 6px;
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 50px;
+    background: rgba(245,166,35,0.10);
+    border: 1px solid rgba(245,166,35,0.25);
+    color: rgba(245,166,35,0.70);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.preview-lista-corpo .acoes { width: 100%; }
+
+.preview-lista-corpo .botao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 11px 14px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-family: inherit;
+    font-size: 15px;
+    color: rgba(245,166,35,0.65);
+    cursor: default;
+}
+
+.preview-lista-corpo .botao.primario {
+    background: var(--btn-bg, rgba(124,58,237,0.70));
+    border: 1px solid var(--btn-borda, rgba(167,139,250,0.50));
+    color: var(--btn-texto, #ffffff);
+    box-shadow: 0 4px 20px var(--btn-sombra, rgba(124,58,237,0.45));
+}
+
+/* Countdown no preview */
+.preview-lista-corpo .countdown-bloco {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 16px auto 24px;
+    padding: 16px 24px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 20px;
+    max-width: 360px;
+}
+
+.preview-lista-corpo .cd-evento-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    color: rgba(255,255,255,0.65);
+}
+
+.preview-lista-corpo .cd-unidades {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.preview-lista-corpo .cd-unidade {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 48px;
+}
+
+.preview-lista-corpo .cd-valor {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+}
+
+.preview-lista-corpo .cd-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+}
+
+.preview-lista-corpo .cd-sep {
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 14px;
+}
+
+/* Modo claro no preview */
+.preview-lista-corpo.tema-claro .titulo-produto { color: #111 !important; }
+.preview-lista-corpo.tema-claro .rotulo-preco   { color: rgba(0,0,0,0.42) !important; }
+.preview-lista-corpo.tema-claro .countdown-bloco {
+    background: rgba(255,255,255,0.75);
+    border-color: rgba(0,0,0,0.10);
+}
+.preview-lista-corpo.tema-claro .cd-valor       { color: #111; }
+.preview-lista-corpo.tema-claro .cd-evento-label { color: rgba(0,0,0,0.55); }
+.preview-lista-corpo.tema-claro .cd-label       { color: rgba(0,0,0,0.40); }
+.preview-lista-corpo.tema-claro .item-esgotado .titulo-produto { color: rgba(0,0,0,0.25) !important; }
+
+@media (max-width: 480px) {
+    .preview-iframe-hint { display: none; }
+    .preview-iframe-topbar { padding: 8px 12px; }
+    .preview-lista-corpo .conteudo-boas-vindas h1 { font-size: 1.8rem; }
+    .preview-lista-corpo .cartao-produto { flex-direction: row; gap: 12px; padding: 12px; }
+    .preview-lista-corpo .imagem-produto { max-width: 40%; }
+}
