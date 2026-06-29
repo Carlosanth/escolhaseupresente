@@ -862,3 +862,148 @@ body.tema-claro .chip-categoria.ativo {
   .cd-unidade { min-width: 42px; }
   .countdown-bloco { padding: 14px 16px; }
 }
+
+/* ================================================================
+   SISTEMA DE COTAS — lista do convidado
+================================================================ */
+
+/* Tag de cotas no card do produto */
+.tag-cotas-lista {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--acento, #a78bfa);
+  opacity: 0.85;
+  letter-spacing: 0.01em;
+}
+
+/* Botão "Contribuir com cota" */
+.botao-cota {
+  margin-top: 8px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--btn-borda, rgba(167,139,250,0.4));
+  background: transparent;
+  color: var(--acento, #a78bfa);
+  cursor: pointer;
+  transition: background .18s, border-color .18s;
+}
+.botao-cota:hover {
+  background: var(--glass-hover-bg, rgba(167,139,250,0.1));
+  border-color: var(--acento, #a78bfa);
+}
+
+/* Badge de cotas disponíveis dentro do botão */
+.badge-cotas-disp {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: var(--acento, #7c3aed);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 4px;
+}
+
+/* Modal de cotas */
+.modal-cotas-conteudo {
+  max-width: 360px;
+  width: 100%;
+}
+
+.modal-cotas-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.modal-cotas-header h3 {
+  margin: 0 0 2px;
+  font-size: 17px;
+  font-weight: 700;
+}
+.modal-cotas-icone {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.modal-cotas-subtitulo {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+}
+
+.modal-cotas-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(167,139,250,0.08);
+  border: 1px solid rgba(167,139,250,0.18);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.modal-cotas-por-cota {
+  font-size: 13px;
+  color: rgba(255,255,255,0.75);
+}
+.modal-cotas-por-cota strong {
+  color: var(--acento, #a78bfa);
+}
+.modal-cotas-disp {
+  font-size: 12px;
+  color: rgba(255,255,255,0.45);
+}
+
+.modal-cotas-pergunta {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  color: rgba(255,255,255,0.8);
+}
+
+/* Botões de opção de quantidade de cotas */
+.modal-cotas-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.btn-opcao-cota {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(167,139,250,0.22);
+  background: rgba(167,139,250,0.07);
+  color: #fff;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, transform .12s;
+  width: 100%;
+  text-align: left;
+}
+.btn-opcao-cota:hover {
+  background: rgba(167,139,250,0.16);
+  border-color: var(--acento, #a78bfa);
+  transform: translateX(3px);
+}
+.btn-opcao-cota-num {
+  font-size: 14px;
+  font-weight: 600;
+}
+.btn-opcao-cota-valor {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--acento, #a78bfa);
+}

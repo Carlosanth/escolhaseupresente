@@ -228,7 +228,29 @@
                         <div class="nome">Inserir valor</div>
                         <input type="tel" id="precoProduto" class="campo-formulario" placeholder="R$ 0,00">
                     </div>
-                    
+
+                    <!-- BLOCO DE COTAS -->
+                    <div class="cotas-bloco" id="cotasBloco">
+                        <div class="cotas-row">
+                            <label class="cotas-switch-label" for="cotasCheck">
+                                <input type="checkbox" id="cotasCheck" class="cotas-check-hidden">
+                                <span class="cotas-switch-track">
+                                    <span class="cotas-switch-thumb"></span>
+                                </span>
+                                <span class="cotas-switch-txt">🎯 Dividir em cotas?</span>
+                            </label>
+                            <div class="cotas-opcoes" id="cotasOpcoes">
+                                <div class="cotas-btns" id="cotasBtns">
+                                    <button type="button" class="btn-cota" data-cotas="2">2</button>
+                                    <button type="button" class="btn-cota" data-cotas="3">3</button>
+                                    <button type="button" class="btn-cota" data-cotas="4">4</button>
+                                    <button type="button" class="btn-cota" data-cotas="5">5</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cotas-preview" id="cotasPreview"></div>
+                    </div>
+
                     <div class="categoria">
                         <div class="nome">Inserir categoria <span>(Opcional)</span></div>
                         <select id="selectCategoria" class="campo-formulario" style="width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 8px;">
@@ -361,6 +383,28 @@
             <label>Nova imagem <span style="font-weight:normal; color:#999;">(opcional)</span></label>
             <input type="file" id="editFoto" accept="image/*" style="border-radius: 10px; padding: 10px;">
 
+            <!-- COTAS NO MODAL DE EDIÇÃO -->
+            <div class="cotas-bloco" id="editCotasBloco">
+                <div class="cotas-row">
+                    <label class="cotas-switch-label" for="editCotasCheck">
+                        <input type="checkbox" id="editCotasCheck" class="cotas-check-hidden">
+                        <span class="cotas-switch-track">
+                            <span class="cotas-switch-thumb"></span>
+                        </span>
+                        <span class="cotas-switch-txt">🎯 Dividir em cotas?</span>
+                    </label>
+                    <div class="cotas-opcoes" id="editCotasOpcoes">
+                        <div class="cotas-btns" id="editCotasBtns">
+                            <button type="button" class="btn-cota" data-cotas="2">2</button>
+                            <button type="button" class="btn-cota" data-cotas="3">3</button>
+                            <button type="button" class="btn-cota" data-cotas="4">4</button>
+                            <button type="button" class="btn-cota" data-cotas="5">5</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="cotas-preview" id="editCotasPreview"></div>
+            </div>
+
             <div class="modal-editar-actions">
                 <button class="btn-editar-cancelar" id="btnEditarCancelar">Cancelar</button>
                 <button class="btn-editar-salvar" id="btnEditarSalvar">Salvar</button>
@@ -453,6 +497,60 @@
         let cpfPerfilUsuario = null; // CPF cadastrado no onboarding (perfis/{uid}) — fonte de verdade
         let valorMinimoSaqueCentavos = 25000; // padrão R$ 250,00, sobrescrito pela config do admin
 
+        // ── COTAS ─────────────────────────────────────────────────────────
+        let cotasSelecionadas = 0;
+        let editCotasSelecionadas = 0;
+
+        function inicializarBlocoCotas(checkId, opcoesId, btnsId, previewId, getPrecoFn, setCotas) {
+            const check   = document.getElementById(checkId);
+            const opcoes  = document.getElementById(opcoesId);
+            const btnsEl  = document.getElementById(btnsId);
+            const preview = document.getElementById(previewId);
+            if (!check || !opcoes || !btnsEl) return;
+            let cotaAtual = 0;
+
+            check.addEventListener('change', () => {
+                if (check.checked) {
+                    opcoes.classList.add('visivel');
+                    selecionarCota(2);
+                } else {
+                    opcoes.classList.remove('visivel');
+                    setCotas(0);
+                    cotaAtual = 0;
+                    btnsEl.querySelectorAll('.btn-cota').forEach(b => b.classList.remove('ativo'));
+                    if (preview) { preview.textContent = ''; preview.classList.remove('visivel'); }
+                }
+            });
+
+            btnsEl.querySelectorAll('.btn-cota').forEach(btn => {
+                btn.addEventListener('click', () => selecionarCota(parseInt(btn.dataset.cotas)));
+            });
+
+            function selecionarCota(n) {
+                cotaAtual = n;
+                setCotas(n);
+                btnsEl.querySelectorAll('.btn-cota').forEach(b => b.classList.toggle('ativo', parseInt(b.dataset.cotas) === n));
+                atualizarPreviewCotas();
+            }
+
+            function atualizarPreviewCotas() {
+                if (!preview) return;
+                const raw = getPrecoFn();
+                const num = parseFloat(raw.replace('R$ ', '').replace(/\./g, '').replace(',', '.'));
+                if (!isNaN(num) && num > 0 && cotaAtual > 0) {
+                    preview.textContent = '→ Cada cota valerá ' + (num / cotaAtual).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                    preview.classList.add('visivel');
+                } else {
+                    preview.textContent = '';
+                    preview.classList.remove('visivel');
+                }
+            }
+
+            const precoInputId = checkId === 'cotasCheck' ? 'precoProduto' : 'editPreco';
+            document.getElementById(precoInputId)?.addEventListener('input', atualizarPreviewCotas);
+        }
+        // ── fim COTAS ──────────────────────────────────────────────────────
+
         // Referências DOM
         const btnAdicionar         = document.getElementById('Savar');
         const inputNome            = document.getElementById('nomeProduto');
@@ -488,6 +586,18 @@
         const btnEditarCancelar = document.getElementById('btnEditarCancelar');
         let editandoId          = null;
         let editandoImagemAtual = null;
+
+        // Inicializa os dois blocos de cotas (formulário principal + modal editar)
+        inicializarBlocoCotas(
+            'cotasCheck', 'cotasOpcoes', 'cotasBtns', 'cotasPreview',
+            () => document.getElementById('precoProduto').value,
+            (n) => { cotasSelecionadas = n; }
+        );
+        inicializarBlocoCotas(
+            'editCotasCheck', 'editCotasOpcoes', 'editCotasBtns', 'editCotasPreview',
+            () => document.getElementById('editPreco').value,
+            (n) => { editCotasSelecionadas = n; }
+        );
 
         // ================================================================
         // TOAST
@@ -1475,7 +1585,8 @@
             const produtoId = `${usuarioAtualUid}-${categoriaLimpa}-${nomeLimpo}`;
 
             try {
-                await setDoc(doc(db, "produtos_teste", produtoId), {
+                // Monta payload — inclui cotas se configuradas
+                const payloadAdicionar = {
                     categoria:               category || "Sem Categoria",
                     disponivel:              true,
                     imagem:                  urlImagemFinal,
@@ -1486,7 +1597,17 @@
                     taxa_percentual:         TAXA_PERCENTUAL,
                     titulo:                  nome,
                     usuario_id:              usuarioAtualUid
-                });
+                };
+                if (cotasSelecionadas >= 2) {
+                    payloadAdicionar.cotas_total       = cotasSelecionadas;
+                    payloadAdicionar.cotas_disponiveis = cotasSelecionadas;
+                }
+                await setDoc(doc(db, "produtos_teste", produtoId), payloadAdicionar);
+
+                // Limpa estado de cotas do formulário
+                cotasSelecionadas = 0;
+                const cotasCheckEl = document.getElementById('cotasCheck');
+                if (cotasCheckEl) { cotasCheckEl.checked = false; cotasCheckEl.dispatchEvent(new Event('change')); }
 
                 if (selectCategoria.value === 'MANUAL' && category) {
                     const catRef = doc(db, "categorias", categoriaLimpa);
@@ -1769,7 +1890,21 @@
             novaBaseDiv.querySelector('.item-cat-txt').textContent = 'Cat: ' + categoriaExibicao;
 
             if (!semValorDefinido) {
-                novaBaseDiv.querySelector('.item-preco-txt').textContent = precoOriginalFmt;
+                const cotasTotal = parseInt(produto.cotas_total || 0);
+                const cotasDisp  = parseInt(produto.cotas_disponiveis || 0);
+                let precoTxt = precoOriginalFmt;
+                if (cotasTotal >= 2) {
+                    const porCota = (originalCentavos / 100 / cotasTotal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                    precoTxt += ` · ${cotasTotal} cotas de ${porCota}`;
+                }
+                novaBaseDiv.querySelector('.item-preco-txt').textContent = precoTxt;
+                // Badge de cotas disponíveis
+                if (cotasTotal >= 2 && !foiVendido) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge-cotas';
+                    badge.textContent = `🎯 ${cotasDisp}/${cotasTotal} cotas livres`;
+                    novaBaseDiv.querySelector('.T-Produtos').appendChild(badge);
+                }
             }
 
             const extraEl = novaBaseDiv.querySelector('.item-extra-txt');
@@ -1938,6 +2073,36 @@
             editCategoria.value = produto.categoria || '';
             editFoto.value      = '';
 
+            // Pré-popula o bloco de cotas com os valores salvos no produto
+            const editCheck  = document.getElementById('editCotasCheck');
+            const editOpcoes = document.getElementById('editCotasOpcoes');
+            const editBtns   = document.getElementById('editCotasBtns');
+            const editPrev   = document.getElementById('editCotasPreview');
+            const cotasTotal = parseInt(produto.cotas_total || 0);
+            if (editCheck) {
+                if (cotasTotal >= 2) {
+                    editCheck.checked = true;
+                    if (editOpcoes) editOpcoes.style.display = 'block';
+                    editCotasSelecionadas = cotasTotal;
+                    editBtns?.querySelectorAll('.btn-cota').forEach(b => {
+                        b.classList.toggle('ativo', parseInt(b.dataset.cotas) === cotasTotal);
+                    });
+                    // Mostra preview
+                    if (editPrev && produto.preco) {
+                        const num = parseFloat(produto.preco.replace('R$ ','').replace(/\./g,'').replace(',','.'));
+                        if (!isNaN(num) && num > 0) {
+                            editPrev.textContent = '→ Cada cota valerá ' + (num / cotasTotal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                        }
+                    }
+                } else {
+                    editCheck.checked = false;
+                    if (editOpcoes) editOpcoes.style.display = 'none';
+                    editCotasSelecionadas = 0;
+                    editBtns?.querySelectorAll('.btn-cota').forEach(b => b.classList.remove('ativo'));
+                    if (editPrev) editPrev.textContent = '';
+                }
+            }
+
             modalEditar.style.display = 'flex';
         }
 
@@ -1978,7 +2143,8 @@
                 const editCentavosWebhook = Math.round(editOriginalCentavos * editFatorTaxa);
                 const editPrecoWebhook = (editCentavosWebhook / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-                await updateDoc(doc(db, "produtos_teste", editandoId), {
+                // Payload de edição — inclui cotas se configuradas
+                const payloadEditar = {
                     titulo:                  novoNome,
                     preco:                   editPrecoWebhook,
                     preco_original_centavos: editOriginalCentavos.toString(),
@@ -1987,7 +2153,16 @@
                     taxa_percentual:         TAXA_PERCENTUAL,
                     categoria:               novaCat || "Sem Categoria",
                     imagem:                  urlImagemFinal
-                });
+                };
+                if (editCotasSelecionadas >= 2) {
+                    payloadEditar.cotas_total       = editCotasSelecionadas;
+                    payloadEditar.cotas_disponiveis = editCotasSelecionadas;
+                } else {
+                    // Remove cotas se o dono desmarcou o checkbox
+                    payloadEditar.cotas_total       = 0;
+                    payloadEditar.cotas_disponiveis = 0;
+                }
+                await updateDoc(doc(db, "produtos_teste", editandoId), payloadEditar);
                 modalEditar.style.display = 'none';
                 mostrarToast('Item atualizado!', 'sucesso', '✅');
             } catch (error) {

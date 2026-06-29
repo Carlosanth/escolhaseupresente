@@ -3034,3 +3034,155 @@ select {
     .preview-lista-corpo .cartao-produto { flex-direction: row; gap: 12px; padding: 12px; }
     .preview-lista-corpo .imagem-produto { max-width: 40%; }
 }
+
+/* ================================================================
+   SISTEMA DE COTAS — cadastro
+================================================================ */
+.cotas-bloco {
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: rgba(124, 58, 237, 0.08);
+    border: 1px solid rgba(167, 139, 250, 0.18);
+    border-radius: 12px;
+}
+
+/* Linha principal: toggle + botões lado a lado */
+.cotas-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+/* Label que engloba o switch */
+.cotas-switch-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+/* Esconde o checkbox nativo */
+.cotas-check-hidden {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+/* Track do toggle */
+.cotas-switch-track {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.18);
+    transition: background .22s, border-color .22s;
+    flex-shrink: 0;
+}
+.cotas-check-hidden:checked + .cotas-switch-track {
+    background: #7c3aed;
+    border-color: #a78bfa;
+}
+
+/* Bolinha do toggle */
+.cotas-switch-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    transition: transform .22s cubic-bezier(.4,0,.2,1);
+}
+.cotas-check-hidden:checked + .cotas-switch-track .cotas-switch-thumb {
+    transform: translateX(18px);
+}
+
+/* Texto ao lado do switch */
+.cotas-switch-txt {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e9d5ff;
+}
+
+/* Botões de quantidade — ocultos por padrão, animam ao aparecer */
+.cotas-opcoes {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    max-width: 0;
+    opacity: 0;
+    transition: max-width .32s cubic-bezier(.4,0,.2,1), opacity .25s ease;
+}
+.cotas-opcoes.visivel {
+    max-width: 300px;
+    opacity: 1;
+}
+
+.cotas-btns {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-cota {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(167, 139, 250, 0.35);
+    background: rgba(167, 139, 250, 0.10);
+    color: #e9d5ff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .18s, border-color .18s, transform .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn-cota:hover {
+    background: rgba(167, 139, 250, 0.25);
+    transform: scale(1.08);
+}
+.btn-cota.ativo {
+    background: #7c3aed;
+    border-color: #a78bfa;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(124,58,237,0.45);
+}
+
+/* Preview do valor por cota */
+.cotas-preview {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #a78bfa;
+    font-weight: 600;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: height .2s ease, opacity .2s ease;
+}
+.cotas-preview.visivel {
+    height: 18px;
+    opacity: 1;
+}
+
+/* Badge no card do item cadastrado */
+.badge-cotas {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: rgba(167, 139, 250, 0.15);
+    border: 1px solid rgba(167, 139, 250, 0.30);
+    color: #c4b5fd;
+    font-size: 11px;
+    font-weight: 600;
+}

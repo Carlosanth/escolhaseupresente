@@ -12,8 +12,11 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  let produtoAtualId     = "";
-  let produtoAtualTitulo = "";
+  let produtoAtualId       = "";
+  let produtoAtualTitulo   = "";
+  let produtoAtualCotas    = 0;   // cotas_total do produto (0 = sem cotas)
+  let cotasEscolhidas      = 0;   // quantas cotas o convidado escolheu
+  let modoFluxo            = "presentear"; // "presentear" | "cota"
 
   // ============================================================
   // 🎨 SISTEMA DE TEMA INTELIGENTE
@@ -340,12 +343,44 @@
           const acoes = document.createElement('div');
           acoes.className = 'acoes';
 
-          if (produto.disponivel) {
+          const cotasTotal = parseInt(produto.cotas_total || 0);
+          const cotasDisp  = parseInt(produto.cotas_disponiveis ?? produto.cotas_total ?? 0);
+          const temCotas   = cotasTotal >= 2;
+          const cotasAcabaram = temCotas && cotasDisp <= 0;
+
+          if (produto.disponivel && !cotasAcabaram) {
+            // Botão principal — sempre presente
             const btn = document.createElement('button');
             btn.className = 'botao primario botao-presentear';
             btn.dataset.id     = id;
             btn.dataset.titulo = produto.titulo || '';
-            btn.textContent    = '😊 Presentear 😊';
+            btn.dataset.cotas  = cotasTotal;
+            if (temCotas) {
+              btn.textContent = '🎁 Presentear tudo';
+              btn.classList.add('btn-presentear-tudo');
+            } else {
+              btn.textContent = '😊 Presentear 😊';
+            }
+            acoes.appendChild(btn);
+
+            // Botão de cota — só aparece se o produto tem cotas disponíveis
+            if (temCotas) {
+              const btnCota = document.createElement('button');
+              btnCota.className = 'botao botao-cota';
+              btnCota.dataset.id          = id;
+              btnCota.dataset.titulo      = produto.titulo || '';
+              btnCota.dataset.cotasTotal  = cotasTotal;
+              btnCota.dataset.cotasDisp   = cotasDisp;
+              btnCota.dataset.precoCentavos = produto.preco_centavos || '0';
+              btnCota.innerHTML = `🎯 Contribuir com cota <span class="badge-cotas-disp">${cotasDisp}/${cotasTotal}</span>`;
+              acoes.appendChild(btnCota);
+            }
+          } else if (temCotas && cotasAcabaram && produto.disponivel) {
+            // Todas as cotas foram preenchidas mas disponivel ainda true (race condition)
+            const btn = document.createElement('button');
+            btn.className = 'botao';
+            btn.disabled = true;
+            btn.textContent = '✅ Cotas esgotadas';
             acoes.appendChild(btn);
           } else {
             const btn = document.createElement('button');
@@ -355,6 +390,18 @@
             acoes.appendChild(btn);
           }
 
+          // Badge de cotas disponíveis no preço
+          if (temCotas && produto.disponivel) {
+            const precoCentavos = parseInt(produto.preco_centavos || 0);
+            if (precoCentavos > 0) {
+              const porCota = (precoCentavos / 100 / cotasTotal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+              const tagCotas = document.createElement('div');
+              tagCotas.className = 'tag-cotas-lista';
+              tagCotas.textContent = `🎯 ${cotasDisp} cota${cotasDisp !== 1 ? 's' : ''} disponível · ${porCota} cada`;
+              caixaPreco.appendChild(tagCotas);
+            }
+          }
+
           rodape.appendChild(caixaPreco);
           rodape.appendChild(acoes);
           detalhes.appendChild(titulo);
@@ -362,6 +409,22 @@
           section.appendChild(imgDiv);
           section.appendChild(detalhes);
           wrap.appendChild(section);
+
+          // Garante que a animação de entrada roda mesmo no re-render do onSnapshot.
+          // Sem isso, após o Firebase atualizar a lista o browser ignora o @keyframes
+          // porque o elemento é recriado mas a animação CSS já "aconteceu" na sessão.
+          const cartao = wrap.querySelector('.cartao-produto');
+          if (cartao) {
+            cartao.style.animation = 'none';
+            // Um único requestAnimationFrame não basta — precisa de dois frames
+            // para o browser processar o "none" antes de restaurar a animação.
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                cartao.style.animation = '';
+              });
+            });
+          }
+
           listaContainer.appendChild(wrap);
         });
 
@@ -372,20 +435,28 @@
         // Reaplica filtro ativo
         aplicarFiltro();
 
-        // Eventos dos botões presentear
+        // Eventos dos botões presentear (fluxo normal / presentear tudo)
         listaContainer.querySelectorAll('.botao-presentear').forEach(btn => {
           btn.addEventListener('click', function() {
             produtoAtualId     = this.dataset.id;
             produtoAtualTitulo = this.dataset.titulo;
-            const m = document.getElementById('modal-nome');
-            if (m) {
-              if (inputNome) inputNome.value = "";
-              m.classList.add('mostrar');
-              if (inputNome) inputNome.focus();
-            } else {
-              const nome = prompt("Digite seu nome completo:");
-              if (nome) finalizarCompra(nome);
-            }
+            produtoAtualCotas  = parseInt(this.dataset.cotas || 0);
+            modoFluxo          = "presentear";
+            cotasEscolhidas    = 0;
+            abrirModalNome();
+          });
+        });
+
+        // Eventos dos botões de cota
+        listaContainer.querySelectorAll('.botao-cota').forEach(btn => {
+          btn.addEventListener('click', function() {
+            produtoAtualId     = this.dataset.id;
+            produtoAtualTitulo = this.dataset.titulo;
+            produtoAtualCotas  = parseInt(this.dataset.cotasTotal || 0);
+            modoFluxo          = "cota";
+            const dispAtual    = parseInt(this.dataset.cotasDisp || 0);
+            const precoCentavos = parseInt(this.dataset.precoCentavos || 0);
+            abrirModalCotas(produtoAtualTitulo, produtoAtualCotas, dispAtual, precoCentavos);
           });
         });
       });
@@ -395,36 +466,121 @@
       listaContainer.classList.toggle('visualizacao-vertical');
     });
 
-    // Fechar modal
-    document.getElementById('btn-cancelar-modal')?.addEventListener('click', () => {
-      document.getElementById('modal-nome')?.classList.remove('mostrar');
-    });
+    // ── helpers de modal ──────────────────────────────────────
+    function abrirModalNome() {
+      const m = document.getElementById('modal-nome');
+      if (m) {
+        if (inputNome) inputNome.value = "";
+        m.classList.add('mostrar');
+        if (inputNome) inputNome.focus();
+      }
+    }
 
-    // Confirmar
-    document.getElementById('btn-confirmar-modal')?.addEventListener('click', async () => {
+    function fecharModalNome() {
+      document.getElementById('modal-nome')?.classList.remove('mostrar');
+    }
+
+    // ── Modal de cotas ─────────────────────────────────────────
+    function abrirModalCotas(titulo, cotasTotal, cotasDisp, precoCentavos) {
+      // Remove modal anterior se existir
+      document.getElementById('modal-cotas')?.remove();
+
+      const porCotaCentavos = Math.round(precoCentavos / cotasTotal);
+      const porCotaFmt = (porCotaCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+      // Monta opções de quantidade (1 até cotasDisp)
+      let opcoesHTML = '';
+      for (let i = 1; i <= cotasDisp; i++) {
+        const totalFmt = (porCotaCentavos * i / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        opcoesHTML += `
+          <button type="button" class="btn-opcao-cota" data-qtd="${i}">
+            <span class="btn-opcao-cota-num">${i} cota${i > 1 ? 's' : ''}</span>
+            <span class="btn-opcao-cota-valor">${totalFmt}</span>
+          </button>`;
+      }
+
+      const modal = document.createElement('div');
+      modal.id = 'modal-cotas';
+      modal.className = 'modal-container mostrar';
+      modal.innerHTML = `
+        <div class="modal-conteudo modal-cotas-conteudo">
+          <div class="modal-cotas-header">
+            <span class="modal-cotas-icone">🎯</span>
+            <div>
+              <h3>Contribuir com cotas</h3>
+              <p class="modal-cotas-subtitulo"></p>
+            </div>
+          </div>
+          <div class="modal-cotas-info">
+            <span class="modal-cotas-por-cota">Valor por cota: <strong>${porCotaFmt}</strong></span>
+            <span class="modal-cotas-disp">${cotasDisp} de ${cotasTotal} cotas disponíveis</span>
+          </div>
+          <p class="modal-cotas-pergunta">Quantas cotas você quer contribuir?</p>
+          <div class="modal-cotas-opcoes">${opcoesHTML}</div>
+          <div class="modal-botoes" style="margin-top:16px;">
+            <button id="btn-cancelar-modal-cotas" class="botao">Voltar</button>
+          </div>
+        </div>`;
+
+      // Preenche o subtítulo com textContent (seguro)
+      modal.querySelector('.modal-cotas-subtitulo').textContent = titulo;
+
+      document.body.appendChild(modal);
+
+      // Fecha ao clicar fora
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) fecharModalCotas();
+      });
+
+      document.getElementById('btn-cancelar-modal-cotas').addEventListener('click', fecharModalCotas);
+
+      // Ao escolher quantidade de cotas → vai para o modal de nome
+      modal.querySelectorAll('.btn-opcao-cota').forEach(btn => {
+        btn.addEventListener('click', function() {
+          cotasEscolhidas = parseInt(this.dataset.qtd);
+          fecharModalCotas();
+          abrirModalNome();
+        });
+      });
+    }
+
+    function fecharModalCotas() {
+      document.getElementById('modal-cotas')?.remove();
+    }
+
+    // ── Fechar modal de nome ───────────────────────────────────
+    document.getElementById('btn-cancelar-modal')?.addEventListener('click', fecharModalNome);
+
+    // ── Confirmar nome ─────────────────────────────────────────
+    async function confirmarNome() {
       const nome = inputNome?.value.trim() || "";
       if (!nome) { alert("Digite seu nome para continuar."); return; }
-      document.getElementById('modal-nome')?.classList.remove('mostrar');
+      fecharModalNome();
       await finalizarCompra(nome);
-    });
+    }
 
-    // Enter no input
+    document.getElementById('btn-confirmar-modal')?.addEventListener('click', confirmarNome);
+
     inputNome?.addEventListener('keydown', async (e) => {
-      if (e.key !== 'Enter') return;
-      const nome = inputNome.value.trim();
-      if (!nome) { alert("Digite seu nome para continuar."); return; }
-      document.getElementById('modal-nome')?.classList.remove('mostrar');
-      await finalizarCompra(nome);
+      if (e.key === 'Enter') await confirmarNome();
     });
 
+    // ── finalizarCompra ────────────────────────────────────────
     async function finalizarCompra(nomeConvidado) {
       try {
+        const payload = { produtoId: produtoAtualId, nomeConvidado };
+
+        // Se for fluxo de cota, envia quantidade escolhida
+        if (modoFluxo === "cota" && cotasEscolhidas > 0) {
+          payload.cotasEscolhidas = cotasEscolhidas;
+        }
+
         const res = await fetch(
           "https://southamerica-east1-escolhaseupresente-35d3d.cloudfunctions.net/finalizarCompra",
           {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ produtoId: produtoAtualId, nomeConvidado })
+            body: JSON.stringify(payload)
           }
         );
         const resultado = await res.json();
