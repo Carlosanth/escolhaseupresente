@@ -111,24 +111,30 @@ exports.finalizarCompra = functions.onRequest(
             const snap = await tx.get(produtoRef);
             if (!snap.exists) return;
             const dados = snap.data();
+            const agora = Date.now();
 
             if (eraReservaTotal) {
-              tx.update(produtoRef, { disponivel: true });
-            } else if (cotasReservadasNestaChamada.length > 0) {
-              const ocupadasAtuais = Array.isArray(dados.cotas_ocupadas) ? dados.cotas_ocupadas : [];
-              const restantes = ocupadasAtuais.filter(n => !cotasReservadasNestaChamada.includes(n));
-              const cotasTotal = parseInt(dados.cotas_total || 0);
+              // Remove a reserva pendente do produto inteiro
               tx.update(produtoRef, {
-                cotas_ocupadas: restantes,
-                cotas_disponiveis: Math.max(0, cotasTotal - restantes.length),
-                disponivel: true, // se tinha sido fechado por completar todas, reabre
+                reserva_pendente_expira_em: admin.firestore.FieldValue.delete(),
+                reserva_pendente_convidado: admin.firestore.FieldValue.delete(),
               });
+            } else if (cotasReservadasNestaChamada.length > 0) {
+              // Remove apenas as reservas pendentes desta chamada
+              const reservasPendentes = Array.isArray(dados.cotas_pendentes) ? dados.cotas_pendentes : [];
+              const numerosSet = new Set(cotasReservadasNestaChamada);
+              const restantes = reservasPendentes.filter(r => {
+                const exp = r.expira_em && r.expira_em.toMillis ? r.expira_em.toMillis() : 0;
+                if (exp <= agora) return false; // já expirada, remove também
+                // Remove reserva se os números batem exatamente com os desta chamada
+                const bate = r.numeros && r.numeros.every(n => numerosSet.has(n)) && r.numeros.length === numerosSet.size;
+                return !bate;
+              });
+              tx.update(produtoRef, { cotas_pendentes: restantes });
             }
           });
         } catch (rollbackErr) {
-          // Se até o rollback falhar, registra pra investigação manual —
-          // mas não derruba a resposta de erro original que o convidado já recebeu.
-          console.error("⚠️ Falha ao reverter reserva (requer correção manual):", rollbackErr, {
+          console.error("⚠️ Falha ao reverter reserva:", rollbackErr, {
             produtoId, cotasReservadasNestaChamada, eraReservaTotal,
           });
         }
@@ -144,6 +150,8 @@ exports.finalizarCompra = functions.onRequest(
 
           const produto = prodSnap.data();
           tituloProduto = produto.titulo || "Presente";
+          const agora = Date.now();
+          const expiracao = admin.firestore.Timestamp.fromMillis(agora + 15 * 60 * 1000);
 
           if (!produto.disponivel) {
             throw { codigo: 409, erro: "Este presente já foi escolhido por outro convidado" };
@@ -160,48 +168,71 @@ exports.finalizarCompra = functions.onRequest(
               throw { codigo: 400, erro: "Produto sem valor definido" };
             }
 
-            // Cotas já ocupadas, lidas dentro da transação — valor sempre fresco,
-            // nunca o que o front mandou (o front só serve pra UX, não pra confiança).
+            // Cotas já confirmadas (pagas de verdade)
             const ocupadasAtuais = Array.isArray(produto.cotas_ocupadas) ? produto.cotas_ocupadas : [];
             const ocupadasSet = new Set(ocupadasAtuais);
 
-            // Confere se ALGUM número pedido já não está mais livre — pode ter
-            // sido pego por outro convidado entre o convidado abrir o popup e
-            // confirmar. Se algum colidir, a transação inteira é rejeitada.
+            // Cotas em reserva pendente (aguardando pagamento) — libera as expiradas
+            const reservasPendentes = Array.isArray(produto.cotas_pendentes) ? produto.cotas_pendentes : [];
+            const reservasAtivas = reservasPendentes.filter(r => {
+              const exp = r.expira_em && r.expira_em.toMillis ? r.expira_em.toMillis() : 0;
+              return exp > agora;
+            });
+            const cotasPendentesSet = new Set(reservasAtivas.flatMap(r => r.numeros || []));
+
+            // Número inválido para este produto?
             const numerosInvalidos = cotasNumeros.some(n => n > cotasTotal);
             if (numerosInvalidos) {
               throw { codigo: 400, erro: "Número de cota inválido para este produto" };
             }
-            const colisao = cotasNumeros.some(n => ocupadasSet.has(n));
+
+            // Colisão com cotas já pagas ou em reserva ativa de outro convidado?
+            const colisao = cotasNumeros.some(n => ocupadasSet.has(n) || cotasPendentesSet.has(n));
             if (colisao) {
               throw {
                 codigo: 409,
-                erro: "Uma ou mais cotas escolhidas acabaram de ser reservadas por outro convidado. Atualize a página e tente novamente.",
+                erro: "Uma ou mais cotas escolhidas estão reservadas. Atualize a página e tente novamente.",
               };
             }
 
-            // Calcula o valor da cota com base no preço total / total de cotas —
-            // arredondamento em centavos pra não perder/sobrar fração no agregado.
             const porCotaCentavos = Math.round(precoCentavos / cotasTotal);
             valorCentavosCobranca = porCotaCentavos * cotasNumeros.length;
+            cotasReservadasNestaChamada = cotasNumeros;
 
-            const novasOcupadas = [...ocupadasAtuais, ...cotasNumeros].sort((a, b) => a - b);
-            const todasPreenchidas = novasOcupadas.length >= cotasTotal;
-            cotasReservadasNestaChamada = cotasNumeros; // para rollback, se precisar
+            // Grava reserva pendente (NÃO marca como ocupada ainda — só após pagamento confirmado)
+            const novasReservas = [...reservasAtivas, {
+              numeros: cotasNumeros,
+              convidado: nomeConvidado,
+              expira_em: expiracao,
+            }];
 
             tx.update(produtoRef, {
-              cotas_ocupadas: novasOcupadas,
-              cotas_disponiveis: Math.max(0, cotasTotal - novasOcupadas.length),
-              // Se essa contribuição preencheu a última cota, marca o produto
-              // inteiro como indisponível — assim o card também para de aparecer.
-              ...(todasPreenchidas ? { disponivel: false } : {}),
+              cotas_pendentes: novasReservas,
             });
 
           } else {
-            // Fluxo normal: presente inteiro, comportamento igual ao original.
+            // Produto inteiro: reserva pendente sem bloquear definitivamente ainda
             valorCentavosCobranca = parseInt(produto.preco_centavos || 0);
-            eraReservaTotal = true; // para rollback, se precisar
-            tx.update(produtoRef, { disponivel: false });
+            eraReservaTotal = true;
+
+            // Verifica se já tem reserva ativa de outro convidado
+            const reservaPendente = produto.reserva_pendente_expira_em;
+            const reservaAtiva = reservaPendente &&
+              reservaPendente.toMillis &&
+              reservaPendente.toMillis() > agora;
+
+            if (reservaAtiva) {
+              throw {
+                codigo: 409,
+                erro: "Este presente está sendo processado por outro convidado. Tente em alguns minutos.",
+              };
+            }
+
+            // Marca como pendente por 15 minutos — NÃO muda disponivel ainda
+            tx.update(produtoRef, {
+              reserva_pendente_expira_em: expiracao,
+              reserva_pendente_convidado: nomeConvidado,
+            });
           }
         });
       } catch (txErr) {
