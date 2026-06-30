@@ -1137,55 +1137,48 @@ body.tema-claro .chip-categoria.ativo {
   text-align: left;
 }
 
-/* Grade de assentos — cada número é uma cota individual e clicável */
-.grade-cotas {
+/* Grade de botões de cota — cada um mostra só o valor (R$ X,XX).
+   O convidado toca em quantos quiser; selecionados ficam roxos. */
+.grade-btns-cota {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
   margin-bottom: 4px;
 }
 
-.quadrado-cota {
-  aspect-ratio: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  border: 1.5px solid rgba(255,255,255,0.14);
+.btn-cota-valor {
+  padding: 14px 10px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255,255,255,0.12);
   background: rgba(255,255,255,0.04);
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  text-align: center;
   transition: background .16s, border-color .16s, transform .12s;
 }
-.quadrado-cota:hover {
+.btn-cota-valor:hover:not(.ocupada) {
   border-color: var(--acento);
   background: rgba(var(--acento-rgb), 0.12);
   transform: translateY(-2px);
 }
-.quadrado-cota.selecionada {
+.btn-cota-valor.selecionada {
   background: var(--acento);
   border-color: var(--acento);
   color: #fff;
   box-shadow: 0 0 0 3px rgba(var(--acento-rgb), 0.25);
+  transform: translateY(-2px);
 }
-
-/* Cota já pega por outro convidado — bloqueada e riscada */
-.quadrado-cota.ocupada {
+.btn-cota-valor.ocupada {
   background: rgba(255,255,255,0.02);
   border-color: rgba(255,255,255,0.06);
   color: rgba(255,255,255,0.25);
   cursor: not-allowed;
-  text-decoration: line-through;
-}
-.quadrado-cota.ocupada:hover {
-  transform: none;
-  border-color: rgba(255,255,255,0.06);
-  background: rgba(255,255,255,0.02);
+  font-size: 18px;
 }
 
-/* Resumo da seleção (quantidade + total dinâmico) */
+/* Resumo dinâmico abaixo dos botões */
 .modal-cotas-resumo {
   display: flex;
   justify-content: space-between;
@@ -1197,20 +1190,15 @@ body.tema-claro .chip-categoria.ativo {
   border: 1px dashed rgba(var(--acento-rgb), 0.30);
   font-size: 13px;
 }
-#cotas-resumo-qtd {
-  color: rgba(255,255,255,0.6);
-}
+#cotas-resumo-txt  { color: rgba(255,255,255,0.6); }
 #cotas-resumo-total {
   color: var(--acento);
   font-size: 16px;
   font-weight: 800;
 }
-
-/* Botão Confirmar desabilitado até escolher ao menos 1 cota */
 #btn-confirmar-cotas:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-  filter: grayscale(0.4);
 }
 
 /* Tag de cotas no card do produto */
@@ -1259,23 +1247,18 @@ body.tema-claro .modal-cotas-valor-fixo {
   background: rgba(var(--acento-rgb), 0.07);
   border-color: rgba(var(--acento-rgb), 0.35);
 }
-body.tema-claro .quadrado-cota {
+body.tema-claro .btn-cota-valor:not(.ocupada) {
   background: rgba(0,0,0,0.025);
   border-color: rgba(0,0,0,0.12);
   color: #111;
 }
-body.tema-claro .quadrado-cota:hover {
+body.tema-claro .btn-cota-valor:hover:not(.ocupada) {
   background: rgba(var(--acento-rgb), 0.10);
-}
-body.tema-claro .quadrado-cota.ocupada {
-  background: rgba(0,0,0,0.02);
-  border-color: rgba(0,0,0,0.06);
-  color: rgba(0,0,0,0.25);
 }
 body.tema-claro .modal-cotas-resumo {
   background: rgba(var(--acento-rgb), 0.05);
 }
-body.tema-claro #cotas-resumo-qtd {
+body.tema-claro #cotas-resumo-txt {
   color: rgba(0,0,0,0.55);
 }
 body.tema-claro .tag-cotas-lista {
