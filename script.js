@@ -1,19 +1,18 @@
 (function Harvey(){
-  // ── Config do Firebase ───────────────────────────────────────
-  // lista.html injeta window.firebaseConfig via um <script type="module"> que
-  // importa de firebase-config.js. Módulos rodam de forma assíncrona (mesmo
-  // sem "defer" explícito), então aguardamos até a config existir antes de
-  // inicializar — evita "Cannot read apiKey of undefined" em conexões lentas.
-  function aguardarConfigEIniciar() {
-    if (!window.firebaseConfig) {
-      setTimeout(aguardarConfigEIniciar, 10);
-      return;
-    }
-    iniciarApp();
-  }
+  // Voltando ao formato síncrono original que funcionava: config direta aqui,
+  // sem espera assíncrona de window.firebaseConfig. Isso elimina de vez o bug
+  // de timing com DOMContentLoaded — o script roda 100% síncrono do início ao fim.
+  const firebaseConfig = {
+    apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
+    authDomain: "escolhaseupresente-35d3d.firebaseapp.com",
+    projectId: "escolhaseupresente-35d3d",
+    storageBucket: "escolhaseupresente-35d3d.firebasestorage.app",
+    messagingSenderId: "374767023277",
+    appId: "1:374767023277:web:0a6d45cb62136ba4040224",
+    measurementId: "G-DJZFYZSGMV"
+  };
 
-  function iniciarApp() {
-  firebase.initializeApp(window.firebaseConfig);
+  firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
   // ── Observador de scroll: revela cards ao entrar na viewport e
@@ -146,20 +145,7 @@
     return params.get('id');
   }
 
-  // O DOMContentLoaded pode já ter disparado antes de chegarmos aqui, porque
-  // agora iniciarApp() só roda depois que window.firebaseConfig existe (espera
-  // assíncrona). Se o documento já carregou, document.readyState não é mais
-  // "loading" — nesse caso rodamos a função direto, sem esperar um evento que
-  // já passou e nunca mais vai disparar.
-  function rodarQuandoPronto(fn) {
-    if (document.readyState === 'loading') {
-      window.addEventListener('DOMContentLoaded', fn);
-    } else {
-      fn();
-    }
-  }
-
-  rodarQuandoPronto(() => {
+  window.addEventListener('DOMContentLoaded', () => {
     const listaContainer = document.getElementById('lista-produtos');
     const inputNome      = document.getElementById('nome-convidado');
 
@@ -677,7 +663,4 @@
       }
     }
   });
-  } // fim iniciarApp
-
-  aguardarConfigEIniciar();
 })();
