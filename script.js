@@ -588,8 +588,13 @@
           <button type="button"
             class="btn-cota-valor${ocupada ? ' ocupada' : ''}"
             data-num="${n}"
+<<<<<<< HEAD
             ${atributos}>
             ${conteudo}
+=======
+            ${ocupada ? 'disabled aria-label="Cota indisponível"' : `aria-label="Cota ${n}, ${porCotaFmt}"`}>
+            ${ocupada ? '🔒' : porCotaFmt}
+>>>>>>> 30fecaf60de7dd61be52ebfb14c9c3bcb0ebeb06
           </button>`;
       }
 

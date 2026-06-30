@@ -1137,7 +1137,6 @@ body.tema-claro .chip-categoria.ativo {
   text-align: left;
 }
 
-<<<<<<< HEAD
 /* Grade de botões de cota — cada um mostra só o valor (R$ X,XX).
    O convidado toca em quantos quiser; selecionados ficam roxos. */
 .grade-btns-cota {
@@ -1181,42 +1180,15 @@ body.tema-claro .chip-categoria.ativo {
 
 /* Resumo dinâmico abaixo dos botões */
 .modal-cotas-resumo {
-=======
-/* Lista vertical de opções por quantidade — "1 cota de R$X", "2 cotas..." */
-.lista-opcoes-cota {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.linha-opcao-cota {
->>>>>>> 315e46705aa966f5489073529c7725e4c3a6cdc0
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  padding: 13px 16px;
-  border-radius: 12px;
-  border: 1.5px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.04);
-  color: #fff;
-  cursor: pointer;
-  text-align: left;
-  transition: background .16s, border-color .16s, transform .12s;
-}
-.linha-opcao-cota:hover {
-  border-color: var(--acento);
-  background: rgba(var(--acento-rgb), 0.12);
-  transform: translateX(3px);
-}
-.linha-opcao-cota-label {
-  font-size: 14px;
-  font-weight: 700;
-}
-.linha-opcao-cota-preco {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(var(--acento-rgb), 0.06);
+  border: 1px dashed rgba(var(--acento-rgb), 0.30);
   font-size: 13px;
-<<<<<<< HEAD
 }
 #cotas-resumo-txt  { color: rgba(255,255,255,0.6); }
 #cotas-resumo-total {
@@ -1227,10 +1199,6 @@ body.tema-claro .chip-categoria.ativo {
 #btn-confirmar-cotas:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-=======
-  color: var(--acento);
-  font-weight: 700;
->>>>>>> 315e46705aa966f5489073529c7725e4c3a6cdc0
 }
 
 /* Tag de cotas no card do produto */
@@ -1279,16 +1247,11 @@ body.tema-claro .modal-cotas-valor-fixo {
   background: rgba(var(--acento-rgb), 0.07);
   border-color: rgba(var(--acento-rgb), 0.35);
 }
-<<<<<<< HEAD
 body.tema-claro .btn-cota-valor:not(.ocupada) {
-=======
-body.tema-claro .linha-opcao-cota {
->>>>>>> 315e46705aa966f5489073529c7725e4c3a6cdc0
   background: rgba(0,0,0,0.025);
   border-color: rgba(0,0,0,0.12);
   color: #111;
 }
-<<<<<<< HEAD
 body.tema-claro .btn-cota-valor:hover:not(.ocupada) {
   background: rgba(var(--acento-rgb), 0.10);
 }
@@ -1298,11 +1261,6 @@ body.tema-claro .modal-cotas-resumo {
 body.tema-claro #cotas-resumo-txt {
   color: rgba(0,0,0,0.55);
 }
-=======
-body.tema-claro .linha-opcao-cota:hover {
-  background: rgba(var(--acento-rgb), 0.10);
-}
->>>>>>> 315e46705aa966f5489073529c7725e4c3a6cdc0
 body.tema-claro .tag-cotas-lista {
   opacity: 1;
 }
