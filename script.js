@@ -572,8 +572,8 @@
 
       const porCotaCentavos = Math.round(precoCentavos / cotasTotal);
       const porCotaFmt = (porCotaCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      const ocupadasSet = new Set(cotasOcupadas || []);
 
-<<<<<<< HEAD
       // Um botão por cota disponível — mostra só o valor, sem número nem rótulo.
       // O convidado pode tocar em quantos quiser (seleção múltipla).
       // Cotas já ocupadas aparecem bloqueadas com um cadeado.
@@ -586,16 +586,6 @@
             data-num="${n}"
             ${ocupada ? 'disabled aria-label="Cota indisponível"' : `aria-label="Cota ${n}, ${porCotaFmt}"`}>
             ${ocupada ? '🔒' : porCotaFmt}
-=======
-      // Uma linha pra cada quantidade possível, de 1 até o total de cotas
-      // ainda disponíveis (cotasDisp já desconta as que outros convidados pegaram).
-      let opcoesHTML = '';
-      for (let i = 1; i <= cotasDisp; i++) {
-        opcoesHTML += `
-          <button type="button" class="linha-opcao-cota" data-qtd="${i}">
-            <span class="linha-opcao-cota-label">${i} cota${i > 1 ? 's' : ''}</span>
-            <span class="linha-opcao-cota-preco">${porCotaFmt} cada</span>
->>>>>>> 315e46705aa966f5489073529c7725e4c3a6cdc0
           </button>`;
       }
 
@@ -616,29 +606,20 @@
           <p class="modal-cotas-pergunta">Selecione uma cota ou quantas quiser:</p>
           <div class="grade-btns-cota">${botoesHTML}</div>
 
-<<<<<<< HEAD
           <div class="modal-cotas-resumo" id="cotas-resumo" style="display:none;">
             <span id="cotas-resumo-txt"></span>
             <strong id="cotas-resumo-total"></strong>
           </div>
-=======
-          <p class="modal-cotas-pergunta">Quantas cotas você quer contribuir?</p>
-          <div class="lista-opcoes-cota">${opcoesHTML}</div>
->>>>>>> 315e46705aa966f5489073529c7725e4c3a6cdc0
 
           <div class="modal-botoes" style="margin-top:14px;">
             <button id="btn-voltar-modal-cotas" class="botao">Voltar</button>
+            <button id="btn-confirmar-cotas" class="botao primario" disabled>Confirmar</button>
           </div>
         </div>`;
 
       modal.querySelector('.modal-cotas-subtitulo').textContent = titulo;
       document.body.appendChild(modal);
 
-<<<<<<< HEAD
-=======
-      // fechar() é robusto: some o modal do DOM E garante que nenhum resquício
-      // de overlay continue capturando cliques, mesmo se algo der errado no meio.
->>>>>>> 315e46705aa966f5489073529c7725e4c3a6cdc0
       const fechar = () => {
         modal.classList.remove('mostrar');
         modal.remove();
@@ -647,7 +628,6 @@
       document.getElementById('btn-fechar-cotas-x').addEventListener('click', fechar);
       document.getElementById('btn-voltar-modal-cotas').addEventListener('click', fechar);
 
-<<<<<<< HEAD
       // ── Lógica de seleção múltipla ──
       const selecionadas = new Set();
       const resumoEl    = document.getElementById('cotas-resumo');
@@ -677,27 +657,10 @@
           } else {
             selecionadas.add(num);
             this.classList.add('selecionada');
-=======
-      modal.querySelectorAll('.linha-opcao-cota').forEach(linha => {
-        linha.addEventListener('click', function() {
-          const qtd = parseInt(this.dataset.qtd);
-          modoFluxo = "cota";
-          cotasEscolhidas = qtd;
-          // Como aqui escolhemos por QUANTIDADE (não números específicos), pegamos
-          // os primeiros "qtd" números ainda livres — a Cloud Function valida de
-          // novo no servidor antes de confirmar, então isso é só uma sugestão segura.
-          const ocupadasSet = new Set(cotasOcupadas || []);
-          const livres = [];
-          for (let n = 1; n <= cotasTotal && livres.length < qtd; n++) {
-            if (!ocupadasSet.has(n)) livres.push(n);
->>>>>>> 315e46705aa966f5489073529c7725e4c3a6cdc0
           }
-          cotasNumerosEscolhidos = livres;
-          fechar();
-          abrirModalNome();
+          atualizarResumo();
         });
       });
-<<<<<<< HEAD
 
       btnConfirmar.addEventListener('click', () => {
         if (selecionadas.size === 0) return;
@@ -707,8 +670,6 @@
         fechar();
         abrirModalNome();
       });
-=======
->>>>>>> 315e46705aa966f5489073529c7725e4c3a6cdc0
     }
 
     // ── Fechar modal de nome ───────────────────────────────────
