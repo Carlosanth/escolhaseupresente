@@ -966,41 +966,7 @@ body.tema-claro .chip-categoria.ativo {
   color: rgba(255,255,255,0.8);
 }
 
-/* Botões de opção de quantidade de cotas */
-.modal-cotas-opcoes {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.btn-opcao-cota {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-radius: 12px;
-  border: 1.5px solid rgba(167,139,250,0.22);
-  background: rgba(167,139,250,0.07);
-  color: #fff;
-  cursor: pointer;
-  transition: background .18s, border-color .18s, transform .12s;
-  width: 100%;
-  text-align: left;
-}
-.btn-opcao-cota:hover {
-  background: rgba(167,139,250,0.16);
-  border-color: var(--acento, #a78bfa);
-  transform: translateX(3px);
-}
-.btn-opcao-cota-num {
-  font-size: 14px;
-  font-weight: 600;
-}
-.btn-opcao-cota-valor {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--acento, #a78bfa);
-}
+/* (bloco antigo de cotas removido — substituído pela grade de assentos abaixo) */
 
 /* ================================================================
    X DE FECHAR NOS MODAIS
@@ -1171,41 +1137,80 @@ body.tema-claro .chip-categoria.ativo {
   text-align: left;
 }
 
-/* Grade de quantidade — mostra só "Nx" e o TOTAL, nunca repete valor/cota */
-.modal-cotas-opcoes {
+/* Grade de assentos — cada número é uma cota individual e clicável */
+.grade-cotas {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
   gap: 8px;
+  margin-bottom: 4px;
 }
 
-.btn-opcao-cota {
+.quadrado-cota {
+  aspect-ratio: 1 / 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 14px 8px;
-  border-radius: 12px;
-  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  border: 1.5px solid rgba(255,255,255,0.14);
   background: rgba(255,255,255,0.04);
   color: #fff;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background .18s, border-color .18s, transform .12s;
+  transition: background .16s, border-color .16s, transform .12s;
 }
-.btn-opcao-cota:hover {
-  background: rgba(var(--acento-rgb), 0.16);
+.quadrado-cota:hover {
   border-color: var(--acento);
+  background: rgba(var(--acento-rgb), 0.12);
   transform: translateY(-2px);
 }
-.btn-opcao-cota-num {
+.quadrado-cota.selecionada {
+  background: var(--acento);
+  border-color: var(--acento);
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(var(--acento-rgb), 0.25);
+}
+
+/* Cota já pega por outro convidado — bloqueada e riscada */
+.quadrado-cota.ocupada {
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.25);
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+.quadrado-cota.ocupada:hover {
+  transform: none;
+  border-color: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+}
+
+/* Resumo da seleção (quantidade + total dinâmico) */
+.modal-cotas-resumo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(var(--acento-rgb), 0.06);
+  border: 1px dashed rgba(var(--acento-rgb), 0.30);
+  font-size: 13px;
+}
+#cotas-resumo-qtd {
+  color: rgba(255,255,255,0.6);
+}
+#cotas-resumo-total {
+  color: var(--acento);
   font-size: 16px;
   font-weight: 800;
-  color: var(--acento);
 }
-.btn-opcao-cota-total {
-  font-size: 11px;
-  color: rgba(255,255,255,0.55);
-  text-align: center;
+
+/* Botão Confirmar desabilitado até escolher ao menos 1 cota */
+#btn-confirmar-cotas:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
 }
 
 /* Tag de cotas no card do produto */
@@ -1244,8 +1249,7 @@ body.tema-claro .opcao-cota {
 
 body.tema-claro .modal-cotas-subtitulo,
 body.tema-claro .modal-cotas-valor-fixo span,
-body.tema-claro .modal-cotas-pergunta,
-body.tema-claro .btn-opcao-cota-total {
+body.tema-claro .modal-cotas-pergunta {
   color: rgba(0,0,0,0.55);
 }
 body.tema-claro .modal-cotas-pergunta {
@@ -1255,13 +1259,24 @@ body.tema-claro .modal-cotas-valor-fixo {
   background: rgba(var(--acento-rgb), 0.07);
   border-color: rgba(var(--acento-rgb), 0.35);
 }
-body.tema-claro .btn-opcao-cota {
+body.tema-claro .quadrado-cota {
   background: rgba(0,0,0,0.025);
-  border-color: rgba(0,0,0,0.10);
+  border-color: rgba(0,0,0,0.12);
   color: #111;
 }
-body.tema-claro .btn-opcao-cota:hover {
+body.tema-claro .quadrado-cota:hover {
   background: rgba(var(--acento-rgb), 0.10);
+}
+body.tema-claro .quadrado-cota.ocupada {
+  background: rgba(0,0,0,0.02);
+  border-color: rgba(0,0,0,0.06);
+  color: rgba(0,0,0,0.25);
+}
+body.tema-claro .modal-cotas-resumo {
+  background: rgba(var(--acento-rgb), 0.05);
+}
+body.tema-claro #cotas-resumo-qtd {
+  color: rgba(0,0,0,0.55);
 }
 body.tema-claro .tag-cotas-lista {
   opacity: 1;
