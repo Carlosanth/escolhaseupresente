@@ -1292,6 +1292,28 @@
         }
 
     </style>
+    <!-- ✅ NOVO: Importar funções de segurança -->
+    <script type="module">
+        import { escapeHTML, insertHTMLSeguro, sanitizarDados } from "./sanitize-utils.js";
+        import { 
+            renderizarComunicadoSeguro,
+            renderizarTabelaPresentes,
+            renderizarCategoriasSeguras,
+            formatarData,
+            formatarMoeda
+        } from "./admin-security-fixes.js";
+        
+        // Tornar global para usar no código
+        window.escapeHTML = escapeHTML;
+        window.insertHTMLSeguro = insertHTMLSeguro;
+        window.sanitizarDados = sanitizarDados;
+        window.renderizarComunicadoSeguro = renderizarComunicadoSeguro;
+        window.renderizarTabelaPresentes = renderizarTabelaPresentes;
+        window.renderizarCategoriasSeguras = renderizarCategoriasSeguras;
+        window.formatarData = formatarData;
+        window.formatarMoeda = formatarMoeda;
+    </script>
+
 </head>
 <body>
 
@@ -2763,9 +2785,24 @@
         if (encontrados.length === 0) {
             resultadosEl.innerHTML = '<div class="lp-cliente-opcao" style="color:var(--text3); cursor:default;">Nenhum cliente encontrado.</div>';
         } else {
-            resultadosEl.innerHTML = encontrados.map(c =>
-                `<div class="lp-cliente-opcao" data-uid="${c.uid}">${c.nome ? c.nome + ' — ' : ''}${c.email}</div>`
-            ).join('');
+            resultadosEl.innerHTML = '';
+            encontrados.forEach(c => {
+                const div = document.createElement('div');
+                div.className = 'lp-cliente-opcao';
+                div.setAttribute('data-uid', c.uid);
+                
+                const email = document.createElement('div');
+                email.style.cssText = 'font-weight:600; color:var(--text);';
+                email.textContent = c.email;
+                
+                const nome = document.createElement('div');
+                nome.style.cssText = 'font-size:12px; color:var(--text3);';
+                nome.textContent = c.nome || 'Sem nome';
+                
+                div.appendChild(email);
+                div.appendChild(nome);
+                resultadosEl.appendChild(div);
+            });
             resultadosEl.querySelectorAll('.lp-cliente-opcao[data-uid]').forEach(el => {
                 el.addEventListener('click', () => selecionarClienteLP(el.dataset.uid));
             });
@@ -3109,17 +3146,29 @@
             return;
         }
 
-        tbody.innerHTML = ultimos.map(p => {
-            const orig = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-            const lucro = Math.round(orig * taxaGlobal / 100);
-            return `<tr>
-                <td><strong>${p.presenteado_por || '—'}</strong></td>
-                <td>${p.titulo || '—'}</td>
-                <td>${brl(orig)}</td>
-                <td><span class="chip chip-verde">${brl(lucro)}</span></td>
-                <td>${fmtDate(p.data_presente)}</td>
-            </tr>`;
-        }).join('');
+        tbody.innerHTML = '';
+        ultimos.forEach(p => {
+            const tr = tbody.insertRow();
+            
+            const td1 = tr.insertCell();
+            td1.textContent = p.titulo;
+            
+            const td2 = tr.insertCell();
+            td2.textContent = p.convidado_nome || '';
+            
+            const td3 = tr.insertCell();
+            td3.textContent = p.preco || '';
+            
+            const td4 = tr.insertCell();
+            const dt = p.data_pagamento?.toDate ? p.data_pagamento.toDate() : new Date(p.data_pagamento);
+            td4.textContent = dt.toLocaleDateString('pt-BR');
+            
+            const td5 = tr.insertCell();
+            const badge = document.createElement('span');
+            badge.style.cssText = 'background:var(--green-dim); color:var(--green); padding:4px 8px; border-radius:4px; font-size:11px;';
+            badge.textContent = '✓ Pago';
+            td5.appendChild(badge);
+        });
     }
 
     // ================================================================
