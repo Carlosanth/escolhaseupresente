@@ -1,20 +1,26 @@
 (function Harvey(){
+  console.log('[DEBUG 1] IIFE Harvey iniciou');
   // ── Config do Firebase ───────────────────────────────────────
   // lista.html injeta window.firebaseConfig via um <script type="module"> que
   // importa de firebase-config.js. Módulos rodam de forma assíncrona (mesmo
   // sem "defer" explícito), então aguardamos até a config existir antes de
   // inicializar — evita "Cannot read apiKey of undefined" em conexões lentas.
   function aguardarConfigEIniciar() {
+    console.log('[DEBUG 2] aguardarConfigEIniciar rodou. window.firebaseConfig existe?', !!window.firebaseConfig);
     if (!window.firebaseConfig) {
       setTimeout(aguardarConfigEIniciar, 10);
       return;
     }
+    console.log('[DEBUG 3] Config encontrada, chamando iniciarApp()');
     iniciarApp();
   }
 
   function iniciarApp() {
+  console.log('[DEBUG 4] iniciarApp() começou a rodar');
   firebase.initializeApp(window.firebaseConfig);
+  console.log('[DEBUG 5] firebase.initializeApp concluído');
   const db = firebase.firestore();
+  console.log('[DEBUG 6] firestore() obtido');
 
   // ── Observador de scroll: revela cards ao entrar na viewport e
   // "reseta" ao saírem, para o efeito repetir se o convidado rolar
@@ -147,6 +153,7 @@
   }
 
   window.addEventListener('DOMContentLoaded', () => {
+    console.log('[DEBUG 7] DOMContentLoaded disparou dentro de iniciarApp');
     const listaContainer = document.getElementById('lista-produtos');
     const inputNome      = document.getElementById('nome-convidado');
 
@@ -296,8 +303,10 @@
     }
 
     // ── Produtos em tempo real ─────────────────────────────────
+    console.log('[DEBUG 8] Prestes a registrar onSnapshot de produtos. usuarioIdUrl =', usuarioIdUrl);
     db.collection("produtos_teste").where("usuario_id", "==", usuarioIdUrl)
       .onSnapshot((snapshot) => {
+       console.log('[DEBUG 9] onSnapshot disparou! snapshot.size =', snapshot.size);
        try {
         listaContainer.innerHTML = "";
         todosProdutosCache = [];
