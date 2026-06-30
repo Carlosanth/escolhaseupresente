@@ -362,10 +362,11 @@
           const acoes = document.createElement('div');
           acoes.className = 'acoes';
 
-          const cotasTotal = parseInt(produto.cotas_total || 0);
-          const cotasDisp  = parseInt(produto.cotas_disponiveis ?? produto.cotas_total ?? 0);
-          const temCotas   = cotasTotal >= 2;
-          const cotasAcabaram = temCotas && cotasDisp <= 0;
+          const cotasTotal     = parseInt(produto.cotas_total || 0);
+          const cotasOcupadas  = Array.isArray(produto.cotas_ocupadas) ? produto.cotas_ocupadas : [];
+          const cotasDisp      = Math.max(0, cotasTotal - cotasOcupadas.length);
+          const temCotas       = cotasTotal >= 2;
+          const cotasAcabaram  = temCotas && cotasDisp <= 0;
 
           const precoCentavos = parseInt(produto.preco_centavos || 0);
 
