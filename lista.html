@@ -56,6 +56,12 @@
         <div id="lista-produtos"></div>
     </div>
 
+    <!-- Carrega a config do Firebase (apiKey, projectId etc) sem hardcode no script.js -->
+    <script type="module">
+      import { firebaseConfig } from "./firebase-config.js";
+      window.firebaseConfig = firebaseConfig;
+    </script>
+
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
@@ -72,6 +78,7 @@
 
     <div id="modal-nome" class="modal-container">
       <div class="modal-conteudo">
+        <button type="button" class="modal-fechar-x" id="btn-fechar-modal-x" aria-label="Fechar">✕</button>
         <h3>Falta bem pouquinho!</h3>
         <p>Para organizarmos os presentes, informe o seu nome e sobrenome:</p>
             

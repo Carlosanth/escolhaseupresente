@@ -1,16 +1,34 @@
 (function Harvey(){
-  const firebaseConfig = {
-    apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
-    authDomain: "escolhaseupresente-35d3d.firebaseapp.com",
-    projectId: "escolhaseupresente-35d3d",
-    storageBucket: "escolhaseupresente-35d3d.firebasestorage.app",
-    messagingSenderId: "374767023277",
-    appId: "1:374767023277:web:0a6d45cb62136ba4040224",
-    measurementId: "G-DJZFYZSGMV"
-  };
+  // ── Config do Firebase ───────────────────────────────────────
+  // lista.html injeta window.firebaseConfig via um <script type="module"> que
+  // importa de firebase-config.js. Módulos rodam de forma assíncrona (mesmo
+  // sem "defer" explícito), então aguardamos até a config existir antes de
+  // inicializar — evita "Cannot read apiKey of undefined" em conexões lentas.
+  function aguardarConfigEIniciar() {
+    if (!window.firebaseConfig) {
+      setTimeout(aguardarConfigEIniciar, 10);
+      return;
+    }
+    iniciarApp();
+  }
 
-  firebase.initializeApp(firebaseConfig);
+  function iniciarApp() {
+  firebase.initializeApp(window.firebaseConfig);
   const db = firebase.firestore();
+
+  // ── Observador de scroll: revela cards ao entrar na viewport e
+  // "reseta" ao saírem, para o efeito repetir se o convidado rolar
+  // de volta. threshold baixo (0.15) faz o card começar a aparecer
+  // já com uma pequena parte visível, sem precisar entrar 100%.
+  const observadorScroll = new IntersectionObserver((entradas) => {
+    entradas.forEach(entrada => {
+      if (entrada.isIntersecting) {
+        entrada.target.classList.add('visivel-scroll');
+      } else {
+        entrada.target.classList.remove('visivel-scroll');
+      }
+    });
+  }, { threshold: 0.15 });
 
   let produtoAtualId       = "";
   let produtoAtualTitulo   = "";
@@ -409,23 +427,16 @@
           section.appendChild(imgDiv);
           section.appendChild(detalhes);
           wrap.appendChild(section);
-
-          // Garante que a animação de entrada roda mesmo no re-render do onSnapshot.
-          // Sem isso, após o Firebase atualizar a lista o browser ignora o @keyframes
-          // porque o elemento é recriado mas a animação CSS já "aconteceu" na sessão.
-          const cartao = wrap.querySelector('.cartao-produto');
-          if (cartao) {
-            cartao.style.animation = 'none';
-            // Um único requestAnimationFrame não basta — precisa de dois frames
-            // para o browser processar o "none" antes de restaurar a animação.
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                cartao.style.animation = '';
-              });
-            });
-          }
-
           listaContainer.appendChild(wrap);
+        });
+
+        // ── Animação de scroll: cards surgem de baixo ao entrar na tela,
+        // e voltam ao estado "escondido" ao saírem — efeito reversível,
+        // não é só na primeira carga. Usa IntersectionObserver para detectar
+        // quando cada card cruza a viewport, em vez de calcular scroll manualmente.
+        const cartoesObservados = listaContainer.querySelectorAll('.cartao-produto');
+        cartoesObservados.forEach(cartao => {
+          observadorScroll.observe(cartao);
         });
 
         // Atualiza chips (só categorias com itens)
@@ -435,28 +446,27 @@
         // Reaplica filtro ativo
         aplicarFiltro();
 
-        // Eventos dos botões presentear (fluxo normal / presentear tudo)
+        // Eventos dos botões presentear (produto sem cotas — fluxo direto)
         listaContainer.querySelectorAll('.botao-presentear').forEach(btn => {
           btn.addEventListener('click', function() {
             produtoAtualId     = this.dataset.id;
             produtoAtualTitulo = this.dataset.titulo;
-            produtoAtualCotas  = parseInt(this.dataset.cotas || 0);
+            produtoAtualCotas  = 0;
             modoFluxo          = "presentear";
             cotasEscolhidas    = 0;
             abrirModalNome();
           });
         });
 
-        // Eventos dos botões de cota
-        listaContainer.querySelectorAll('.botao-cota').forEach(btn => {
+        // Evento do botão único de cotas — abre popup de escolha primeiro
+        listaContainer.querySelectorAll('.botao-escolha-cotas').forEach(btn => {
           btn.addEventListener('click', function() {
-            produtoAtualId     = this.dataset.id;
-            produtoAtualTitulo = this.dataset.titulo;
-            produtoAtualCotas  = parseInt(this.dataset.cotasTotal || 0);
-            modoFluxo          = "cota";
-            const dispAtual    = parseInt(this.dataset.cotasDisp || 0);
+            produtoAtualId      = this.dataset.id;
+            produtoAtualTitulo  = this.dataset.titulo;
+            produtoAtualCotas   = parseInt(this.dataset.cotasTotal || 0);
+            const dispAtual     = parseInt(this.dataset.cotasDisp || 0);
             const precoCentavos = parseInt(this.dataset.precoCentavos || 0);
-            abrirModalCotas(produtoAtualTitulo, produtoAtualCotas, dispAtual, precoCentavos);
+            abrirModalEscolha(produtoAtualTitulo, produtoAtualCotas, dispAtual, precoCentavos);
           });
         });
       });
@@ -480,22 +490,81 @@
       document.getElementById('modal-nome')?.classList.remove('mostrar');
     }
 
-    // ── Modal de cotas ─────────────────────────────────────────
+    // ── Modal 1: Escolha entre "Presentear tudo" ou "Contribuir com cota" ──
+    function abrirModalEscolha(titulo, cotasTotal, cotasDisp, precoCentavos) {
+      document.getElementById('modal-escolha')?.remove();
+
+      const totalFmt = (precoCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      const porCotaFmt = (Math.round(precoCentavos / cotasTotal) / 100)
+        .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+      const modal = document.createElement('div');
+      modal.id = 'modal-escolha';
+      modal.className = 'modal-container mostrar';
+      modal.innerHTML = `
+        <div class="modal-conteudo modal-escolha-conteudo">
+          <button type="button" class="modal-fechar-x" id="btn-fechar-escolha-x" aria-label="Fechar">✕</button>
+          <h3 class="modal-escolha-titulo"></h3>
+          <p class="modal-escolha-sub">Como você quer presentear?</p>
+
+          <button type="button" class="opcao-escolha opcao-tudo" id="btn-escolha-tudo">
+            <span class="opcao-escolha-emoji">🎁</span>
+            <span class="opcao-escolha-textos">
+              <span class="opcao-escolha-titulo">Presentear tudo</span>
+              <span class="opcao-escolha-valor">${totalFmt}</span>
+            </span>
+          </button>
+
+          <button type="button" class="opcao-escolha opcao-cota" id="btn-escolha-cota">
+            <span class="opcao-escolha-emoji">🎯</span>
+            <span class="opcao-escolha-textos">
+              <span class="opcao-escolha-titulo">Contribuir com cota</span>
+              <span class="opcao-escolha-valor">a partir de ${porCotaFmt} · ${cotasDisp}/${cotasTotal} disponíveis</span>
+            </span>
+          </button>
+
+          <div class="modal-botoes" style="margin-top:14px;">
+            <button id="btn-voltar-escolha" class="botao">Voltar</button>
+          </div>
+        </div>`;
+
+      modal.querySelector('.modal-escolha-titulo').textContent = titulo;
+      document.body.appendChild(modal);
+
+      const fechar = () => modal.remove();
+      modal.addEventListener('click', (e) => { if (e.target === modal) fechar(); });
+      document.getElementById('btn-fechar-escolha-x').addEventListener('click', fechar);
+      document.getElementById('btn-voltar-escolha').addEventListener('click', fechar);
+
+      document.getElementById('btn-escolha-tudo').addEventListener('click', () => {
+        modoFluxo = "presentear";
+        cotasEscolhidas = 0;
+        fechar();
+        abrirModalNome();
+      });
+
+      document.getElementById('btn-escolha-cota').addEventListener('click', () => {
+        fechar();
+        abrirModalCotas(titulo, cotasTotal, cotasDisp, precoCentavos);
+      });
+    }
+
+    // ── Modal 2: Quantas cotas (sempre mostra o MESMO valor por cota) ──
     function abrirModalCotas(titulo, cotasTotal, cotasDisp, precoCentavos) {
-      // Remove modal anterior se existir
       document.getElementById('modal-cotas')?.remove();
 
       const porCotaCentavos = Math.round(precoCentavos / cotasTotal);
       const porCotaFmt = (porCotaCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-      // Monta opções de quantidade (1 até cotasDisp)
+      // Cada opção mostra APENAS a quantidade e o total a pagar — nunca o valor
+      // "por cota" repetido ao lado, para não parecer que o preço da cota muda.
       let opcoesHTML = '';
       for (let i = 1; i <= cotasDisp; i++) {
         const totalFmt = (porCotaCentavos * i / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         opcoesHTML += `
           <button type="button" class="btn-opcao-cota" data-qtd="${i}">
-            <span class="btn-opcao-cota-num">${i} cota${i > 1 ? 's' : ''}</span>
-            <span class="btn-opcao-cota-valor">${totalFmt}</span>
+            <span class="btn-opcao-cota-num">${i}×</span>
+            <span class="btn-opcao-cota-total">Total: ${totalFmt}</span>
           </button>`;
       }
 
@@ -504,52 +573,49 @@
       modal.className = 'modal-container mostrar';
       modal.innerHTML = `
         <div class="modal-conteudo modal-cotas-conteudo">
+          <button type="button" class="modal-fechar-x" id="btn-fechar-cotas-x" aria-label="Fechar">✕</button>
           <div class="modal-cotas-header">
             <span class="modal-cotas-icone">🎯</span>
             <div>
-              <h3>Contribuir com cotas</h3>
+              <h3>Contribuir com cota</h3>
               <p class="modal-cotas-subtitulo"></p>
             </div>
           </div>
-          <div class="modal-cotas-info">
-            <span class="modal-cotas-por-cota">Valor por cota: <strong>${porCotaFmt}</strong></span>
-            <span class="modal-cotas-disp">${cotasDisp} de ${cotasTotal} cotas disponíveis</span>
+
+          <div class="modal-cotas-valor-fixo">
+            <span>Valor de cada cota</span>
+            <strong>${porCotaFmt}</strong>
           </div>
-          <p class="modal-cotas-pergunta">Quantas cotas você quer contribuir?</p>
+
+          <p class="modal-cotas-pergunta">Quantas cotas você quer pagar?</p>
           <div class="modal-cotas-opcoes">${opcoesHTML}</div>
+
           <div class="modal-botoes" style="margin-top:16px;">
-            <button id="btn-cancelar-modal-cotas" class="botao">Voltar</button>
+            <button id="btn-voltar-modal-cotas" class="botao">Voltar</button>
           </div>
         </div>`;
 
-      // Preenche o subtítulo com textContent (seguro)
       modal.querySelector('.modal-cotas-subtitulo').textContent = titulo;
-
       document.body.appendChild(modal);
 
-      // Fecha ao clicar fora
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) fecharModalCotas();
-      });
+      const fechar = () => modal.remove();
+      modal.addEventListener('click', (e) => { if (e.target === modal) fechar(); });
+      document.getElementById('btn-fechar-cotas-x').addEventListener('click', fechar);
+      document.getElementById('btn-voltar-modal-cotas').addEventListener('click', fechar);
 
-      document.getElementById('btn-cancelar-modal-cotas').addEventListener('click', fecharModalCotas);
-
-      // Ao escolher quantidade de cotas → vai para o modal de nome
       modal.querySelectorAll('.btn-opcao-cota').forEach(btn => {
         btn.addEventListener('click', function() {
+          modoFluxo = "cota";
           cotasEscolhidas = parseInt(this.dataset.qtd);
-          fecharModalCotas();
+          fechar();
           abrirModalNome();
         });
       });
     }
 
-    function fecharModalCotas() {
-      document.getElementById('modal-cotas')?.remove();
-    }
-
     // ── Fechar modal de nome ───────────────────────────────────
     document.getElementById('btn-cancelar-modal')?.addEventListener('click', fecharModalNome);
+    document.getElementById('btn-fechar-modal-x')?.addEventListener('click', fecharModalNome);
 
     // ── Confirmar nome ─────────────────────────────────────────
     async function confirmarNome() {
@@ -595,4 +661,7 @@
       }
     }
   });
+  } // fim iniciarApp
+
+  aguardarConfigEIniciar();
 })();

@@ -289,18 +289,17 @@ body.tema-claro::before {
   padding: 18px 20px;
   position: relative;
 
-  animation: animacao-entrada 0.45s ease both;
+  /* Estado inicial: pequeno e abaixo, pronto para "surgir" quando entrar na viewport */
+  opacity: 0;
+  transform: translateY(40px) scale(0.92);
+  transition: opacity 0.55s cubic-bezier(.22,1,.36,1),
+              transform 0.55s cubic-bezier(.22,1,.36,1);
 }
 
-/* Escalonar entrada por posição (0 a 7 itens) */
-.conteudo:nth-child(1)  .cartao-produto { animation-delay: 0.00s; }
-.conteudo:nth-child(2)  .cartao-produto { animation-delay: 0.06s; }
-.conteudo:nth-child(3)  .cartao-produto { animation-delay: 0.12s; }
-.conteudo:nth-child(4)  .cartao-produto { animation-delay: 0.18s; }
-.conteudo:nth-child(5)  .cartao-produto { animation-delay: 0.22s; }
-.conteudo:nth-child(6)  .cartao-produto { animation-delay: 0.26s; }
-.conteudo:nth-child(7)  .cartao-produto { animation-delay: 0.30s; }
-.conteudo:nth-child(n+8) .cartao-produto { animation-delay: 0.34s; }
+/* Quando o JS (IntersectionObserver) adiciona esta classe, o card sobe e cresce */
+.cartao-produto.visivel-scroll {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 /* Linha de acento no topo do card disponível */
@@ -328,11 +327,6 @@ body.tema-claro::before {
 
 .cartao-produto:hover::before {
   opacity: 1;
-}
-
-@keyframes animacao-entrada {
-  from { opacity: 0; transform: translateY(18px); scale: 0.94; }
-  to   { opacity: 1; transform: translateY(0);    scale: 1;    }
 }
 
 /* ==========================================================
@@ -1006,4 +1000,269 @@ body.tema-claro .chip-categoria.ativo {
   font-size: 14px;
   font-weight: 700;
   color: var(--acento, #a78bfa);
+}
+
+/* ================================================================
+   X DE FECHAR NOS MODAIS
+================================================================ */
+.modal-fechar-x {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .18s, transform .15s;
+  z-index: 5;
+}
+.modal-fechar-x:hover {
+  background: #ef4444;
+  color: #fff;
+  transform: scale(1.08);
+}
+.modal-conteudo {
+  position: relative; /* necessário para o X absoluto */
+}
+
+/* ================================================================
+   MODAL DE ESCOLHA — "Presentear tudo" ou "Contribuir com cota"
+================================================================ */
+.modal-escolha-conteudo {
+  text-align: left;
+}
+.modal-escolha-titulo {
+  color: var(--acento);
+  font-size: 17px;
+  margin: 0 0 2px;
+  padding-right: 30px; /* espaço pro X */
+}
+.modal-escolha-sub {
+  color: rgba(255,255,255,0.5);
+  font-size: 13px;
+  margin: 0 0 16px;
+}
+
+.opcao-escolha {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: 10px;
+  transition: background .18s, border-color .18s, transform .12s;
+}
+.opcao-escolha:hover {
+  transform: translateY(-2px);
+}
+.opcao-escolha-emoji {
+  font-size: 26px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.opcao-escolha-textos {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.opcao-escolha-titulo {
+  font-size: 14px;
+  font-weight: 700;
+}
+.opcao-escolha-valor {
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+}
+
+.opcao-tudo {
+  border-color: rgba(34,197,94,0.30);
+  background: rgba(34,197,94,0.08);
+}
+.opcao-tudo:hover {
+  border-color: rgba(34,197,94,0.55);
+  background: rgba(34,197,94,0.14);
+}
+.opcao-tudo .opcao-escolha-valor { color: #4ade80; }
+
+.opcao-cota {
+  border-color: rgba(var(--acento-rgb), 0.30);
+  background: rgba(var(--acento-rgb), 0.08);
+}
+.opcao-cota:hover {
+  border-color: rgba(var(--acento-rgb), 0.55);
+  background: rgba(var(--acento-rgb), 0.14);
+}
+.opcao-cota .opcao-escolha-valor { color: var(--acento); }
+
+/* ================================================================
+   MODAL DE COTAS — reformulado, valor por cota sempre fixo e visível
+================================================================ */
+.modal-cotas-conteudo {
+  max-width: 360px;
+  width: 100%;
+  text-align: left;
+}
+
+.modal-cotas-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-right: 26px; /* espaço pro X */
+}
+.modal-cotas-header h3 {
+  margin: 0 0 2px;
+  font-size: 17px;
+  font-weight: 700;
+  text-align: left;
+}
+.modal-cotas-icone {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.modal-cotas-subtitulo {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+}
+
+/* Caixa de destaque com o valor FIXO da cota — não muda nunca */
+.modal-cotas-valor-fixo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(var(--acento-rgb), 0.10);
+  border: 1.5px solid rgba(var(--acento-rgb), 0.30);
+  margin-bottom: 16px;
+}
+.modal-cotas-valor-fixo span {
+  font-size: 13px;
+  color: rgba(255,255,255,0.65);
+}
+.modal-cotas-valor-fixo strong {
+  font-size: 20px;
+  color: var(--acento);
+  font-weight: 800;
+}
+
+.modal-cotas-pergunta {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  color: rgba(255,255,255,0.8);
+  text-align: left;
+}
+
+/* Grade de quantidade — mostra só "Nx" e o TOTAL, nunca repete valor/cota */
+.modal-cotas-opcoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 8px;
+}
+
+.btn-opcao-cota {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 8px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, transform .12s;
+}
+.btn-opcao-cota:hover {
+  background: rgba(var(--acento-rgb), 0.16);
+  border-color: var(--acento);
+  transform: translateY(-2px);
+}
+.btn-opcao-cota-num {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--acento);
+}
+.btn-opcao-cota-total {
+  font-size: 11px;
+  color: rgba(255,255,255,0.55);
+  text-align: center;
+}
+
+/* Tag de cotas no card do produto */
+.tag-cotas-lista {
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--acento);
+  opacity: 0.9;
+  letter-spacing: 0.01em;
+}
+
+/* ================================================================
+   MODO CLARO — corrige contraste dos novos elementos
+================================================================ */
+body.tema-claro .modal-fechar-x {
+  background: rgba(239, 68, 68, 0.10);
+}
+
+body.tema-claro .opcao-escolha {
+  background: rgba(0,0,0,0.025);
+  border-color: rgba(0,0,0,0.08);
+  color: #111;
+}
+body.tema-claro .opcao-escolha-valor {
+  color: rgba(0,0,0,0.55);
+}
+body.tema-claro .opcao-tudo {
+  background: rgba(34,197,94,0.07);
+  border-color: rgba(34,197,94,0.35);
+}
+body.tema-claro .opcao-cota {
+  background: rgba(var(--acento-rgb), 0.06);
+  border-color: rgba(var(--acento-rgb), 0.35);
+}
+
+body.tema-claro .modal-cotas-subtitulo,
+body.tema-claro .modal-cotas-valor-fixo span,
+body.tema-claro .modal-cotas-pergunta,
+body.tema-claro .btn-opcao-cota-total {
+  color: rgba(0,0,0,0.55);
+}
+body.tema-claro .modal-cotas-pergunta {
+  color: rgba(0,0,0,0.78);
+}
+body.tema-claro .modal-cotas-valor-fixo {
+  background: rgba(var(--acento-rgb), 0.07);
+  border-color: rgba(var(--acento-rgb), 0.35);
+}
+body.tema-claro .btn-opcao-cota {
+  background: rgba(0,0,0,0.025);
+  border-color: rgba(0,0,0,0.10);
+  color: #111;
+}
+body.tema-claro .btn-opcao-cota:hover {
+  background: rgba(var(--acento-rgb), 0.10);
+}
+body.tema-claro .tag-cotas-lista {
+  opacity: 1;
 }
