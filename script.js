@@ -499,7 +499,11 @@
 
     // ── Modal 1: Escolha entre "Presentear tudo" ou "Contribuir com cota" ──
     function abrirModalEscolha(titulo, cotasTotal, cotasDisp, precoCentavos, cotasOcupadas) {
+      // Remove qualquer modal dinâmico residual (de qualquer tipo) antes de abrir
+      // este — evita que um modal "fantasma" fique cobrindo a tela e bloqueando
+      // cliques, caso o fechamento anterior tenha falhado por algum motivo.
       document.getElementById('modal-escolha')?.remove();
+      document.getElementById('modal-cotas')?.remove();
 
       const totalFmt = (precoCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
       const porCotaFmt = (Math.round(precoCentavos / cotasTotal) / 100)
@@ -538,7 +542,10 @@
       modal.querySelector('.modal-escolha-titulo').textContent = titulo;
       document.body.appendChild(modal);
 
-      const fechar = () => modal.remove();
+      const fechar = () => {
+        modal.classList.remove('mostrar');
+        modal.remove();
+      };
       modal.addEventListener('click', (e) => { if (e.target === modal) fechar(); });
       document.getElementById('btn-fechar-escolha-x').addEventListener('click', fechar);
       document.getElementById('btn-voltar-escolha').addEventListener('click', fechar);
@@ -556,28 +563,24 @@
       });
     }
 
-    // ── Modal 2: Seleção de cotas tipo "assento de cinema" ──────────────
-    // Cada cota é um número individual e clicável. O convidado pode marcar
-    // várias de uma vez (ex: pegar 2 das 3 disponíveis). Cotas já escolhidas
-    // por outros convidados aparecem bloqueadas e riscadas.
+    // ── Modal 2: Lista de quantidade — "1 cota de R$X", "2 cotas de R$X"... ──
+    // Cada linha mostra quantas cotas + o valor de CADA UMA (não o acumulado),
+    // deixando claro que o preço por cota nunca muda, só a quantidade escolhida.
     function abrirModalCotas(titulo, cotasTotal, cotasDisp, precoCentavos, cotasOcupadas) {
       document.getElementById('modal-cotas')?.remove();
+      document.getElementById('modal-escolha')?.remove();
 
       const porCotaCentavos = Math.round(precoCentavos / cotasTotal);
       const porCotaFmt = (porCotaCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-      const ocupadasSet = new Set(cotasOcupadas || []);
 
-      // Monta um quadradinho para CADA cota do produto (1 até cotasTotal),
-      // não só para as disponíveis — assim o convidado vê o total e o que já foi pego.
-      let gradeHTML = '';
-      for (let i = 1; i <= cotasTotal; i++) {
-        const ocupada = ocupadasSet.has(i);
-        gradeHTML += `
-          <button type="button"
-            class="quadrado-cota${ocupada ? ' ocupada' : ''}"
-            data-num="${i}"
-            ${ocupada ? 'disabled' : ''}>
-            ${ocupada ? '🔒' : i}
+      // Uma linha pra cada quantidade possível, de 1 até o total de cotas
+      // ainda disponíveis (cotasDisp já desconta as que outros convidados pegaram).
+      let opcoesHTML = '';
+      for (let i = 1; i <= cotasDisp; i++) {
+        opcoesHTML += `
+          <button type="button" class="linha-opcao-cota" data-qtd="${i}">
+            <span class="linha-opcao-cota-label">${i} cota${i > 1 ? 's' : ''}</span>
+            <span class="linha-opcao-cota-preco">${porCotaFmt} cada</span>
           </button>`;
       }
 
@@ -600,71 +603,44 @@
             <strong>${porCotaFmt}</strong>
           </div>
 
-          <p class="modal-cotas-pergunta">Toque nas cotas que você quer pagar (pode escolher mais de uma):</p>
-          <div class="grade-cotas">${gradeHTML}</div>
-
-          <div class="modal-cotas-resumo" id="cotas-resumo">
-            <span id="cotas-resumo-qtd">Nenhuma cota selecionada</span>
-            <strong id="cotas-resumo-total"></strong>
-          </div>
+          <p class="modal-cotas-pergunta">Quantas cotas você quer contribuir?</p>
+          <div class="lista-opcoes-cota">${opcoesHTML}</div>
 
           <div class="modal-botoes" style="margin-top:14px;">
             <button id="btn-voltar-modal-cotas" class="botao">Voltar</button>
-            <button id="btn-confirmar-cotas" class="botao primario" disabled>Confirmar</button>
           </div>
         </div>`;
 
       modal.querySelector('.modal-cotas-subtitulo').textContent = titulo;
       document.body.appendChild(modal);
 
-      const fechar = () => modal.remove();
+      // fechar() é robusto: some o modal do DOM E garante que nenhum resquício
+      // de overlay continue capturando cliques, mesmo se algo der errado no meio.
+      const fechar = () => {
+        modal.classList.remove('mostrar');
+        modal.remove();
+      };
       modal.addEventListener('click', (e) => { if (e.target === modal) fechar(); });
       document.getElementById('btn-fechar-cotas-x').addEventListener('click', fechar);
       document.getElementById('btn-voltar-modal-cotas').addEventListener('click', fechar);
 
-      // ── Lógica de seleção múltipla ──
-      const selecionadas = new Set();
-      const resumoQtd   = document.getElementById('cotas-resumo-qtd');
-      const resumoTotal = document.getElementById('cotas-resumo-total');
-      const btnConfirmar = document.getElementById('btn-confirmar-cotas');
-
-      function atualizarResumo() {
-        const n = selecionadas.size;
-        if (n === 0) {
-          resumoQtd.textContent = 'Nenhuma cota selecionada';
-          resumoTotal.textContent = '';
-          btnConfirmar.disabled = true;
-        } else {
-          resumoQtd.textContent = `${n} cota${n > 1 ? 's' : ''} selecionada${n > 1 ? 's' : ''}`;
-          resumoTotal.textContent = (porCotaCentavos * n / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-          btnConfirmar.disabled = false;
-        }
-      }
-
-      modal.querySelectorAll('.quadrado-cota:not(.ocupada)').forEach(quad => {
-        quad.addEventListener('click', function() {
-          const num = parseInt(this.dataset.num);
-          if (selecionadas.has(num)) {
-            selecionadas.delete(num);
-            this.classList.remove('selecionada');
-          } else {
-            selecionadas.add(num);
-            this.classList.add('selecionada');
+      modal.querySelectorAll('.linha-opcao-cota').forEach(linha => {
+        linha.addEventListener('click', function() {
+          const qtd = parseInt(this.dataset.qtd);
+          modoFluxo = "cota";
+          cotasEscolhidas = qtd;
+          // Como aqui escolhemos por QUANTIDADE (não números específicos), pegamos
+          // os primeiros "qtd" números ainda livres — a Cloud Function valida de
+          // novo no servidor antes de confirmar, então isso é só uma sugestão segura.
+          const ocupadasSet = new Set(cotasOcupadas || []);
+          const livres = [];
+          for (let n = 1; n <= cotasTotal && livres.length < qtd; n++) {
+            if (!ocupadasSet.has(n)) livres.push(n);
           }
-          atualizarResumo();
+          cotasNumerosEscolhidos = livres;
+          fechar();
+          abrirModalNome();
         });
-      });
-
-      btnConfirmar.addEventListener('click', () => {
-        if (selecionadas.size === 0) return;
-        modoFluxo = "cota";
-        cotasEscolhidas = selecionadas.size;
-        // Guarda os números exatos escolhidos para enviar à Cloud Function —
-        // assim ela sabe exatamente quais marcar como ocupadas, evitando que
-        // dois convidados peguem a mesma cota ao mesmo tempo.
-        cotasNumerosEscolhidos = Array.from(selecionadas).sort((a,b) => a-b);
-        fechar();
-        abrirModalNome();
       });
     }
 
