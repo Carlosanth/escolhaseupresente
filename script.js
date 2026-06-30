@@ -298,6 +298,7 @@
     // ── Produtos em tempo real ─────────────────────────────────
     db.collection("produtos_teste").where("usuario_id", "==", usuarioIdUrl)
       .onSnapshot((snapshot) => {
+       try {
         listaContainer.innerHTML = "";
         todosProdutosCache = [];
 
@@ -366,35 +367,39 @@
           const temCotas   = cotasTotal >= 2;
           const cotasAcabaram = temCotas && cotasDisp <= 0;
 
-          if (produto.disponivel && !cotasAcabaram) {
-            // Botão principal — sempre presente
-            const btn = document.createElement('button');
-            btn.className = 'botao primario botao-presentear';
-            btn.dataset.id     = id;
-            btn.dataset.titulo = produto.titulo || '';
-            btn.dataset.cotas  = cotasTotal;
-            if (temCotas) {
-              btn.textContent = '🎁 Presentear tudo';
-              btn.classList.add('btn-presentear-tudo');
-            } else {
-              btn.textContent = '😊 Presentear 😊';
-            }
-            acoes.appendChild(btn);
+          const precoCentavos = parseInt(produto.preco_centavos || 0);
 
-            // Botão de cota — só aparece se o produto tem cotas disponíveis
+          if (produto.disponivel && !cotasAcabaram) {
             if (temCotas) {
-              const btnCota = document.createElement('button');
-              btnCota.className = 'botao botao-cota';
-              btnCota.dataset.id          = id;
-              btnCota.dataset.titulo      = produto.titulo || '';
-              btnCota.dataset.cotasTotal  = cotasTotal;
-              btnCota.dataset.cotasDisp   = cotasDisp;
-              btnCota.dataset.precoCentavos = produto.preco_centavos || '0';
-              btnCota.innerHTML = `🎯 Contribuir com cota <span class="badge-cotas-disp">${cotasDisp}/${cotasTotal}</span>`;
-              acoes.appendChild(btnCota);
+              // Produto com cotas: UM botão que abre o popup de escolha
+              const btnCotas = document.createElement('button');
+              btnCotas.className = 'botao primario botao-escolha-cotas';
+              btnCotas.dataset.id            = id;
+              btnCotas.dataset.titulo        = produto.titulo || '';
+              btnCotas.dataset.cotasTotal    = cotasTotal;
+              btnCotas.dataset.cotasDisp     = cotasDisp;
+              btnCotas.dataset.precoCentavos = produto.preco_centavos || '0';
+              btnCotas.textContent = '🎁 Presentear';
+              acoes.appendChild(btnCotas);
+
+              if (precoCentavos > 0) {
+                const porCotaFmt = (precoCentavos / 100 / cotasTotal)
+                  .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                const tagCotas = document.createElement('div');
+                tagCotas.className = 'tag-cotas-lista';
+                tagCotas.textContent = `🎯 ${cotasDisp}/${cotasTotal} cotas · ${porCotaFmt} cada`;
+                caixaPreco.appendChild(tagCotas);
+              }
+            } else {
+              // Produto normal: botão padrão
+              const btn = document.createElement('button');
+              btn.className = 'botao primario botao-presentear';
+              btn.dataset.id     = id;
+              btn.dataset.titulo = produto.titulo || '';
+              btn.textContent    = '😊 Presentear 😊';
+              acoes.appendChild(btn);
             }
           } else if (temCotas && cotasAcabaram && produto.disponivel) {
-            // Todas as cotas foram preenchidas mas disponivel ainda true (race condition)
             const btn = document.createElement('button');
             btn.className = 'botao';
             btn.disabled = true;
@@ -406,18 +411,6 @@
             btn.disabled  = true;
             btn.textContent = '😍 Ganhamos! 😍';
             acoes.appendChild(btn);
-          }
-
-          // Badge de cotas disponíveis no preço
-          if (temCotas && produto.disponivel) {
-            const precoCentavos = parseInt(produto.preco_centavos || 0);
-            if (precoCentavos > 0) {
-              const porCota = (precoCentavos / 100 / cotasTotal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-              const tagCotas = document.createElement('div');
-              tagCotas.className = 'tag-cotas-lista';
-              tagCotas.textContent = `🎯 ${cotasDisp} cota${cotasDisp !== 1 ? 's' : ''} disponível · ${porCota} cada`;
-              caixaPreco.appendChild(tagCotas);
-            }
           }
 
           rodape.appendChild(caixaPreco);
@@ -469,6 +462,16 @@
             abrirModalEscolha(produtoAtualTitulo, produtoAtualCotas, dispAtual, precoCentavos);
           });
         });
+
+       } catch (errRender) {
+         // Com isso, qualquer erro de renderização aparece no Console em vez
+         // de travar silenciosamente e deixar a lista de produtos em branco.
+         console.error("Erro ao renderizar produtos:", errRender);
+         listaContainer.innerHTML = "<p style='text-align:center;padding:40px;color:#ff6b6b'>Erro ao carregar a lista. Veja o Console (F12) para detalhes.</p>";
+       }
+      }, errSnap => {
+        console.error("Erro no onSnapshot de produtos:", errSnap);
+        listaContainer.innerHTML = "<p style='text-align:center;padding:40px;color:#ff6b6b'>Erro ao conectar com o banco de dados: " + errSnap.message + "</p>";
       });
 
     // Alternar layout
