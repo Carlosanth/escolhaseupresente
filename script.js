@@ -15,19 +15,7 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // ── Observador de scroll: revela cards ao entrar na viewport e
-  // "reseta" ao saírem, para o efeito repetir se o convidado rolar
-  // de volta. threshold baixo (0.15) faz o card começar a aparecer
-  // já com uma pequena parte visível, sem precisar entrar 100%.
-  const observadorScroll = new IntersectionObserver((entradas) => {
-    entradas.forEach(entrada => {
-      if (entrada.isIntersecting) {
-        entrada.target.classList.add('visivel-scroll');
-      } else {
-        entrada.target.classList.remove('visivel-scroll');
-      }
-    });
-  }, { threshold: 0.15 });
+
 
   let produtoAtualId       = "";
   let produtoAtualTitulo   = "";
@@ -425,14 +413,8 @@
           listaContainer.appendChild(wrap);
         });
 
-        // ── Animação de scroll: cards surgem de baixo ao entrar na tela,
-        // e voltam ao estado "escondido" ao saírem — efeito reversível,
-        // não é só na primeira carga. Usa IntersectionObserver para detectar
-        // quando cada card cruza a viewport, em vez de calcular scroll manualmente.
-        const cartoesObservados = listaContainer.querySelectorAll('.cartao-produto');
-        cartoesObservados.forEach(cartao => {
-          observadorScroll.observe(cartao);
-        });
+        // Animação de scroll tratada puramente por CSS via animation-timeline: view()
+        // Não precisa de IntersectionObserver nem de classes JS.
 
         // Atualiza chips (só categorias com itens)
         const categoriasOrdenadas = [...categoriasSet].sort();

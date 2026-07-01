@@ -289,17 +289,25 @@ body.tema-claro::before {
   padding: 18px 20px;
   position: relative;
 
-  /* Estado inicial: pequeno e abaixo, pronto para "surgir" quando entrar na viewport */
-  opacity: 0;
-  transform: translateY(40px) scale(0.92);
-  transition: opacity 0.55s cubic-bezier(.22,1,.36,1),
-              transform 0.55s cubic-bezier(.22,1,.36,1);
+  /* Animação de scroll nativa — entra subindo ao aparecer na tela, sai encolhendo ao sumir */
+  animation: animacao-entrada 0.6s ease, animacao-saida 0.6s ease;
+  animation-timeline: view();
+  animation-range: entry 0% cover 35%, exit 60% exit 100%;
 }
 
-/* Quando o JS (IntersectionObserver) adiciona esta classe, o card sobe e cresce */
-.cartao-produto.visivel-scroll {
-  opacity: 1;
-  transform: translateY(0) scale(1);
+@keyframes animacao-entrada {
+  from {
+    opacity: 0.3;
+    transform: translateY(20px);
+    scale: 0.85;
+  }
+}
+
+@keyframes animacao-saida {
+  to {
+    opacity: 0.5;
+    scale: 0.85;
+  }
 }
 
 /* Linha de acento no topo do card disponível */
