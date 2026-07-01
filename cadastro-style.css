@@ -3188,3 +3188,47 @@ select {
 }
 
 
+
+/* ================================================================
+   COTAS DENTRO DO MODAL DE EDITAR — override para fundo claro
+================================================================ */
+#modalEditar .cotas-bloco {
+    background: rgba(124, 58, 237, 0.06);
+    border-color: rgba(124, 58, 237, 0.20);
+}
+
+#modalEditar .cotas-switch-txt {
+    color: #4c1d95;
+    font-weight: 700;
+}
+
+#modalEditar .cotas-switch-track {
+    background: rgba(0, 0, 0, 0.12);
+    border-color: rgba(0, 0, 0, 0.20);
+}
+
+#modalEditar .cotas-check-hidden:checked + .cotas-switch-track {
+    background: #7c3aed;
+    border-color: #6d28d9;
+}
+
+#modalEditar .btn-cota {
+    border-color: rgba(109, 40, 217, 0.40);
+    background: rgba(109, 40, 217, 0.08);
+    color: #4c1d95;
+}
+
+#modalEditar .btn-cota:hover {
+    background: rgba(109, 40, 217, 0.18);
+}
+
+#modalEditar .btn-cota.ativo {
+    background: #7c3aed;
+    border-color: #6d28d9;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(124,58,237,0.35);
+}
+
+#modalEditar .cotas-preview {
+    color: #6d28d9;
+}
