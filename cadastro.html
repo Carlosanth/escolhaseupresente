@@ -360,6 +360,14 @@
                 <span class="modal-detalhe-label">Presenteado por</span>
                 <span class="modal-detalhe-valor dourado" id="detalhePresenteadoPor"></span>
             </div>
+            <div class="modal-detalhe-linha" id="detalheLinhaCotas" style="display:none;">
+                <span class="modal-detalhe-label">Cotas</span>
+                <span class="modal-detalhe-valor" id="detalheInfoCotas"></span>
+            </div>
+            <div class="modal-detalhe-linha" id="detalheLinhaValorCota" style="display:none;">
+                <span class="modal-detalhe-label">Valor por cota</span>
+                <span class="modal-detalhe-valor destaque" id="detalheValorCota"></span>
+            </div>
             <span class="modal-detalhe-status" id="detalheStatus"></span>
         </div>
     </div>
@@ -1893,16 +1901,14 @@
                 const cotasTotal = parseInt(produto.cotas_total || 0);
                 const cotasDisp  = parseInt(produto.cotas_disponiveis || 0);
 
-                // Mostra só o preço no card — sem info de cotas (aparece no popup ao clicar)
                 novaBaseDiv.querySelector('.item-preco-txt').textContent = precoOriginalFmt;
 
-                // Ícone discreto indicando que tem cotas (abre popup ao clicar no card)
+                // Badge x/x cotas no card (simples, sem popup)
                 if (cotasTotal >= 2 && !foiVendido) {
-                    const badgeCotas = document.createElement('span');
-                    badgeCotas.className = 'badge-cotas-mini';
-                    badgeCotas.title = 'Ver detalhes das cotas';
-                    badgeCotas.textContent = '🎯 Cotas';
-                    novaBaseDiv.querySelector('.T-Produtos').appendChild(badgeCotas);
+                    const badge = document.createElement('span');
+                    badge.className = 'badge-cotas';
+                    badge.textContent = `🎯 ${cotasDisp}/${cotasTotal} cotas`;
+                    novaBaseDiv.querySelector('.T-Produtos').appendChild(badge);
                 }
             }
 
@@ -1938,19 +1944,7 @@
                 btn.addEventListener('click', () => mostrarToast('Item Ganhado — não pode ser alterado.', 'aviso', '🔒'));
             });
 
-            // Clique no card abre popup de cotas (se tiver cotas configuradas)
-            const cotasTotalCard = parseInt(produto.cotas_total || 0);
-            if (cotasTotalCard >= 2 && !foiVendido) {
-                novaBaseDiv.querySelector('.base-card').style.cursor = 'pointer';
-                novaBaseDiv.querySelector('.base-card').addEventListener('click', (e) => {
-                    // Não abre popup se clicou num botão de ação
-                    if (e.target.closest('.btn-editar-item, .excl, .btn-bloqueado')) return;
-                    const cotasDispCard = parseInt(produto.cotas_disponiveis || 0);
-                    const porCotaFmt = (originalCentavos / 100 / cotasTotalCard)
-                        .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    abrirPopupCotas(produto.titulo || 'Item', cotasTotalCard, cotasDispCard, porCotaFmt);
-                });
-            }
+
 
             // Botão excluir — só se existir (não vendido)
             const btnExcl = novaBaseDiv.querySelector('.excl');
@@ -2062,6 +2056,24 @@
                 statusEl.style.color = 'rgba(255,255,255,0.6)';
             }
 
+            // Linha de cotas — aparece só se produto tiver cotas configuradas
+            const detCotas = parseInt(produto.cotas_total || 0);
+            const linhaCotas = document.getElementById('detalheLinhaCotas');
+            const linhaVCota = document.getElementById('detalheLinhaValorCota');
+            if (detCotas >= 2 && !semValorDefinido) {
+                const detDisp = parseInt(produto.cotas_disponiveis || 0);
+                const porCotaFmt = (originalCentavos / 100 / detCotas)
+                    .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                document.getElementById('detalheInfoCotas').textContent =
+                    `${detDisp}/${detCotas} disponíveis`;
+                document.getElementById('detalheValorCota').textContent = porCotaFmt;
+                linhaCotas.style.display = 'flex';
+                linhaVCota.style.display = 'flex';
+            } else {
+                linhaCotas.style.display = 'none';
+                linhaVCota.style.display = 'none';
+            }
+
             document.getElementById('modalDetalheItem').classList.add('ativo');
         }
 
@@ -2077,52 +2089,6 @@
         // ================================================================
         // MODAL EDITAR
         // ================================================================
-        // ── Popup de cotas (abre ao clicar no card) ───────────────────
-        function abrirPopupCotas(titulo, cotasTotal, cotasDisp, porCotaFmt) {
-            document.getElementById('popup-cotas-cadastro')?.remove();
-
-            const popup = document.createElement('div');
-            popup.id = 'popup-cotas-cadastro';
-            popup.className = 'popup-cotas-cadastro-overlay';
-            popup.innerHTML = `
-                <div class="popup-cotas-cadastro-box">
-                    <button class="popup-cotas-fechar" id="btnFecharPopupCotas">✕</button>
-                    <div class="popup-cotas-header">
-                        <span class="popup-cotas-icone">🎯</span>
-                        <div>
-                            <strong class="popup-cotas-titulo"></strong>
-                            <span class="popup-cotas-sub">Configuração de cotas</span>
-                        </div>
-                    </div>
-                    <div class="popup-cotas-info">
-                        <div class="popup-cotas-linha">
-                            <span>Total de cotas</span>
-                            <strong>${cotasTotal}</strong>
-                        </div>
-                        <div class="popup-cotas-linha">
-                            <span>Cotas disponíveis</span>
-                            <strong style="color:#4ade80">${cotasDisp}</strong>
-                        </div>
-                        <div class="popup-cotas-linha">
-                            <span>Cotas ocupadas</span>
-                            <strong style="color:#f87171">${cotasTotal - cotasDisp}</strong>
-                        </div>
-                        <div class="popup-cotas-linha destaque">
-                            <span>Valor por cota</span>
-                            <strong>${porCotaFmt}</strong>
-                        </div>
-                    </div>
-                </div>`;
-
-            popup.querySelector('.popup-cotas-titulo').textContent = titulo;
-            document.body.appendChild(popup);
-
-            const fechar = () => popup.remove();
-            popup.addEventListener('click', (e) => { if (e.target === popup) fechar(); });
-            document.getElementById('btnFecharPopupCotas').addEventListener('click', fechar);
-        }
-        // ── fim popup cotas ────────────────────────────────────────────
-
         function abrirModalEditar(produto, documentoId) {
             editandoId = documentoId;
             editandoImagemAtual = produto.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
