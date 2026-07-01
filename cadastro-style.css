@@ -3040,28 +3040,29 @@ select {
 ================================================================ */
 .cotas-bloco {
     margin-top: 10px;
-    padding: 12px 14px;
+    padding: 10px 14px;
     background: rgba(124, 58, 237, 0.08);
     border: 1px solid rgba(167, 139, 250, 0.18);
     border-radius: 12px;
 }
 
-/* Linha principal: toggle + botões lado a lado */
+/* Linha única: texto + toggle + botões todos na mesma linha */
 .cotas-row {
     display: flex;
     align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
+    gap: 10px;
+    flex-wrap: nowrap;
 }
 
-/* Label que engloba o switch */
+/* Label: texto à esquerda, toggle à direita do texto */
 .cotas-switch-label {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     cursor: pointer;
     user-select: none;
     flex-shrink: 0;
+    flex-direction: row-reverse; /* toggle fica depois do texto */
 }
 
 /* Esconde o checkbox nativo */
@@ -3073,11 +3074,11 @@ select {
     pointer-events: none;
 }
 
-/* Track do toggle */
+/* Track do toggle — um pouco menor */
 .cotas-switch-track {
     position: relative;
-    width: 42px;
-    height: 24px;
+    width: 34px;
+    height: 20px;
     border-radius: 999px;
     background: rgba(255,255,255,0.12);
     border: 1px solid rgba(255,255,255,0.18);
@@ -3092,76 +3093,80 @@ select {
 /* Bolinha do toggle */
 .cotas-switch-thumb {
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 16px;
-    height: 16px;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
     background: #fff;
     box-shadow: 0 1px 4px rgba(0,0,0,0.35);
     transition: transform .22s cubic-bezier(.4,0,.2,1);
 }
 .cotas-check-hidden:checked + .cotas-switch-track .cotas-switch-thumb {
-    transform: translateX(18px);
+    transform: translateX(14px);
 }
 
 /* Texto ao lado do switch */
 .cotas-switch-txt {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: #e9d5ff;
+    white-space: nowrap;
 }
 
-/* Botões de quantidade — ocultos por padrão, animam ao aparecer */
+/* Botões de quantidade — animam ao aparecer */
 .cotas-opcoes {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     overflow: hidden;
     max-width: 0;
     opacity: 0;
     transition: max-width .32s cubic-bezier(.4,0,.2,1), opacity .25s ease;
 }
 .cotas-opcoes.visivel {
-    max-width: 300px;
+    max-width: 220px;
     opacity: 1;
 }
 
 .cotas-btns {
     display: flex;
-    gap: 6px;
+    gap: 5px;
 }
 
+/* Pílulas compactas em vez de círculos grandes */
 .btn-cota {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 20px;
     border: 1.5px solid rgba(167, 139, 250, 0.35);
-    background: rgba(167, 139, 250, 0.10);
-    color: #e9d5ff;
-    font-size: 13px;
+    background: rgba(167, 139, 250, 0.08);
+    color: #c4b5fd;
+    font-size: 11px;
     font-weight: 700;
     cursor: pointer;
-    transition: background .18s, border-color .18s, transform .15s;
+    transition: background .15s, border-color .15s, transform .12s;
     display: flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
 }
 .btn-cota:hover {
-    background: rgba(167, 139, 250, 0.25);
-    transform: scale(1.08);
+    background: rgba(167, 139, 250, 0.20);
+    border-color: #a78bfa;
+    transform: scale(1.05);
 }
 .btn-cota.ativo {
     background: #7c3aed;
     border-color: #a78bfa;
     color: #fff;
-    box-shadow: 0 0 10px rgba(124,58,237,0.45);
+    box-shadow: 0 0 8px rgba(124,58,237,0.40);
 }
 
 /* Preview do valor por cota */
 .cotas-preview {
-    margin-top: 8px;
-    font-size: 12px;
+    margin-top: 6px;
+    font-size: 11px;
     color: #a78bfa;
     font-weight: 600;
     height: 0;
@@ -3170,7 +3175,7 @@ select {
     transition: height .2s ease, opacity .2s ease;
 }
 .cotas-preview.visivel {
-    height: 18px;
+    height: 16px;
     opacity: 1;
 }
 
@@ -3213,20 +3218,21 @@ select {
 }
 
 #modalEditar .btn-cota {
-    border-color: rgba(109, 40, 217, 0.40);
-    background: rgba(109, 40, 217, 0.08);
-    color: #4c1d95;
+    border-color: rgba(109, 40, 217, 0.35);
+    background: rgba(109, 40, 217, 0.07);
+    color: #5b21b6;
 }
 
 #modalEditar .btn-cota:hover {
-    background: rgba(109, 40, 217, 0.18);
+    background: rgba(109, 40, 217, 0.16);
+    border-color: #7c3aed;
 }
 
 #modalEditar .btn-cota.ativo {
     background: #7c3aed;
     border-color: #6d28d9;
     color: #fff;
-    box-shadow: 0 0 10px rgba(124,58,237,0.35);
+    box-shadow: 0 0 8px rgba(124,58,237,0.30);
 }
 
 #modalEditar .cotas-preview {
