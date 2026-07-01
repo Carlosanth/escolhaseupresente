@@ -499,15 +499,24 @@
 
     // ── Modal 1: Escolha entre "Presentear tudo" ou "Contribuir com cota" ──
     function abrirModalEscolha(titulo, cotasTotal, cotasDisp, precoCentavos, cotasOcupadas) {
-      // Remove qualquer modal dinâmico residual (de qualquer tipo) antes de abrir
-      // este — evita que um modal "fantasma" fique cobrindo a tela e bloqueando
-      // cliques, caso o fechamento anterior tenha falhado por algum motivo.
       document.getElementById('modal-escolha')?.remove();
       document.getElementById('modal-cotas')?.remove();
 
       const totalFmt = (precoCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
       const porCotaFmt = (Math.round(precoCentavos / cotasTotal) / 100)
         .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+      // Se já existe alguma cota paga, não faz sentido oferecer "Presentear tudo"
+      // porque o valor total do produto não está mais disponível integralmente.
+      const temCotasPagas = Array.isArray(cotasOcupadas) && cotasOcupadas.length > 0;
+      const btnTudoHTML = temCotasPagas ? '' : `
+          <button type="button" class="opcao-escolha opcao-tudo" id="btn-escolha-tudo">
+            <span class="opcao-escolha-emoji">🎁</span>
+            <span class="opcao-escolha-textos">
+              <span class="opcao-escolha-titulo">Presentear tudo</span>
+              <span class="opcao-escolha-valor">${totalFmt}</span>
+            </span>
+          </button>`;
 
       const modal = document.createElement('div');
       modal.id = 'modal-escolha';
@@ -516,15 +525,9 @@
         <div class="modal-conteudo modal-escolha-conteudo">
           <button type="button" class="modal-fechar-x" id="btn-fechar-escolha-x" aria-label="Fechar">✕</button>
           <h3 class="modal-escolha-titulo"></h3>
-          <p class="modal-escolha-sub">Como você quer presentear?</p>
+          <p class="modal-escolha-sub">${temCotasPagas ? 'Escolha quantas cotas quer contribuir:' : 'Como você quer presentear?'}</p>
 
-          <button type="button" class="opcao-escolha opcao-tudo" id="btn-escolha-tudo">
-            <span class="opcao-escolha-emoji">🎁</span>
-            <span class="opcao-escolha-textos">
-              <span class="opcao-escolha-titulo">Presentear tudo</span>
-              <span class="opcao-escolha-valor">${totalFmt}</span>
-            </span>
-          </button>
+          ${btnTudoHTML}
 
           <button type="button" class="opcao-escolha opcao-cota" id="btn-escolha-cota">
             <span class="opcao-escolha-emoji">🎯</span>
@@ -550,7 +553,8 @@
       document.getElementById('btn-fechar-escolha-x').addEventListener('click', fechar);
       document.getElementById('btn-voltar-escolha').addEventListener('click', fechar);
 
-      document.getElementById('btn-escolha-tudo').addEventListener('click', () => {
+      // Só adiciona listener se o botão existir (pode ter sido ocultado)
+      document.getElementById('btn-escolha-tudo')?.addEventListener('click', () => {
         modoFluxo = "presentear";
         cotasEscolhidas = 0;
         fechar();
