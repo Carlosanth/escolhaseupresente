@@ -3069,6 +3069,90 @@ select {
     color: rgba(255,255,255,0.40);
 }
 
+/* Toggle switch ao lado dos botões */
+.cotas-switch-wrap {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.cotas-check-hidden {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+.cotas-switch-track {
+    position: relative;
+    width: 34px;
+    height: 20px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.20);
+    transition: background .22s, border-color .22s;
+    flex-shrink: 0;
+}
+.cotas-check-hidden:checked + .cotas-switch-track {
+    background: #7c3aed;
+    border-color: #a78bfa;
+}
+.cotas-switch-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    transition: transform .22s cubic-bezier(.4,0,.2,1);
+}
+.cotas-check-hidden:checked + .cotas-switch-track .cotas-switch-thumb {
+    transform: translateX(14px);
+}
+
+/* Toggle switch ao lado dos botões */
+.cotas-switch-wrap {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.cotas-check-hidden {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+.cotas-switch-track {
+    position: relative;
+    width: 34px;
+    height: 20px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.20);
+    transition: background .22s, border-color .22s;
+    flex-shrink: 0;
+}
+.cotas-check-hidden:checked + .cotas-switch-track {
+    background: #7c3aed;
+    border-color: #a78bfa;
+}
+.cotas-switch-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+    transition: transform .22s cubic-bezier(.4,0,.2,1);
+}
+.cotas-check-hidden:checked + .cotas-switch-track .cotas-switch-thumb {
+    transform: translateX(14px);
+}
+
 /* Botões Sim/Não — idênticos ao btn-taxa */
 .cotas-toggle-wrap {
     flex-shrink: 0;
@@ -3172,6 +3256,14 @@ select {
 }
 #modalEditar .cotas-preview { color: #6d28d9; }
 #modalEditar .cotas-qtd-label { color: rgba(0,0,0,0.45); }
+#modalEditar .cotas-switch-track {
+    background: rgba(0,0,0,0.10);
+    border-color: rgba(0,0,0,0.18);
+}
+#modalEditar .cotas-check-hidden:checked + .cotas-switch-track {
+    background: #7c3aed;
+    border-color: #6d28d9;
+}
 
 /* Badge no card do item cadastrado */
 .badge-cotas {
@@ -3231,4 +3323,14 @@ select {
 
 #modalEditar .cotas-preview {
     color: #6d28d9;
+}
+
+/* Override toggle no modal editar */
+#modalEditar .cotas-switch-track {
+    background: rgba(0,0,0,0.10);
+    border-color: rgba(0,0,0,0.18);
+}
+#modalEditar .cotas-check-hidden:checked + .cotas-switch-track {
+    background: #7c3aed;
+    border-color: #6d28d9;
 }

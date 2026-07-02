@@ -237,8 +237,12 @@
                                 <span class="cotas-subtitulo" id="cotasSubtitulo">Múltiplos convidados contribuem</span>
                             </div>
                             <div class="cotas-toggle-wrap">
-                                <button type="button" class="btn-cota" id="btnCotasNao" data-cotas="0">Não</button>
-                                <button type="button" class="btn-cota ativo" id="btnCotasSim" data-cotas="sim">Sim</button>
+                                <label class="cotas-switch-wrap" for="cotasCheck">
+                                    <input type="checkbox" id="cotasCheck" class="cotas-check-hidden">
+                                    <span class="cotas-switch-track"><span class="cotas-switch-thumb"></span></span>
+                                </label>
+                                <button type="button" class="btn-cota ativo" id="btnCotasNao" data-cotas="0">Não</button>
+                                <button type="button" class="btn-cota" id="btnCotasSim" data-cotas="sim">Sim</button>
                             </div>
                         </div>
                         <div class="cotas-qtd-wrap" id="cotasOpcoes">
@@ -401,8 +405,12 @@
                         <span class="cotas-subtitulo" id="editCotasSubtitulo">Múltiplos convidados contribuem</span>
                     </div>
                     <div class="cotas-toggle-wrap">
-                        <button type="button" class="btn-cota" id="editBtnCotasNao" data-cotas="0">Não</button>
-                        <button type="button" class="btn-cota ativo" id="editBtnCotasSim" data-cotas="sim">Sim</button>
+                        <label class="cotas-switch-wrap" for="editCotasCheck">
+                            <input type="checkbox" id="editCotasCheck" class="cotas-check-hidden">
+                            <span class="cotas-switch-track"><span class="cotas-switch-thumb"></span></span>
+                        </label>
+                        <button type="button" class="btn-cota ativo" id="editBtnCotasNao" data-cotas="0">Não</button>
+                        <button type="button" class="btn-cota" id="editBtnCotasSim" data-cotas="sim">Sim</button>
                     </div>
                 </div>
                 <div class="cotas-qtd-wrap" id="editCotasOpcoes">
@@ -514,12 +522,15 @@
         let editCotasSelecionadas = 0;
 
         function inicializarBlocoCotas(simId, naoId, opcoesId, btnsId, previewId, subtituloId, getPrecoFn, setCotas) {
-            const btnSim   = document.getElementById(simId);
-            const btnNao   = document.getElementById(naoId);
-            const opcoes   = document.getElementById(opcoesId);
-            const btnsEl   = document.getElementById(btnsId);
-            const preview  = document.getElementById(previewId);
+            const btnSim    = document.getElementById(simId);
+            const btnNao    = document.getElementById(naoId);
+            const opcoes    = document.getElementById(opcoesId);
+            const btnsEl    = document.getElementById(btnsId);
+            const preview   = document.getElementById(previewId);
             const subtitulo = document.getElementById(subtituloId);
+            // Toggle switch (checkbox) sincronizado com os botões Sim/Não
+            const checkId   = simId === 'btnCotasSim' ? 'cotasCheck' : 'editCotasCheck';
+            const check     = document.getElementById(checkId);
             if (!btnSim || !btnNao || !opcoes || !btnsEl) return;
             let cotaAtual = 0;
             let ativo = false;
@@ -528,6 +539,7 @@
                 ativo = true;
                 btnSim.classList.add('ativo');
                 btnNao.classList.remove('ativo');
+                if (check) check.checked = true;
                 opcoes.style.display = 'flex';
                 if (!cotaAtual) selecionarCota(2);
             }
@@ -536,6 +548,7 @@
                 ativo = false;
                 btnNao.classList.add('ativo');
                 btnSim.classList.remove('ativo');
+                if (check) check.checked = false;
                 opcoes.style.display = 'none';
                 setCotas(0);
                 cotaAtual = 0;
@@ -546,6 +559,8 @@
 
             btnSim.addEventListener('click', ativar);
             btnNao.addEventListener('click', desativar);
+            // Toggle switch também controla
+            if (check) check.addEventListener('change', () => check.checked ? ativar() : desativar());
 
             btnsEl.querySelectorAll('.btn-cota-qtd').forEach(btn => {
                 btn.addEventListener('click', () => selecionarCota(parseInt(btn.dataset.cotas)));
