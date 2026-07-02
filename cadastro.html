@@ -565,7 +565,7 @@
                 }
             }
 
-            const precoInputId = simId === 'btnCotasSim' ? 'precoProduto' : 'editPreco';
+            const precoInputId = checkId === 'cotasCheck' ? 'precoProduto' : 'editPreco';
             document.getElementById(precoInputId)?.addEventListener('input', atualizarPreview);
 
             // Expõe função para pré-popular externamente (usada em abrirModalEditar)
