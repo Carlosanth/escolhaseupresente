@@ -236,14 +236,10 @@
                                 <span class="cotas-titulo">Dividir em cotas?</span>
                                 <span class="cotas-subtitulo" id="cotasSubtitulo">Múltiplos convidados contribuem</span>
                             </div>
-                            <div class="cotas-toggle-wrap">
-                                <label class="cotas-switch-wrap" for="cotasCheck">
-                                    <input type="checkbox" id="cotasCheck" class="cotas-check-hidden">
-                                    <span class="cotas-switch-track"><span class="cotas-switch-thumb"></span></span>
-                                </label>
-                                <button type="button" class="btn-cota ativo" id="btnCotasNao" data-cotas="0">Não</button>
-                                <button type="button" class="btn-cota" id="btnCotasSim" data-cotas="sim">Sim</button>
-                            </div>
+                            <label class="cotas-switch-wrap" for="cotasCheck">
+                                <input type="checkbox" id="cotasCheck" class="cotas-check-hidden">
+                                <span class="cotas-switch-track"><span class="cotas-switch-thumb"></span></span>
+                            </label>
                         </div>
                         <div class="cotas-qtd-wrap" id="cotasOpcoes">
                             <span class="cotas-qtd-label">Número de cotas:</span>
@@ -404,14 +400,10 @@
                         <span class="cotas-titulo">Dividir em cotas?</span>
                         <span class="cotas-subtitulo" id="editCotasSubtitulo">Múltiplos convidados contribuem</span>
                     </div>
-                    <div class="cotas-toggle-wrap">
-                        <label class="cotas-switch-wrap" for="editCotasCheck">
-                            <input type="checkbox" id="editCotasCheck" class="cotas-check-hidden">
-                            <span class="cotas-switch-track"><span class="cotas-switch-thumb"></span></span>
-                        </label>
-                        <button type="button" class="btn-cota ativo" id="editBtnCotasNao" data-cotas="0">Não</button>
-                        <button type="button" class="btn-cota" id="editBtnCotasSim" data-cotas="sim">Sim</button>
-                    </div>
+                    <label class="cotas-switch-wrap" for="editCotasCheck">
+                        <input type="checkbox" id="editCotasCheck" class="cotas-check-hidden">
+                        <span class="cotas-switch-track"><span class="cotas-switch-thumb"></span></span>
+                    </label>
                 </div>
                 <div class="cotas-qtd-wrap" id="editCotasOpcoes">
                     <span class="cotas-qtd-label">Número de cotas:</span>
@@ -521,34 +513,23 @@
         let cotasSelecionadas = 0;
         let editCotasSelecionadas = 0;
 
-        function inicializarBlocoCotas(simId, naoId, opcoesId, btnsId, previewId, subtituloId, getPrecoFn, setCotas) {
-            const btnSim    = document.getElementById(simId);
-            const btnNao    = document.getElementById(naoId);
+        function inicializarBlocoCotas(checkId, opcoesId, btnsId, previewId, subtituloId, getPrecoFn, setCotas) {
+            const check     = document.getElementById(checkId);
             const opcoes    = document.getElementById(opcoesId);
             const btnsEl    = document.getElementById(btnsId);
             const preview   = document.getElementById(previewId);
             const subtitulo = document.getElementById(subtituloId);
-            // Toggle switch (checkbox) sincronizado com os botões Sim/Não
-            const checkId   = simId === 'btnCotasSim' ? 'cotasCheck' : 'editCotasCheck';
-            const check     = document.getElementById(checkId);
-            if (!btnSim || !btnNao || !opcoes || !btnsEl) return;
+            if (!check || !opcoes || !btnsEl) return;
             let cotaAtual = 0;
-            let ativo = false;
 
             function ativar() {
-                ativo = true;
-                btnSim.classList.add('ativo');
-                btnNao.classList.remove('ativo');
-                if (check) check.checked = true;
+                check.checked = true;
                 opcoes.style.display = 'flex';
                 if (!cotaAtual) selecionarCota(2);
             }
 
             function desativar() {
-                ativo = false;
-                btnNao.classList.add('ativo');
-                btnSim.classList.remove('ativo');
-                if (check) check.checked = false;
+                check.checked = false;
                 opcoes.style.display = 'none';
                 setCotas(0);
                 cotaAtual = 0;
@@ -557,10 +538,7 @@
                 if (subtitulo) subtitulo.textContent = 'Múltiplos convidados contribuem';
             }
 
-            btnSim.addEventListener('click', ativar);
-            btnNao.addEventListener('click', desativar);
-            // Toggle switch também controla
-            if (check) check.addEventListener('change', () => check.checked ? ativar() : desativar());
+            check.addEventListener('change', () => check.checked ? ativar() : desativar());
 
             btnsEl.querySelectorAll('.btn-cota-qtd').forEach(btn => {
                 btn.addEventListener('click', () => selecionarCota(parseInt(btn.dataset.cotas)));
@@ -633,12 +611,12 @@
 
         // Inicializa os dois blocos de cotas (formulário principal + modal editar)
         const cotasCtrl = inicializarBlocoCotas(
-            'btnCotasSim', 'btnCotasNao', 'cotasOpcoes', 'cotasBtns', 'cotasPreview', 'cotasSubtitulo',
+            'cotasCheck', 'cotasOpcoes', 'cotasBtns', 'cotasPreview', 'cotasSubtitulo',
             () => document.getElementById('precoProduto').value,
             (n) => { cotasSelecionadas = n; }
         );
         const editCotasCtrl = inicializarBlocoCotas(
-            'editBtnCotasSim', 'editBtnCotasNao', 'editCotasOpcoes', 'editCotasBtns', 'editCotasPreview', 'editCotasSubtitulo',
+            'editCotasCheck', 'editCotasOpcoes', 'editCotasBtns', 'editCotasPreview', 'editCotasSubtitulo',
             () => document.getElementById('editPreco').value,
             (n) => { editCotasSelecionadas = n; }
         );
