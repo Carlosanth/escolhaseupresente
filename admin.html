@@ -1894,6 +1894,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { escapeHTML } from "./sanitize-utils.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDcDs0qgXdOQRnMW2mClO1kCoYmbVfeThY",
@@ -1910,7 +1911,10 @@
 
     // UID do admin — só este e-mail pode acessar
     const ADMIN_EMAIL = "carlosantonio.d.m.o@gmail.com"; // ← troque pelo seu e-mail
-    const IMGBB_API_KEY = "a6dd2e7549451f9117ecd2a25dd8765d";
+    // ⚠️ Chave do ImgBB removida daqui — o upload agora passa pela Cloud Function
+    // uploadImagem (mesma usada no cadastro.html), que já tem rate limit e validação
+    // de tamanho/tipo no servidor. Nunca coloque chaves de API de terceiros em HTML
+    // publicado, pois qualquer pessoa consegue ler o código-fonte da página.
 
     let taxaGlobal = 2.8;
 
@@ -1955,13 +1959,28 @@
     }
 
     async function fazerUploadImagemImgBB(arquivoOuBlob) {
-        const formData = new FormData();
-        formData.append("image", arquivoOuBlob);
         try {
-            const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
+            // Converte o Blob/arquivo pra base64 (sem o prefixo "data:image/...;base64,")
+            const base64 = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(",")[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(arquivoOuBlob);
+            });
+
+            // ✅ Upload via Cloud Function (mesma usada no cadastro.html) — nunca
+            // chama o ImgBB direto do navegador, pra não expor chave de API.
+            const response = await fetch(
+                "https://southamerica-east1-escolhaseupresente-35d3d.cloudfunctions.net/uploadImagem",
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ imagemBase64: base64 })
+                }
+            );
             const data = await response.json();
-            if (data.success) return data.data.url;
-            throw new Error("Falha no upload do ImgBB");
+            if (data.url) return data.url;
+            throw new Error(data.erro || "Falha no upload da imagem");
         } catch (error) {
             console.error("Erro no upload da imagem:", error);
             return 'https://i.ibb.co/FqHbGwfs/189697.png';
@@ -3385,8 +3404,8 @@
                     const orig = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
                     return `<div class="presente-mini">
                         <div>
-                            <div class="presente-mini-nome">${p.titulo || '—'}</div>
-                            <div class="presente-mini-quem">por ${p.presenteado_por || '—'} · ${fmtDate(p.data_presente)}</div>
+                            <div class="presente-mini-nome">${escapeHTML(p.titulo || '—')}</div>
+                            <div class="presente-mini-quem">por ${escapeHTML(p.presenteado_por || '—')} · ${fmtDate(p.data_presente)}</div>
                         </div>
                         <div class="presente-mini-valor">${brl(orig)}</div>
                     </div>`;
@@ -3472,9 +3491,9 @@
                 : '<span class="chip chip-roxo">Cliente</span>';
 
             return `<tr>
-                <td><strong>${email}</strong></td>
-                <td>${p.titulo || '—'}</td>
-                <td>${p.presenteado_por || '—'}</td>
+                <td><strong>${escapeHTML(email)}</strong></td>
+                <td>${escapeHTML(p.titulo || '—')}</td>
+                <td>${escapeHTML(p.presenteado_por || '—')}</td>
                 <td>${brl(orig)}</td>
                 <td>${chipTaxa}</td>
                 <td>${taxaPerc}%</td>
@@ -3483,6 +3502,14 @@
                 <td>${fmtDate(p.data_presente)}</td>
             </tr>`;
         }).join('');
+    }
+
+    // Escapa um campo pra CSV: dobra aspas internas e neutraliza injeção de
+    // fórmula (=, +, -, @ no início são interpretados como fórmula pelo Excel/Sheets).
+    function csvSafe(valor) {
+        let v = String(valor ?? '');
+        if (/^[=+\-@]/.test(v)) v = "'" + v;
+        return v.replace(/"/g, '""');
     }
 
     document.getElementById('btnExportarRelatorio').addEventListener('click', () => {
@@ -3497,7 +3524,7 @@
             const lucro     = Math.round(orig * taxaPerc / 100);
             const repasse   = taxaDesse === 'convidado' ? orig : orig - lucro;
             const email     = todosOsUsuarios[p.usuario_id] || p.usuario_id;
-            return `"${email}","${p.titulo || ''}","${p.presenteado_por || ''}","${brl(orig)}","${taxaDesse}","${taxaPerc}%","${brl(lucro)}","${brl(repasse)}","${fmtDate(p.data_presente)}"`;
+            return `"${csvSafe(email)}","${csvSafe(p.titulo)}","${csvSafe(p.presenteado_por)}","${brl(orig)}","${taxaDesse}","${taxaPerc}%","${brl(lucro)}","${brl(repasse)}","${fmtDate(p.data_presente)}"`;
         });
 
         const csv = [header, ...linhas].join('\n');
@@ -3541,7 +3568,7 @@
 
             return `<div class="saque-card">
                 <div>
-                    <div class="saque-nome">${s.nome || '—'} ${statusChip}</div>
+                    <div class="saque-nome">${escapeHTML(s.nome || '—')} ${statusChip}</div>
                     <div class="saque-info">
                         <div class="saque-info-item">
                             <span class="saque-info-label">PIX / CPF</span>
@@ -3908,7 +3935,7 @@
                 const dt = a.criado_em ? (a.criado_em.toDate ? a.criado_em.toDate() : new Date(a.criado_em)).toLocaleString('pt-BR') : '—';
                 const row = document.createElement('div');
                 row.style.cssText = 'display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border1);';
-                row.innerHTML = `<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;">${icones[a.tipo]||'📢'} ${a.titulo||'—'}${a.fixo?'<span style="font-size:10px;background:rgba(139,92,246,0.25);color:#c4a5ff;border-radius:4px;padding:1px 6px;margin-left:6px;">fixo</span>':''}</div><div style="font-size:12px;color:var(--text2);margin-bottom:4px;white-space:pre-wrap;">${a.mensagem||''}</div><div style="font-size:11px;color:var(--text3);">📅 ${dt}</div></div><button onclick="excluirComunicado('${id}')" style="flex-shrink:0;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.28);color:#f87171;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">🗑 Excluir</button>`;
+                row.innerHTML = `<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;">${icones[a.tipo]||'📢'} ${escapeHTML(a.titulo||'—')}${a.fixo?'<span style="font-size:10px;background:rgba(139,92,246,0.25);color:#c4a5ff;border-radius:4px;padding:1px 6px;margin-left:6px;">fixo</span>':''}</div><div style="font-size:12px;color:var(--text2);margin-bottom:4px;white-space:pre-wrap;">${escapeHTML(a.mensagem||'')}</div><div style="font-size:11px;color:var(--text3);">📅 ${dt}</div></div><button onclick="excluirComunicado('${id}')" style="flex-shrink:0;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.28);color:#f87171;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;">🗑 Excluir</button>`;
                 listaComunicadosEl.appendChild(row);
             });
         }, err => console.error("Erro comunicados:", err));
