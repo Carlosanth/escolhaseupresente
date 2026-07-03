@@ -7,7 +7,18 @@
     <link rel="stylesheet" href="Style.css" />
   </head>
   <body>
-    
+
+    <!-- ✅ NOVO: overlay de transição enquanto o pagamento é processado no
+         back-end (Cloud Function → Make → InfinitePay), pra o convidado não
+         achar que travou enquanto espera o redirecionamento. -->
+    <div id="overlay-redirecionando" class="overlay-redirecionando" aria-hidden="true">
+        <div class="overlay-redirecionando-conteudo">
+            <div class="overlay-spinner"></div>
+            <p class="overlay-titulo">Só um instante…</p>
+            <p class="overlay-subtitulo">Estamos te encaminhando para o pagamento</p>
+        </div>
+    </div>
+
     <div class="tela-boas-vindas">
         <div class="conteudo-boas-vindas">
             <h1>Sejam Bem-Vindos ao Nosso Sonho!</h1>

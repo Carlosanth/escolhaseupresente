@@ -681,7 +681,25 @@
     });
 
     // ── finalizarCompra ────────────────────────────────────────
+    const overlayRedirecionando = document.getElementById('overlay-redirecionando');
+    function mostrarOverlayRedirecionando() {
+      if (overlayRedirecionando) {
+        overlayRedirecionando.classList.add('ativo');
+        overlayRedirecionando.setAttribute('aria-hidden', 'false');
+      }
+    }
+    function esconderOverlayRedirecionando() {
+      if (overlayRedirecionando) {
+        overlayRedirecionando.classList.remove('ativo');
+        overlayRedirecionando.setAttribute('aria-hidden', 'true');
+      }
+    }
+
     async function finalizarCompra(nomeConvidado) {
+      // ✅ NOVO: mostra a telinha de transição já aqui — a chamada pra
+      // Cloud Function (que ainda chama o Make, que ainda chama o
+      // InfinitePay) pode levar alguns segundos antes do redirecionamento.
+      mostrarOverlayRedirecionando();
       try {
         const payload = { produtoId: produtoAtualId, nomeConvidado };
 
@@ -703,12 +721,15 @@
         );
         const resultado = await res.json();
         if (resultado?.url) {
+          // Mantém o overlay visível — a página vai navegar pra fora agora.
           window.location.href = resultado.url;
         } else {
+          esconderOverlayRedirecionando();
           alert(resultado.erro || "Não foi possível gerar o link. Tente novamente.");
         }
       } catch (err) {
         console.error("Erro:", err);
+        esconderOverlayRedirecionando();
         alert("Erro de comunicação. Tente novamente.");
       }
     }

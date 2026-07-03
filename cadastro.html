@@ -2465,7 +2465,43 @@
         const notifBadge  = document.getElementById('notifBadge');
         const notifLista  = document.getElementById('notifLista');
         let unsubscribeNotif = null;
-        let notifJaVistas = new Set(); // IDs já vistos para controlar badge
+        // ✅ NOVO: agora guarda IDs de CONTRIBUIÇÕES (produtoId#index), não de produtos —
+        // assim cada pagamento parcial de cota vira notificação própria e não some
+        // nem some o valor certo quando o presente tem mais de um contribuinte.
+        let notifJaVistas = new Set();
+
+        // Junta as contribuições de todos os produtos numa lista única "achatada".
+        // Mantém compatibilidade com presentes antigos (de antes do sistema de
+        // contribuições existir), que só tinham presenteado_por + disponivel:false.
+        function obterTodasContribuicoes() {
+            const lista = [];
+            todosOsProdutos.forEach(p => {
+                if (Array.isArray(p.contribuicoes) && p.contribuicoes.length > 0) {
+                    p.contribuicoes.forEach((c, idx) => {
+                        lista.push({
+                            id: p.id + '#' + idx,
+                            produto: p,
+                            nome: c.nome,
+                            valorCentavos: c.valor_centavos,
+                            data: c.data,
+                            comprovanteUrl: c.comprovante_url,
+                            cotas: c.cotas || null,
+                        });
+                    });
+                } else if (p.presenteado_por && p.disponivel === false) {
+                    lista.push({
+                        id: p.id + '#0',
+                        produto: p,
+                        nome: p.presenteado_por,
+                        valorCentavos: p.preco_original_centavos || p.preco_centavos,
+                        data: p.data_presente,
+                        comprovanteUrl: p.comprovante_url,
+                        cotas: null,
+                    });
+                }
+            });
+            return lista;
+        }
 
         btnNotif.addEventListener('click', () => {
             // Fecha painel de temas e dropdown de avatar se estiverem abertos
@@ -2479,9 +2515,7 @@
             if (areaNotif.classList.contains('ativo')) {
                 notifBadge.style.display = 'none';
                 notifBadge.textContent = '0';
-                notifJaVistas = new Set(todosOsProdutos
-                    .filter(p => p.presenteado_por)
-                    .map(p => p.id));
+                notifJaVistas = new Set(obterTodasContribuicoes().map(c => c.id));
             }
         });
 
@@ -2506,38 +2540,39 @@
         }
 
         function atualizarNotificacoes() {
-            const presenteados = todosOsProdutos.filter(p => p.presenteado_por && p.disponivel === false);
+            const contribuicoes = obterTodasContribuicoes();
 
             // Atualizar badge com novos não vistos
-            const novos = presenteados.filter(p => !notifJaVistas.has(p.id));
+            const novos = contribuicoes.filter(c => !notifJaVistas.has(c.id));
             if (novos.length > 0 && !areaNotif.classList.contains('ativo')) {
                 notifBadge.style.display = 'flex';
                 notifBadge.textContent = novos.length > 9 ? '9+' : novos.length;
             }
 
-            if (presenteados.length === 0) {
+            if (contribuicoes.length === 0) {
                 notifLista.innerHTML = '<p class="notif-vazia">Nenhum presente recebido ainda.</p>';
                 return;
             }
 
             // Ordenar do mais recente para o mais antigo
-            presenteados.sort((a, b) => toMs(b.data_presente) - toMs(a.data_presente));
+            contribuicoes.sort((a, b) => toMs(b.data) - toMs(a.data));
 
             // Preserva apenas os avisos globais (não mexe neles)
             notifLista.querySelectorAll('.notif-item:not(.aviso-global)').forEach(el => el.remove());
 
-            presenteados.forEach(p => {
-                const originalCentavos = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-                const valorFmt = (originalCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            contribuicoes.forEach(c => {
+                const p = c.produto;
+                const valorCentavos = parseInt(c.valorCentavos || 0);
+                const valorFmt = (valorCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 let dataFmt = 'Data não registrada';
-                if (p.data_presente) {
+                if (c.data) {
                     let dataObj = null;
-                    if (p.data_presente.seconds) {
-                        dataObj = new Date(p.data_presente.seconds * 1000);
-                    } else if (typeof p.data_presente.toDate === 'function') {
-                        dataObj = p.data_presente.toDate();
+                    if (c.data.seconds) {
+                        dataObj = new Date(c.data.seconds * 1000);
+                    } else if (typeof c.data.toDate === 'function') {
+                        dataObj = c.data.toDate();
                     } else {
-                        dataObj = new Date(p.data_presente);
+                        dataObj = new Date(c.data);
                     }
                     if (dataObj && !isNaN(dataObj)) {
                         dataFmt = dataObj.toLocaleString('pt-BR', {
@@ -2552,10 +2587,17 @@
                 // Usa textContent para evitar XSS — dados vêm do Firestore
                 const spanNome = document.createElement('span');
                 spanNome.className = 'notif-item-nome';
-                spanNome.textContent = '🎁 ' + (p.presenteado_por || '');
+                spanNome.textContent = '🎁 ' + (c.nome || '');
                 const spanPresente = document.createElement('span');
                 spanPresente.className = 'notif-item-presente';
-                spanPresente.textContent = p.titulo || 'Presente';
+                // ✅ NOVO: se foi pagamento de cota, deixa claro que é PARTE do presente
+                let textoPresente = p.titulo || 'Presente';
+                if (Array.isArray(c.cotas) && c.cotas.length > 0) {
+                    const totalCotas = parseInt(p.cotas_total || 0);
+                    const ocupadas = Array.isArray(p.cotas_ocupadas) ? p.cotas_ocupadas.length : 0;
+                    textoPresente += ` (cota ${c.cotas.length > 1 ? c.cotas.join(', ') : c.cotas[0]}${totalCotas ? ' de ' + totalCotas : ''} — ${ocupadas}/${totalCotas} pagas)`;
+                }
+                spanPresente.textContent = textoPresente;
                 const spanValor = document.createElement('span');
                 spanValor.className = 'notif-item-valor';
                 spanValor.textContent = valorFmt;
@@ -2568,10 +2610,10 @@
                 item.appendChild(spanData);
 
                 // ✅ NOVO: link do comprovante de pagamento (se existir)
-                if (p.comprovante_url && /^https:\/\//i.test(p.comprovante_url)) {
+                if (c.comprovanteUrl && /^https:\/\//i.test(c.comprovanteUrl)) {
                     const linkComprovante = document.createElement('a');
                     linkComprovante.className = 'notif-item-comprovante';
-                    linkComprovante.href = p.comprovante_url;
+                    linkComprovante.href = c.comprovanteUrl;
                     linkComprovante.target = '_blank';
                     linkComprovante.rel = 'noopener noreferrer';
                     linkComprovante.textContent = '🧾 Ver comprovante';
