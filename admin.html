@@ -1523,8 +1523,8 @@
                             <th>Cidade/UF</th>
                             <th>Cadastrado em</th>
                             <th>Itens cadastrados</th>
-                            <th>Presentes recebidos</th>
-                            <th>Total movimentado</th>
+                            <th title="Itens totalmente presenteados (cotas 100% pagas)">Presentes fechados</th>
+                            <th>Total recebido</th>
                             <th>Meu lucro</th>
                             <th>Saldo pendente</th>
                             <th>Ações</th>
@@ -3118,9 +3118,11 @@
     function atualizarVisaoGeral() {
         const uids = [...new Set(todosOsProdutos.map(p => p.usuario_id).filter(Boolean))];
         const entregues = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
-        const totalOriginalCentavos = entregues.reduce((acc, p) => {
-            return acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-        }, 0);
+        // ✅ CORRIGIDO: soma pelo valor REALMENTE pago em cada contribuição
+        // (respeitando cotas parciais), não pelo preço cheio do produto —
+        // que é o que causava o card mostrar dinheiro que ainda não entrou.
+        const totalOriginalCentavos = obterTodasContribuicoesAdmin()
+            .reduce((acc, c) => acc + c.valorCentavos, 0);
         // Lucro real — já recebido (itens entregues)
         const meuLucroReal = Math.round(totalOriginalCentavos * taxaGlobal / 100);
 
@@ -3300,9 +3302,16 @@
 
         tbody.innerHTML = uids.map(uid => {
             const itensDoUsuario    = todosOsProdutos.filter(p => p.usuario_id === uid);
-            const entreguesUsuario  = itensDoUsuario.filter(p => p.disponivel === false && p.presenteado_por);
-            const totalCentavos     = entreguesUsuario.reduce((acc, p) => acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0), 0);
+            // ✅ CORRIGIDO: usa contribuições (cada pagamento real, cota
+            // parcial ou produto inteiro) em vez de só produtos 100% fechados.
+            // Isso é o que decide quanto o cliente já recebeu de fato — antes,
+            // uma cota paga só contava depois do item inteiro fechar, o que
+            // deixava o "saldo pendente" desatualizado (dinheiro que o cliente
+            // já tinha direito de receber não aparecia pra ser sacado).
+            const contribuicoesUsuario = obterTodasContribuicoesAdmin().filter(c => c.usuario_id === uid);
+            const totalCentavos     = contribuicoesUsuario.reduce((acc, c) => acc + c.valorCentavos, 0);
             const meuLucroUsuario   = Math.round(totalCentavos * taxaGlobal / 100);
+            const qtdPresentesFechados = itensDoUsuario.filter(p => p.disponivel === false && p.presenteado_por).length;
             const email             = todosOsUsuarios[uid] || uid.slice(0, 12) + '...';
             const cidadeUf          = todosOsPerfis[uid]?.cidade
                 ? `${todosOsPerfis[uid].cidade}${todosOsPerfis[uid].estado ? '/' + todosOsPerfis[uid].estado : ''}`
@@ -3310,16 +3319,15 @@
             const dataCadastro      = getDataCadastro(uid);
             const dataFmt           = formatarData(dataCadastro);
 
-            // Saldo pendente = repasse líquido total (já considerando a taxa
-            // de cada item, igual ao relatório) MENOS o que já foi pago em
-            // saques anteriores. É o que o cliente tem disponível AGORA,
-            // ainda não retirado.
-            const repasseLiquidoTotal = entreguesUsuario.reduce((acc, p) => {
-                const orig      = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-                const taxaDesse = p.taxa_quem_paga || 'convidado';
-                const taxaPerc  = parseFloat(p.taxa_percentual || taxaGlobal);
-                const lucro     = Math.round(orig * taxaPerc / 100);
-                return acc + (taxaDesse === 'convidado' ? orig : orig - lucro);
+            // Saldo pendente = repasse líquido total de TODAS as contribuições
+            // já pagas (cota parcial inclusa) MENOS o que já foi pago em
+            // saques anteriores. É o que o cliente tem disponível AGORA.
+            const repasseLiquidoTotal = contribuicoesUsuario.reduce((acc, c) => {
+                const p          = c.produto;
+                const taxaDesse  = p.taxa_quem_paga || 'convidado';
+                const taxaPerc   = parseFloat(p.taxa_percentual || taxaGlobal);
+                const lucro      = Math.round(c.valorCentavos * taxaPerc / 100);
+                return acc + (taxaDesse === 'convidado' ? c.valorCentavos : c.valorCentavos - lucro);
             }, 0);
             const jaPagoCentavos = todosOsSaques
                 .filter(s => s.usuario_id === uid && s.status === 'pago')
@@ -3347,7 +3355,7 @@
                 <td>${cidadeUf}</td>
                 <td>${dataFmt}${chipTempo}</td>
                 <td>${itensDoUsuario.length}</td>
-                <td><span class="chip chip-verde">${entreguesUsuario.length}</span></td>
+                <td><span class="chip chip-verde">${qtdPresentesFechados}</span></td>
                 <td>${brl(totalCentavos)}</td>
                 <td><span class="chip chip-amarelo">${brl(meuLucroUsuario)}</span></td>
                 <td>${chipSaldo}</td>
@@ -3379,41 +3387,61 @@
     // MODAL DETALHE CLIENTE
     // ================================================================
     window.abrirDetalheCliente = function(uid) {
-        const itens      = todosOsProdutos.filter(p => p.usuario_id === uid);
-        const entregues  = itens.filter(p => p.disponivel === false && p.presenteado_por);
-        const total      = entregues.reduce((acc, p) => acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0), 0);
-        const lucro      = Math.round(total * taxaGlobal / 100);
-        const repasse    = total - lucro;
-        const email      = todosOsUsuarios[uid] || uid;
+        const itens = todosOsProdutos.filter(p => p.usuario_id === uid);
+
+        // ✅ CORRIGIDO: agora usa as contribuições (cada pagamento — cota
+        // parcial ou produto inteiro), consistente com a aba de Relatório.
+        const contribuicoesCliente = obterTodasContribuicoesAdmin()
+            .filter(c => c.usuario_id === uid)
+            .sort((a, b) => toMsAdmin(b.data) - toMsAdmin(a.data));
+
+        const total   = contribuicoesCliente.reduce((acc, c) => acc + c.valorCentavos, 0);
+        const lucro   = Math.round(total * taxaGlobal / 100);
+        const repasse = total - lucro;
+        const email   = todosOsUsuarios[uid] || uid;
+
+        // Quantos itens da lista já foram 100% presenteados vs ainda em andamento
+        const itensFechados    = itens.filter(p => p.disponivel === false && p.presenteado_por).length;
+        const itensEmAndamento = itens.filter(p => Array.isArray(p.contribuicoes) && p.contribuicoes.length > 0 && p.disponivel !== false).length;
 
         document.getElementById('modalClienteNome').textContent = email;
         document.getElementById('modalClienteGrid').innerHTML = `
             <div class="detalhe-item"><div class="detalhe-item-label">Itens cadastrados</div><div class="detalhe-item-valor roxo">${itens.length}</div></div>
-            <div class="detalhe-item"><div class="detalhe-item-label">Presentes recebidos</div><div class="detalhe-item-valor verde">${entregues.length}</div></div>
-            <div class="detalhe-item"><div class="detalhe-item-label">Total movimentado</div><div class="detalhe-item-valor">${brl(total)}</div></div>
+            <div class="detalhe-item"><div class="detalhe-item-label">Presentes fechados</div><div class="detalhe-item-valor verde">${itensFechados}${itensEmAndamento > 0 ? ` <span style="font-size:11px;color:var(--text3);font-weight:400;">(+${itensEmAndamento} em andamento)</span>` : ''}</div></div>
+            <div class="detalhe-item"><div class="detalhe-item-label">Total recebido</div><div class="detalhe-item-valor">${brl(total)}</div></div>
             <div class="detalhe-item"><div class="detalhe-item-label">Meu lucro (${taxaGlobal}%)</div><div class="detalhe-item-valor amarelo">${brl(lucro)}</div></div>
             <div class="detalhe-item" style="grid-column:span 2"><div class="detalhe-item-label">A repassar ao cliente</div><div class="detalhe-item-valor verde">${brl(repasse)}</div></div>
         `;
 
         const presentesEl = document.getElementById('modalClientePresentes');
-        if (entregues.length === 0) {
-            presentesEl.innerHTML = '<p style="color:var(--text3); font-size:13px; padding:12px 0;">Nenhum presente recebido ainda.</p>';
+        if (contribuicoesCliente.length === 0) {
+            presentesEl.innerHTML = '<p style="color:var(--text3); font-size:13px; padding:12px 0;">Nenhuma contribuição recebida ainda.</p>';
         } else {
-            presentesEl.innerHTML = entregues
-                .sort((a, b) => (b.data_presente?.seconds || 0) - (a.data_presente?.seconds || 0))
-                .map(p => {
-                    const orig = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-                    const comprovanteHTML = (p.comprovante_url && /^https:\/\//i.test(p.comprovante_url))
-                        ? ` · <a href="${escapeHTML(p.comprovante_url)}" target="_blank" rel="noopener noreferrer" style="color:#a78bfa;">🧾 comprovante</a>`
-                        : '';
-                    return `<div class="presente-mini">
-                        <div>
-                            <div class="presente-mini-nome">${escapeHTML(p.titulo || '—')}</div>
-                            <div class="presente-mini-quem">por ${escapeHTML(p.presenteado_por || '—')} · ${fmtDate(p.data_presente)}${comprovanteHTML}</div>
-                        </div>
-                        <div class="presente-mini-valor">${brl(orig)}</div>
-                    </div>`;
-                }).join('');
+            presentesEl.innerHTML = contribuicoesCliente.map(c => {
+                const p = c.produto;
+                const comprovanteHTML = (c.comprovanteUrl && /^https:\/\//i.test(c.comprovanteUrl))
+                    ? `<a href="${escapeHTML(c.comprovanteUrl)}" target="_blank" rel="noopener noreferrer" style="color:#a78bfa;">🧾 comprovante</a>`
+                    : `<span style="color:var(--text3);">sem comprovante</span>`;
+
+                // Indica claramente se é cota parcial, e se o item já fechou ou não
+                let statusChip = '';
+                if (Array.isArray(c.cotas) && c.cotas.length > 0) {
+                    const totalCotas = parseInt(p.cotas_total || 0);
+                    const ocupadas = Array.isArray(p.cotas_ocupadas) ? p.cotas_ocupadas.length : 0;
+                    const fechado = p.disponivel === false;
+                    statusChip = `<span class="chip ${fechado ? 'chip-verde' : 'chip-amarelo'}" style="font-size:10px;">
+                        ${fechado ? '✓ completo' : `cota ${ocupadas}/${totalCotas}`}
+                    </span>`;
+                }
+
+                return `<div class="presente-mini">
+                    <div>
+                        <div class="presente-mini-nome">${escapeHTML(p.titulo || '—')} ${statusChip}</div>
+                        <div class="presente-mini-quem">por ${escapeHTML(c.nome || '—')} · ${fmtDate(c.data)} · ${comprovanteHTML}</div>
+                    </div>
+                    <div class="presente-mini-valor">${brl(c.valorCentavos)}</div>
+                </div>`;
+            }).join('');
         }
 
         document.getElementById('modalCliente').classList.add('ativo');
@@ -3432,10 +3460,47 @@
     // ================================================================
     // RELATÓRIO
     // ================================================================
+    // ✅ NOVO: junta as contribuições de cada produto (cada pagamento — cota
+    // parcial ou produto inteiro) numa lista única "achatada". Mantém
+    // compatibilidade com presentes antigos, de antes do sistema de
+    // contribuições existir (só tinham presenteado_por + disponivel:false).
+    function obterTodasContribuicoesAdmin() {
+        const lista = [];
+        todosOsProdutos.forEach(p => {
+            if (Array.isArray(p.contribuicoes) && p.contribuicoes.length > 0) {
+                p.contribuicoes.forEach((c, idx) => {
+                    lista.push({
+                        id: p.id + '#' + idx,
+                        produto: p,
+                        usuario_id: p.usuario_id,
+                        titulo: p.titulo,
+                        nome: c.nome,
+                        valorCentavos: parseInt(c.valor_centavos || 0),
+                        data: c.data,
+                        comprovanteUrl: c.comprovante_url,
+                        cotas: c.cotas || null,
+                    });
+                });
+            } else if (p.presenteado_por && p.disponivel === false) {
+                lista.push({
+                    id: p.id + '#0',
+                    produto: p,
+                    usuario_id: p.usuario_id,
+                    titulo: p.titulo,
+                    nome: p.presenteado_por,
+                    valorCentavos: parseInt(p.preco_original_centavos || p.preco_centavos || 0),
+                    data: p.data_presente,
+                    comprovanteUrl: p.comprovante_url,
+                    cotas: null,
+                });
+            }
+        });
+        return lista;
+    }
+
     function obterEntreguesFiltrados() {
-        let entregues = todosOsProdutos
-            .filter(p => p.disponivel === false && p.presenteado_por)
-            .sort((a, b) => (b.data_presente?.seconds || 0) - (a.data_presente?.seconds || 0));
+        let entregues = obterTodasContribuicoesAdmin()
+            .sort((a, b) => (toMsAdmin(b.data)) - (toMsAdmin(a.data)));
 
         const termo = (document.getElementById('buscaRelatorio')?.value || '').trim().toLowerCase();
         const dataIni = document.getElementById('dataInicioRelatorio')?.value;
@@ -3444,32 +3509,39 @@
 
         // Filtro por cliente específico
         if (uidFiltro) {
-            entregues = entregues.filter(p => p.usuario_id === uidFiltro);
+            entregues = entregues.filter(c => c.usuario_id === uidFiltro);
         }
 
         if (termo) {
-            entregues = entregues.filter(p => {
-                const email = (todosOsUsuarios[p.usuario_id] || '').toLowerCase();
-                const titulo = (p.titulo || '').toLowerCase();
-                const convidado = (p.presenteado_por || '').toLowerCase();
+            entregues = entregues.filter(c => {
+                const email = (todosOsUsuarios[c.usuario_id] || '').toLowerCase();
+                const titulo = (c.titulo || '').toLowerCase();
+                const convidado = (c.nome || '').toLowerCase();
                 return email.includes(termo) || titulo.includes(termo) || convidado.includes(termo);
             });
         }
         if (dataIni) {
             const ini = new Date(dataIni + 'T00:00:00');
-            entregues = entregues.filter(p => {
-                const d = p.data_presente?.toDate ? p.data_presente.toDate() : null;
+            entregues = entregues.filter(c => {
+                const d = c.data?.toDate ? c.data.toDate() : (c.data ? new Date(toMsAdmin(c.data)) : null);
                 return d && d >= ini;
             });
         }
         if (dataFim) {
             const fim = new Date(dataFim + 'T23:59:59');
-            entregues = entregues.filter(p => {
-                const d = p.data_presente?.toDate ? p.data_presente.toDate() : null;
+            entregues = entregues.filter(c => {
+                const d = c.data?.toDate ? c.data.toDate() : (c.data ? new Date(toMsAdmin(c.data)) : null);
                 return d && d <= fim;
             });
         }
         return entregues;
+    }
+
+    function toMsAdmin(ts) {
+        if (!ts) return 0;
+        if (ts.seconds) return ts.seconds * 1000;
+        if (typeof ts.toDate === 'function') return ts.toDate().getTime();
+        return new Date(ts).getTime() || 0;
     }
 
     function atualizarRelatorio() {
@@ -3483,31 +3555,38 @@
             return;
         }
 
-        tbody.innerHTML = entregues.map(p => {
-            const orig        = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-            const taxaDesse   = p.taxa_quem_paga || 'convidado';
-            const taxaPerc    = parseFloat(p.taxa_percentual || taxaGlobal);
-            const lucro       = Math.round(orig * taxaPerc / 100);
-            const repasse     = taxaDesse === 'convidado' ? orig : orig - lucro;
-            const email       = todosOsUsuarios[p.usuario_id] || p.usuario_id?.slice(0,10) + '...';
-            const chipTaxa    = taxaDesse === 'convidado'
+        tbody.innerHTML = entregues.map(c => {
+            const p            = c.produto;
+            const orig         = c.valorCentavos; // valor real dessa contribuição (cota parcial ou inteiro)
+            const taxaDesse    = p.taxa_quem_paga || 'convidado';
+            const taxaPerc     = parseFloat(p.taxa_percentual || taxaGlobal);
+            const lucro        = Math.round(orig * taxaPerc / 100);
+            const repasse      = taxaDesse === 'convidado' ? orig : orig - lucro;
+            const email        = todosOsUsuarios[c.usuario_id] || c.usuario_id?.slice(0,10) + '...';
+            const chipTaxa     = taxaDesse === 'convidado'
                 ? '<span class="chip chip-amarelo">Convidado</span>'
                 : '<span class="chip chip-roxo">Cliente</span>';
             // ✅ NOVO: link do comprovante, só renderiza se for https válido
-            const comprovanteHTML = (p.comprovante_url && /^https:\/\//i.test(p.comprovante_url))
-                ? `<a href="${escapeHTML(p.comprovante_url)}" target="_blank" rel="noopener noreferrer" style="color:#a78bfa;text-decoration:underline;">🧾 Ver</a>`
+            const comprovanteHTML = (c.comprovanteUrl && /^https:\/\//i.test(c.comprovanteUrl))
+                ? `<a href="${escapeHTML(c.comprovanteUrl)}" target="_blank" rel="noopener noreferrer" style="color:#a78bfa;text-decoration:underline;">🧾 Ver</a>`
                 : '<span style="color:var(--text3);">—</span>';
+            // ✅ NOVO: indica se foi pagamento de cota parcial
+            let tituloExibido = escapeHTML(p.titulo || '—');
+            if (Array.isArray(c.cotas) && c.cotas.length > 0) {
+                const totalCotas = parseInt(p.cotas_total || 0);
+                tituloExibido += ` <span style="color:var(--text3);font-size:11px;">(cota ${escapeHTML(c.cotas.join(', '))}${totalCotas ? ' de ' + totalCotas : ''})</span>`;
+            }
 
             return `<tr>
                 <td><strong>${escapeHTML(email)}</strong></td>
-                <td>${escapeHTML(p.titulo || '—')}</td>
-                <td>${escapeHTML(p.presenteado_por || '—')}</td>
+                <td>${tituloExibido}</td>
+                <td>${escapeHTML(c.nome || '—')}</td>
                 <td>${brl(orig)}</td>
                 <td>${chipTaxa}</td>
                 <td>${taxaPerc}%</td>
                 <td><span class="chip chip-verde">${brl(lucro)}</span></td>
                 <td>${brl(repasse)}</td>
-                <td>${fmtDate(p.data_presente)}</td>
+                <td>${fmtDate(c.data)}</td>
                 <td>${comprovanteHTML}</td>
             </tr>`;
         }).join('');
@@ -3525,15 +3604,17 @@
         const entregues = obterEntreguesFiltrados();
         if (entregues.length === 0) { toast('⚠️ Nenhum dado para exportar com os filtros atuais.'); return; }
 
-        const header = '"Cliente","Presente","Convidado","Valor Original","Quem Pagou Taxa","Taxa","Meu Lucro","Cliente Recebeu","Data","Comprovante"';
-        const linhas = entregues.map(p => {
-            const orig      = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
-            const taxaDesse = p.taxa_quem_paga || 'convidado';
-            const taxaPerc  = parseFloat(p.taxa_percentual || taxaGlobal);
-            const lucro     = Math.round(orig * taxaPerc / 100);
-            const repasse   = taxaDesse === 'convidado' ? orig : orig - lucro;
-            const email     = todosOsUsuarios[p.usuario_id] || p.usuario_id;
-            return `"${csvSafe(email)}","${csvSafe(p.titulo)}","${csvSafe(p.presenteado_por)}","${brl(orig)}","${taxaDesse}","${taxaPerc}%","${brl(lucro)}","${brl(repasse)}","${fmtDate(p.data_presente)}","${csvSafe(p.comprovante_url || '')}"`;
+        const header = '"Cliente","Presente","Convidado","Valor","Quem Pagou Taxa","Taxa","Meu Lucro","Cliente Recebeu","Data","Comprovante"';
+        const linhas = entregues.map(c => {
+            const p          = c.produto;
+            const orig       = c.valorCentavos;
+            const taxaDesse  = p.taxa_quem_paga || 'convidado';
+            const taxaPerc   = parseFloat(p.taxa_percentual || taxaGlobal);
+            const lucro      = Math.round(orig * taxaPerc / 100);
+            const repasse    = taxaDesse === 'convidado' ? orig : orig - lucro;
+            const email      = todosOsUsuarios[c.usuario_id] || c.usuario_id;
+            const tituloCsv  = c.cotas ? `${p.titulo} (cota ${c.cotas.join(',')})` : p.titulo;
+            return `"${csvSafe(email)}","${csvSafe(tituloCsv)}","${csvSafe(c.nome)}","${brl(orig)}","${taxaDesse}","${taxaPerc}%","${brl(lucro)}","${brl(repasse)}","${fmtDate(c.data)}","${csvSafe(c.comprovanteUrl || '')}"`;
         });
 
         const csv = [header, ...linhas].join('\n');
@@ -3857,17 +3938,19 @@
                     document.head.appendChild(s);
                 });
             }
-            const entregues = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
+            const entregues = obterTodasContribuicoesAdmin();
             if (entregues.length === 0) { toast('Nenhum dado para exportar.'); return; }
 
-            const rows = entregues.map(p => {
-                const orig    = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+            const rows = entregues.map(c => {
+                const p       = c.produto;
+                const orig    = c.valorCentavos;
                 const lucro   = Math.round(orig * taxaGlobal / 100);
                 const repasse = orig - lucro;
-                const d = p.data_presente?.toDate ? p.data_presente.toDate() : null;
+                const d = c.data?.toDate ? c.data.toDate() : (c.data ? new Date(toMsAdmin(c.data)) : null);
                 return {
-                    'Presenteador':   p.presenteado_por || '—',
+                    'Presenteador':   c.nome || '—',
                     'Presente':       p.titulo || '—',
+                    'Cota':           c.cotas ? c.cotas.join(', ') : '—',
                     'Categoria':      p.categoria || '—',
                     'Valor (R$)':     (orig / 100).toFixed(2).replace('.', ','),
                     'Meu lucro (R$)': (lucro / 100).toFixed(2).replace('.', ','),
@@ -3878,12 +3961,12 @@
             });
 
             const ws = window.XLSX.utils.json_to_sheet(rows);
-            ws['!cols'] = [{wch:22},{wch:30},{wch:18},{wch:14},{wch:16},{wch:14},{wch:14},{wch:16}];
+            ws['!cols'] = [{wch:22},{wch:30},{wch:12},{wch:18},{wch:14},{wch:16},{wch:14},{wch:14},{wch:16}];
             const wb = window.XLSX.utils.book_new();
             window.XLSX.utils.book_append_sheet(wb, ws, 'Presentes');
 
             // Aba resumo
-            const totalOrig = entregues.reduce((a,p)=>a+parseInt(p.preco_original_centavos||p.preco_centavos||0),0);
+            const totalOrig = entregues.reduce((a,c)=>a+c.valorCentavos,0);
             const wsR = window.XLSX.utils.json_to_sheet([
                 { 'Métrica': 'Total de presentes pagos', 'Valor': entregues.length },
                 { 'Métrica': 'Total movimentado (R$)', 'Valor': (totalOrig/100).toFixed(2).replace('.',',') },
