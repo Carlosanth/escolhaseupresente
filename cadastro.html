@@ -2609,19 +2609,170 @@
                 item.appendChild(spanValor);
                 item.appendChild(spanData);
 
-                // ✅ NOVO: link do comprovante de pagamento (se existir)
-                if (c.comprovanteUrl && /^https:\/\//i.test(c.comprovanteUrl)) {
-                    const linkComprovante = document.createElement('a');
-                    linkComprovante.className = 'notif-item-comprovante';
-                    linkComprovante.href = c.comprovanteUrl;
-                    linkComprovante.target = '_blank';
-                    linkComprovante.rel = 'noopener noreferrer';
-                    linkComprovante.textContent = '🧾 Ver comprovante';
-                    linkComprovante.style.cssText = 'font-size:11px;color:#a78bfa;text-decoration:underline;margin-top:2px;display:inline-block;';
-                    item.appendChild(linkComprovante);
-                }
+                // ✅ NOVO: botão que gera o recibo próprio da plataforma (não o
+                // link bruto do gateway de pagamento — esse fica só no admin,
+                // porque mostra valor com taxa misturada e pode confundir o
+                // cliente ou o convidado).
+                const btnRecibo = document.createElement('button');
+                btnRecibo.type = 'button';
+                btnRecibo.className = 'notif-item-comprovante';
+                btnRecibo.textContent = '🧾 Ver recibo';
+                btnRecibo.style.cssText = 'font-size:11px;color:#a78bfa;text-decoration:underline;margin-top:2px;display:inline-block;background:none;border:none;padding:0;cursor:pointer;font-family:inherit;';
+                btnRecibo.addEventListener('click', () => abrirReciboCliente(c, p));
+                item.appendChild(btnRecibo);
                 notifLista.appendChild(item);
             });
+        }
+
+        // ================================================================
+        // RECIBO PRÓPRIO DA PLATAFORMA (não é o comprovante do gateway)
+        // ================================================================
+        // Gera um recibo estilizado com o tema da aplicação, mostrando só o
+        // que interessa pro dono da lista: quem contribuiu, valor da
+        // contribuição e quanto ele efetivamente recebe (já considerando
+        // quem paga a taxa da plataforma). É um documento interno — não
+        // substitui o comprovante bancário oficial, que fica só no admin.
+        function abrirReciboCliente(c, p) {
+            const valorPago   = parseInt(c.valorCentavos || 0);
+            const taxaDesse   = p.taxa_quem_paga || taxaQuemPaga || 'convidado';
+            const taxaPerc    = parseFloat(p.taxa_percentual != null ? p.taxa_percentual : TAXA_PERCENTUAL || 0);
+            const taxaCentavos = Math.round(valorPago * taxaPerc / 100);
+            const vocRecebe   = taxaDesse === 'convidado' ? valorPago : valorPago - taxaCentavos;
+
+            const fmt = (centavos) => (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            let dataObj = new Date();
+            if (c.data) {
+                if (c.data.seconds) dataObj = new Date(c.data.seconds * 1000);
+                else if (typeof c.data.toDate === 'function') dataObj = c.data.toDate();
+                else dataObj = new Date(c.data);
+            }
+            const dataFmt = dataObj.toLocaleDateString('pt-BR');
+            const horaFmt = dataObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+            // Número do recibo: determinístico a partir do produto + índice da
+            // contribuição, só pra ter uma referência curta e estável.
+            const numeroRecibo = (c.id || '').replace('#', '-').slice(-10).toUpperCase().padStart(10, '0');
+
+            let itemLinha = escapeHtmlRecibo(p.titulo || 'Presente');
+            if (Array.isArray(c.cotas) && c.cotas.length > 0) {
+                const totalCotas = parseInt(p.cotas_total || 0);
+                itemLinha += ` — cota ${escapeHtmlRecibo(c.cotas.join(', '))}${totalCotas ? ' de ' + totalCotas : ''}`;
+            }
+
+            const linhaTaxa = taxaPerc > 0
+                ? `<div class="r"><span>Taxa da plataforma (${taxaPerc}%)</span><span>${taxaDesse === 'convidado' ? 'paga pelo convidado' : '- ' + fmt(taxaCentavos)}</span></div>`
+                : '';
+
+            const html = `<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Recibo — ${escapeHtmlRecibo(itemLinha)}</title>
+<style>
+  :root{
+    --bg:#1a1530;
+    --paper:#fffdf8;
+    --ink:#1a1a1a;
+    --muted:#6b7280;
+    --line:#e6e2d6;
+    --accent:#7c3aed;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px}
+  .receipt{
+    width:320px;background:var(--paper);position:relative;
+    padding:22px 22px 28px;
+    box-shadow:0 18px 40px -18px rgba(0,0,0,.5), 0 2px 4px rgba(0,0,0,.15);
+    --tooth:10px;
+    -webkit-mask:
+      linear-gradient(#000,#000) top/100% calc(100% - var(--tooth)) no-repeat,
+      conic-gradient(from -45deg at 50% 0,#000 90deg,transparent 0) bottom/var(--tooth) var(--tooth) repeat-x;
+            mask:
+      linear-gradient(#000,#000) top/100% calc(100% - var(--tooth)) no-repeat,
+      conic-gradient(from -45deg at 50% 0,#000 90deg,transparent 0) bottom/var(--tooth) var(--tooth) repeat-x;
+  }
+  .brand{text-align:center;margin-bottom:14px}
+  .brand .logo{
+    display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;
+    background:var(--accent);color:#fff;font-weight:700;font-size:16px;margin-bottom:6px;
+    font-family:"Cormorant Garamond",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+  }
+  .brand h1{margin:0;font-size:13px;letter-spacing:.15em;text-transform:uppercase}
+  .brand p{margin:2px 0 0;font-size:10px;color:var(--muted)}
+  .divider{border:none;border-top:1px dashed var(--line);margin:12px 0}
+  .head{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+  .head strong{color:var(--ink)}
+  .amount{text-align:center;padding:14px 0 10px}
+  .amount .label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .amount .value{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:30px;font-weight:700;letter-spacing:-.5px;margin-top:2px;color:var(--accent)
+  }
+  .amount .status{
+    display:inline-block;margin-top:6px;font-size:10px;font-weight:700;letter-spacing:.15em;
+    color:var(--accent);border:1px solid var(--accent);padding:2px 8px;border-radius:999px;text-transform:uppercase
+  }
+  .rows{font-size:11px;line-height:1.9}
+  .rows .r{display:flex;justify-content:space-between;gap:8px}
+  .rows .r span:first-child{color:var(--muted)}
+  .rows .r span:last-child{color:var(--ink);text-align:right;max-width:60%;word-break:break-word}
+  .rows .r.destaque span:last-child{font-weight:700;color:var(--accent)}
+  .footer{text-align:center;font-size:10px;color:var(--muted);line-height:1.6;margin-top:14px}
+  .footer .aviso{font-size:9px;margin-top:6px;color:#9ca3af}
+  .footer .code{margin-top:8px;letter-spacing:.15em;font-weight:700;color:var(--ink)}
+  @media print{ body{background:#fff;padding:0} .receipt{box-shadow:none} }
+</style>
+</head>
+<body>
+  <article class="receipt" aria-label="Recibo de contribuição">
+    <div class="brand">
+      <div class="logo">🎁</div>
+      <h1>Escolha Seu Presente</h1>
+      <p>Recibo interno de contribuição</p>
+    </div>
+    <hr class="divider" />
+    <div class="head">
+      <span>Recibo <strong>#${numeroRecibo}</strong></span>
+      <span>${dataFmt} · ${horaFmt}</span>
+    </div>
+    <div class="amount">
+      <div class="label">Valor da contribuição</div>
+      <div class="value">${fmt(valorPago)}</div>
+      <div class="status">Pago</div>
+    </div>
+    <hr class="divider" />
+    <div class="rows">
+      <div class="r"><span>Presente</span><span>${itemLinha}</span></div>
+      <div class="r"><span>Convidado</span><span>${escapeHtmlRecibo(c.nome || '—')}</span></div>
+      ${linhaTaxa}
+      <div class="r destaque"><span>Você recebe</span><span>${fmt(vocRecebe)}</span></div>
+    </div>
+    <hr class="divider" />
+    <div class="footer">
+      Escolha Seu Presente<br/>escolhaseupresente.com
+      <div class="code">#${numeroRecibo}</div>
+      <div class="aviso">Documento interno da plataforma, gerado automaticamente. Não substitui comprovante bancário oficial.</div>
+    </div>
+  </article>
+</body>
+</html>`;
+
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank', 'noopener,noreferrer');
+            // Libera a URL depois de um tempo (dá tempo da aba abrir e carregar)
+            setTimeout(() => URL.revokeObjectURL(url), 30000);
+        }
+
+        // Escape simples pra evitar quebrar o HTML do recibo com dados do Firestore
+        function escapeHtmlRecibo(str) {
+            const div = document.createElement('div');
+            div.textContent = String(str ?? '');
+            return div.innerHTML;
         }
 
         // ================================================================
