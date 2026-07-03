@@ -2566,6 +2566,18 @@
                 item.appendChild(spanPresente);
                 item.appendChild(spanValor);
                 item.appendChild(spanData);
+
+                // ✅ NOVO: link do comprovante de pagamento (se existir)
+                if (p.comprovante_url && /^https:\/\//i.test(p.comprovante_url)) {
+                    const linkComprovante = document.createElement('a');
+                    linkComprovante.className = 'notif-item-comprovante';
+                    linkComprovante.href = p.comprovante_url;
+                    linkComprovante.target = '_blank';
+                    linkComprovante.rel = 'noopener noreferrer';
+                    linkComprovante.textContent = '🧾 Ver comprovante';
+                    linkComprovante.style.cssText = 'font-size:11px;color:#a78bfa;text-decoration:underline;margin-top:2px;display:inline-block;';
+                    item.appendChild(linkComprovante);
+                }
                 notifLista.appendChild(item);
             });
         }

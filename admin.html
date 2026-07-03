@@ -1628,10 +1628,11 @@
                             <th>Meu lucro</th>
                             <th>Repasse cliente</th>
                             <th>Data</th>
+                            <th>Comprovante</th>
                         </tr>
                     </thead>
                     <tbody id="tabelaRelatorio">
-                        <tr class="loading-row"><td colspan="9">Carregando...</td></tr>
+                        <tr class="loading-row"><td colspan="10">Carregando...</td></tr>
                     </tbody>
                 </table>
                 </div>
@@ -3402,10 +3403,13 @@
                 .sort((a, b) => (b.data_presente?.seconds || 0) - (a.data_presente?.seconds || 0))
                 .map(p => {
                     const orig = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
+                    const comprovanteHTML = (p.comprovante_url && /^https:\/\//i.test(p.comprovante_url))
+                        ? ` · <a href="${escapeHTML(p.comprovante_url)}" target="_blank" rel="noopener noreferrer" style="color:#a78bfa;">🧾 comprovante</a>`
+                        : '';
                     return `<div class="presente-mini">
                         <div>
                             <div class="presente-mini-nome">${escapeHTML(p.titulo || '—')}</div>
-                            <div class="presente-mini-quem">por ${escapeHTML(p.presenteado_por || '—')} · ${fmtDate(p.data_presente)}</div>
+                            <div class="presente-mini-quem">por ${escapeHTML(p.presenteado_por || '—')} · ${fmtDate(p.data_presente)}${comprovanteHTML}</div>
                         </div>
                         <div class="presente-mini-valor">${brl(orig)}</div>
                     </div>`;
@@ -3475,7 +3479,7 @@
         if (!tbody) return;
 
         if (entregues.length === 0) {
-            tbody.innerHTML = '<tr class="loading-row"><td colspan="9">Nenhum presente encontrado.</td></tr>';
+            tbody.innerHTML = '<tr class="loading-row"><td colspan="10">Nenhum presente encontrado.</td></tr>';
             return;
         }
 
@@ -3489,6 +3493,10 @@
             const chipTaxa    = taxaDesse === 'convidado'
                 ? '<span class="chip chip-amarelo">Convidado</span>'
                 : '<span class="chip chip-roxo">Cliente</span>';
+            // ✅ NOVO: link do comprovante, só renderiza se for https válido
+            const comprovanteHTML = (p.comprovante_url && /^https:\/\//i.test(p.comprovante_url))
+                ? `<a href="${escapeHTML(p.comprovante_url)}" target="_blank" rel="noopener noreferrer" style="color:#a78bfa;text-decoration:underline;">🧾 Ver</a>`
+                : '<span style="color:var(--text3);">—</span>';
 
             return `<tr>
                 <td><strong>${escapeHTML(email)}</strong></td>
@@ -3500,6 +3508,7 @@
                 <td><span class="chip chip-verde">${brl(lucro)}</span></td>
                 <td>${brl(repasse)}</td>
                 <td>${fmtDate(p.data_presente)}</td>
+                <td>${comprovanteHTML}</td>
             </tr>`;
         }).join('');
     }
@@ -3516,7 +3525,7 @@
         const entregues = obterEntreguesFiltrados();
         if (entregues.length === 0) { toast('⚠️ Nenhum dado para exportar com os filtros atuais.'); return; }
 
-        const header = '"Cliente","Presente","Convidado","Valor Original","Quem Pagou Taxa","Taxa","Meu Lucro","Cliente Recebeu","Data"';
+        const header = '"Cliente","Presente","Convidado","Valor Original","Quem Pagou Taxa","Taxa","Meu Lucro","Cliente Recebeu","Data","Comprovante"';
         const linhas = entregues.map(p => {
             const orig      = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
             const taxaDesse = p.taxa_quem_paga || 'convidado';
@@ -3524,7 +3533,7 @@
             const lucro     = Math.round(orig * taxaPerc / 100);
             const repasse   = taxaDesse === 'convidado' ? orig : orig - lucro;
             const email     = todosOsUsuarios[p.usuario_id] || p.usuario_id;
-            return `"${csvSafe(email)}","${csvSafe(p.titulo)}","${csvSafe(p.presenteado_por)}","${brl(orig)}","${taxaDesse}","${taxaPerc}%","${brl(lucro)}","${brl(repasse)}","${fmtDate(p.data_presente)}"`;
+            return `"${csvSafe(email)}","${csvSafe(p.titulo)}","${csvSafe(p.presenteado_por)}","${brl(orig)}","${taxaDesse}","${taxaPerc}%","${brl(lucro)}","${brl(repasse)}","${fmtDate(p.data_presente)}","${csvSafe(p.comprovante_url || '')}"`;
         });
 
         const csv = [header, ...linhas].join('\n');
