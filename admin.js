@@ -3,7 +3,6 @@
             renderizarComunicadoSeguro,
             renderizarTabelaPresentes,
             renderizarCategoriasSeguras,
-            formatarData,
             formatarMoeda
         } from "./admin-security-fixes.js";
         
