@@ -135,8 +135,14 @@
                         <label for="cadastroSenha">Senha</label>
                         <input type="password" id="cadastroSenha" class="field-input" placeholder="Mínimo 7 caracteres" required autocomplete="new-password">
                     </div>
+                    <div class="field-group field-checkbox">
+                        <label class="checkbox-termos">
+                            <input type="checkbox" id="cadastroAceiteTermos" required>
+                            <span>Li e concordo com os <a href="/termos.html" target="_blank">Termos de Uso</a> e a <a href="/privacidade.html" target="_blank">Política de Privacidade</a>.</span>
+                        </label>
+                    </div>
                     <div id="erro-cadastro" class="msg-erro"></div>
-                    <button type="button" id="btnCadastrarEfetivo" class="btn-primary">Criar conta</button>
+                    <button type="button" id="btnCadastrarEfetivo" class="btn-primary" disabled>Criar conta</button>
                 </form>
 
                 <div class="card-divider"><span>Já tem uma conta?</span></div>
@@ -168,11 +174,30 @@
         </div>
     </div>
 
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-brand">✦ Escolha Seu Presente</div>
+            <nav class="footer-links">
+                <a href="/termos.html">Termos de Uso</a>
+                <span class="footer-sep">·</span>
+                <a href="/privacidade.html">Política de Privacidade</a>
+            </nav>
+            <div class="footer-contato">
+                <a href="mailto:[EMAIL_CONTATO_LGPD]">[EMAIL_CONTATO_LGPD]</a>
+            </div>
+            <div class="footer-social">
+                <a href="[LINK_TIKTOK]" target="_blank" rel="noopener noreferrer">TikTok</a>
+                <a href="[LINK_INSTAGRAM]" target="_blank" rel="noopener noreferrer">Instagram</a>
+            </div>
+            <div class="footer-copy">© 2026 Escolha Seu Presente. Todos os direitos reservados.</div>
+        </div>
+    </footer>
+
     <script type="module">
         import { firebaseConfig } from "./firebase-config.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         
 
@@ -297,6 +322,14 @@
         });
 
         // ── Cadastro → vai ao onboarding ───────────────────────
+        // ✅ NOVO: botão de criar conta só libera quando o checkbox de
+        // Termos/Privacidade estiver marcado.
+        const checkAceiteTermos = document.getElementById('cadastroAceiteTermos');
+        const btnCadastrarEfetivoEl = document.getElementById('btnCadastrarEfetivo');
+        checkAceiteTermos?.addEventListener('change', () => {
+            btnCadastrarEfetivoEl.disabled = !checkAceiteTermos.checked;
+        });
+
         document.getElementById('btnCadastrarEfetivo').addEventListener('click', async () => {
             const nome  = document.getElementById('cadastroNome').value.trim();
             const email = document.getElementById('cadastroEmail').value.trim().toLowerCase();
@@ -306,6 +339,12 @@
             if (!nome)            { mostrarErro(erroCadastro, boxCadastro, 'Informe seu nome.'); return; }
             if (!email)           { mostrarErro(erroCadastro, boxCadastro, 'Informe seu e-mail.'); return; }
             if (senha.length < 7) { mostrarErro(erroCadastro, boxCadastro, 'A senha deve ter no mínimo 7 caracteres.'); return; }
+            // ✅ NOVO: trava de segurança extra (além do atributo required e do
+            // botão desabilitado) — garante que ninguém contorna via console.
+            if (!checkAceiteTermos?.checked) {
+                mostrarErro(erroCadastro, boxCadastro, 'É necessário concordar com os Termos de Uso e a Política de Privacidade.');
+                return;
+            }
 
             btn.textContent = 'Criando conta...';
             btn.disabled = true;
@@ -314,6 +353,19 @@
             try {
                 const cred = await createUserWithEmailAndPassword(auth, email, senha);
                 await updateProfile(cred.user, { displayName: nome });
+                // ✅ NOVO: registra QUAL versão dos termos e QUANDO a pessoa
+                // aceitou — é isso (não o formato do arquivo) que serve como
+                // prova em caso de disputa sobre o que estava valendo na data.
+                try {
+                    await setDoc(doc(db, "perfis", cred.user.uid), {
+                        termos_aceite: {
+                            versao: "1.0",
+                            data: new Date().toISOString(),
+                        }
+                    }, { merge: true });
+                } catch (e) {
+                    console.warn("Não foi possível registrar aceite dos termos:", e);
+                }
                 window.location.href = "onboarding.html";
             } catch (error) {
                 console.error("Erro no cadastro:", error.code, error.message);

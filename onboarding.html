@@ -454,6 +454,11 @@
             btn.disabled    = true;
 
             try {
+                // ✅ CORRIGIDO: adicionado { merge: true } — sem isso, esse
+                // setDoc substituía o documento INTEIRO do perfil, apagando o
+                // campo termos_aceite (versão + data do aceite dos Termos de
+                // Uso/Política de Privacidade) que foi salvo na tela de
+                // cadastro, logo antes desta etapa.
                 await setDoc(doc(db, "perfis", usuarioAtual.uid), {
                     uid:          usuarioAtual.uid,
                     nome:         usuarioAtual.displayName || '',
@@ -464,7 +469,7 @@
                     estado:       estado,
                     criado_em:    new Date().toISOString(),
                     perfil_completo: true
-                });
+                }, { merge: true });
 
                 // Atualiza barra de progresso
                 document.getElementById('passo2').className = 'passo completo';
