@@ -3167,48 +3167,6 @@ select {
     transform: translateX(14px);
 }
 
-/* Toggle switch ao lado dos botões */
-.cotas-switch-wrap {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-.cotas-check-hidden {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
-    pointer-events: none;
-}
-.cotas-switch-track {
-    position: relative;
-    width: 34px;
-    height: 20px;
-    border-radius: var(--radius-pill);
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.20);
-    transition: background .22s, border-color .22s;
-    flex-shrink: 0;
-}
-.cotas-check-hidden:checked + .cotas-switch-track {
-    background: var(--roxo-medio);
-    border-color: var(--roxo-claro);
-}
-.cotas-switch-thumb {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--branco);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.35);
-    transition: transform .22s cubic-bezier(.4,0,.2,1);
-}
-.cotas-check-hidden:checked + .cotas-switch-track .cotas-switch-thumb {
-    transform: translateX(14px);
-}
-
 /* Botões Sim/Não — idênticos ao btn-taxa */
 .cotas-toggle-wrap {
     flex-shrink: 0;
@@ -3286,13 +3244,20 @@ select {
     font-weight: 600;
 }
 
-/* Override modal editar (fundo claro) */
+/* ================================================================
+   COTAS DENTRO DO MODAL DE EDITAR — override para fundo claro
+   (bloco único; antes existiam 3 versões duplicadas competindo entre si)
+================================================================ */
 #modalEditar .cotas-bloco {
-    background: rgba(124,58,237,0.05);
-    border-color: rgba(124,58,237,0.18);
+    background: rgba(124,58,237,0.06);
+    border-color: rgba(124,58,237,0.20);
 }
 #modalEditar .cotas-titulo { color: var(--roxo-mais-escuro); }
 #modalEditar .cotas-subtitulo { color: rgba(0,0,0,0.40); }
+#modalEditar .cotas-switch-txt {
+    color: #4c1d95;
+    font-weight: 700;
+}
 #modalEditar .btn-cota,
 #modalEditar .btn-cota-qtd {
     border-color: rgba(109,40,217,0.35);
@@ -3306,19 +3271,31 @@ select {
 }
 #modalEditar .btn-cota.ativo,
 #modalEditar .btn-cota-qtd.ativo {
-    background: rgba(124,58,237,0.20);
-    border-color: var(--roxo-medio);
-    color: var(--roxo-medio);
+    background: var(--roxo-medio);
+    border-color: var(--roxo-escuro);
+    color: var(--branco);
+    box-shadow: 0 0 8px rgba(124,58,237,0.30);
 }
 #modalEditar .cotas-preview { color: var(--roxo-escuro); }
 #modalEditar .cotas-qtd-label { color: rgba(0,0,0,0.45); }
+
+/* ✅ CORRIGIDO: antes o trilho ficava quase branco (rgba(0,0,0,0.10~0.12))
+   e a bolinha continuava branca (--branco) sem nenhum ajuste — as duas
+   coisas quase da mesma cor do fundo branco do modal, ficando sem contraste
+   e "sem graça" comparado ao mesmo interruptor no formulário de cadastro
+   (que tem fundo escuro, onde o branco contrasta bem). Agora o trilho tem
+   um tom roxo bem leve (combinando com o resto do card) e a bolinha ganha
+   uma borda sutil pra nunca ficar "invisível" em cima de fundo claro. */
 #modalEditar .cotas-switch-track {
-    background: rgba(0,0,0,0.10);
-    border-color: rgba(0,0,0,0.18);
+    background: rgba(124,58,237,0.12);
+    border-color: rgba(124,58,237,0.30);
 }
 #modalEditar .cotas-check-hidden:checked + .cotas-switch-track {
     background: var(--roxo-medio);
     border-color: var(--roxo-escuro);
+}
+#modalEditar .cotas-switch-thumb {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.08);
 }
 
 /* Badge no card do item cadastrado */
@@ -3332,61 +3309,4 @@ select {
     color: var(--roxo-suave);
     font-size: 11px;
     font-weight: 600;
-}
-
-
-
-/* ================================================================
-   COTAS DENTRO DO MODAL DE EDITAR — override para fundo claro
-================================================================ */
-#modalEditar .cotas-bloco {
-    background: rgba(124, 58, 237, 0.06);
-    border-color: rgba(124, 58, 237, 0.20);
-}
-
-#modalEditar .cotas-switch-txt {
-    color: #4c1d95;
-    font-weight: 700;
-}
-
-#modalEditar .cotas-switch-track {
-    background: rgba(0, 0, 0, 0.12);
-    border-color: rgba(0, 0, 0, 0.20);
-}
-
-#modalEditar .cotas-check-hidden:checked + .cotas-switch-track {
-    background: var(--roxo-medio);
-    border-color: var(--roxo-escuro);
-}
-
-#modalEditar .btn-cota {
-    border-color: rgba(109, 40, 217, 0.35);
-    background: rgba(109, 40, 217, 0.07);
-    color: var(--roxo-mais-escuro);
-}
-
-#modalEditar .btn-cota:hover {
-    background: rgba(109, 40, 217, 0.16);
-    border-color: var(--roxo-medio);
-}
-
-#modalEditar .btn-cota.ativo {
-    background: var(--roxo-medio);
-    border-color: var(--roxo-escuro);
-    color: var(--branco);
-    box-shadow: 0 0 8px rgba(124,58,237,0.30);
-}
-
-#modalEditar .cotas-preview {
-    color: var(--roxo-escuro);
-}
-
-/* Override toggle no modal editar */
-#modalEditar .cotas-switch-track {
-    background: rgba(0,0,0,0.10);
-    border-color: rgba(0,0,0,0.18);
-}
-#modalEditar .cotas-check-hidden:checked + .cotas-switch-track {
-    background: var(--roxo-medio);
-    border-color: var(--roxo-escuro);
 }
