@@ -1334,3 +1334,9 @@ body.tema-claro .tag-cotas-lista {
   color: rgba(255, 255, 255, 0.65);
   margin: 0;
 }
+
+/* ✅ CORRIGIDO: no modo claro o fundo do overlay fica quase branco
+   (--fundo-base e --glass-bg mudam via JS), então o texto branco fixo
+   ficava invisível. Mesmo padrão usado no resto do site pro modo claro. */
+body.tema-claro .overlay-titulo    { color: #111 !important; }
+body.tema-claro .overlay-subtitulo { color: rgba(0,0,0,0.55) !important; }

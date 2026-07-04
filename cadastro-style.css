@@ -1,8 +1,64 @@
+/* ========================================================================
+   VARIÁVEIS DE DESIGN — cores e raios usados em todo o arquivo.
+   Nada de aparência muda aqui (os valores são os mesmos já usados antes,
+   só centralizados); a vantagem é poder ajustar em um lugar só depois.
+   ======================================================================== */
+:root {
+    /* Paleta de roxo (várias tonalidades, cada uma com um uso específico —
+       tons mais claros para fundo escuro, mais escuros para fundo claro) */
+    --roxo-claro:        #a78bfa;
+    --roxo-suave:        #c4b5fd;
+    --roxo-bem-claro:    #e9d5ff;
+    --roxo-medio:        #7c3aed;
+    --roxo-escuro:       #6d28d9;
+    --roxo-mais-escuro:  #5b21b6;
+    --indigo:            #4f46e5;
+    --indigo-claro:      #818cf8;
+
+    /* Cores de estado (erro, sucesso, alerta) */
+    --vermelho:          #f87171;
+    --vermelho-forte:    #e53935;
+    --vermelho-escuro:   #c62828;
+    --verde:             #34d399;
+    --verde-bem-claro:   #e8f5e9;
+    --amarelo:           #f5a623;
+    --amarelo-forte:     #f59e0b;
+    --amarelo-bem-claro: #fef3c7;
+    --amarelo-claro:     #fcd34d;
+    --amarelo-medio:     #fbbf24;
+    --laranja:           #e65100;
+
+    /* Neutros */
+    --branco:            #fff;
+    --cinza-bem-claro:   #eee;
+    --cinza-claro:       #ddd;
+    --cinza-texto:       #6c757d;
+    --cinza-medio:       #555;
+    --cinza-escuro:      #444;
+    --cinza-mais-escuro: #333;
+    --preto-suave:       #111;
+    --fundo-escuro:      #0d0821;
+
+    /* Raios de borda — mantidos como estavam (não forcei um valor único
+       onde os tamanhos originais eram intencionalmente diferentes) */
+    --radius-xs:   4px;
+    --radius-sm:   6px;
+    --radius-sm2:  8px;
+    --radius-md:   10px;
+    --radius-md2:  12px;
+    --radius-lg:   14px;
+    --radius-lg2:  16px;
+    --radius-xl:   20px;
+    --radius-pill: 999px; /* também cobre os antigos 50px/99px — acima da
+                              metade da altura do elemento o resultado
+                              visual é idêntico, então foi seguro unificar */
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 html {
@@ -14,7 +70,7 @@ html {
 html, body {
     width: 100%;
     height: 100%;
-    background: #0d0821;
+    background: var(--fundo-escuro);
     background-image:
         radial-gradient(ellipse 80% 60% at 20% 10%, rgba(124, 58, 237, 0.18) 0%, transparent 60%),
         radial-gradient(ellipse 60% 50% at 80% 80%, rgba(79, 70, 229, 0.14) 0%, transparent 55%);
@@ -42,11 +98,11 @@ html, body {
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: #c4b5fd;
+    color: var(--roxo-suave);
     padding: 5px 14px;
     background: rgba(196, 181, 253, 0.1);
     border: 1px solid rgba(196, 181, 253, 0.2);
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     margin: 8px 0;
 }
 
@@ -69,7 +125,7 @@ html, body {
     border-radius: 50%;
     border: 2px solid rgba(196, 181, 253, 0.45);
     background: linear-gradient(135deg, rgba(124, 58, 237, 0.55), rgba(79, 70, 229, 0.55));
-    color: #e9d5ff;
+    color: var(--roxo-bem-claro);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -95,7 +151,7 @@ html, body {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(167, 139, 250, 0.22);
-    border-radius: 16px;
+    border-radius: var(--radius-lg2);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(167, 139, 250, 0.08);
     padding: 14px;
     z-index: 200;
@@ -124,7 +180,7 @@ html, body {
     height: 40px;
     min-width: 40px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    background: linear-gradient(135deg, var(--roxo-medio), var(--indigo));
     border: 2px solid rgba(196, 181, 253, 0.35);
     display: flex;
     align-items: center;
@@ -141,7 +197,7 @@ html, body {
 .avatar-dropdown-nome {
     font-size: 13px;
     font-weight: 700;
-    color: #e9d5ff;
+    color: var(--roxo-bem-claro);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -168,10 +224,10 @@ html, body {
     align-items: center;
     gap: 8px;
     padding: 8px 10px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     border: 1px solid rgba(239, 68, 68, 0.25);
     background: rgba(239, 68, 68, 0.10);
-    color: #f87171;
+    color: var(--vermelho);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -234,7 +290,7 @@ html, body {
     top: 15px;
     left: 35px;
     background: rgba(239, 68, 68, 0.15);
-    color: #f87171;
+    color: var(--vermelho);
     font-weight: 600;
     cursor: pointer;
 }
@@ -245,7 +301,7 @@ html, body {
 .carousel-track-outer {
     width: 100%;
     overflow: hidden;
-    border-radius: 12px;
+    border-radius: var(--radius-md2);
 }
 
 .carousel-box {
@@ -253,7 +309,7 @@ html, body {
     width: 100%;
     max-width: 340px;
     background: transparent;
-    border-radius: 14px;
+    border-radius: var(--radius-lg);
     padding: 0 0 8px;
     box-sizing: border-box;
 }
@@ -271,7 +327,7 @@ html, body {
 .carousel-slide {
     flex: 0 0 82%;
     position: relative;
-    border-radius: 12px;
+    border-radius: var(--radius-md2);
     overflow: hidden;
     transition: opacity 0.3s, transform 0.3s;
 }
@@ -281,7 +337,7 @@ html, body {
     height: 140px;
     object-fit: cover;
     display: block;
-    border-radius: 12px;
+    border-radius: var(--radius-md2);
     transition: transform 0.3s;
 }
 
@@ -295,7 +351,7 @@ html, body {
     background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%);
     font-size: 13px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--branco);
     text-align: center;
     letter-spacing: 0.02em;
     border-radius: 0 0 12px 12px;
@@ -312,7 +368,7 @@ html, body {
 }
 
 .carousel-slide.selecionado img {
-    outline: 3px solid #a78bfa;
+    outline: 3px solid var(--roxo-claro);
     outline-offset: -3px;
 }
 
@@ -336,10 +392,10 @@ html, body {
 }
 
 .carousel-dot.active {
-    background: #a78bfa;
+    background: var(--roxo-claro);
     transform: scale(1);
     width: 20px;
-    border-radius: 99px;
+    border-radius: var(--radius-pill);
 }
 
 /* Setas — posicionadas sobre a imagem, verticalmente centradas */
@@ -374,7 +430,7 @@ html, body {
 .upload {
     border: 1px dashed rgba(167, 139, 250, 0.35);
     padding: 20px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     margin-bottom: 20px;
     background: rgba(167, 139, 250, 0.05);
     color: rgba(255, 255, 255, 0.5);
@@ -415,7 +471,7 @@ html, body {
     backdrop-filter: blur(10px);
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     font-weight: 600;
-    color: #e8f5e9;
+    color: var(--verde-bem-claro);
     cursor: pointer;
     transition: background 0.2s;
 }
@@ -431,7 +487,7 @@ html, body {
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     font-weight: 600;
-    color: #c4b5fd;
+    color: var(--roxo-suave);
     margin-bottom: 10px;
     margin-top: 10px;
     cursor: pointer;
@@ -457,7 +513,7 @@ html, body {
     justify-content: space-between;
     align-items: center;
     padding: 10px 10px 3px 10px;
-    border-radius: 8px;
+    border-radius: var(--radius-sm2);
     font-size: 14px;
     color: rgba(255, 255, 255, 0.55);
     gap: 10px;
@@ -487,7 +543,7 @@ html, body {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     width: 100%;
     max-width: 500px;
     box-sizing: border-box;
@@ -498,7 +554,7 @@ h1 {
     align-items: center;
     justify-content: center;
     margin-bottom: 30px;
-    color: #fff;
+    color: var(--branco);
     font-size: 22px;
     letter-spacing: -0.01em;
 }
@@ -507,10 +563,10 @@ h1 {
     display: block;
     width: 100%;
     padding: 13px 18px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     border: 1px solid rgba(255, 255, 255, 0.13);
     background: rgba(255, 255, 255, 0.07);
-    color: #fff;
+    color: var(--branco);
     outline: none;
     font-size: 14px;
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
@@ -528,7 +584,7 @@ h1 {
 
 select.campo-formulario option {
     background: #1a0f40;
-    color: #fff;
+    color: var(--branco);
 }
 
 .nome {
@@ -549,7 +605,7 @@ select.campo-formulario option {
     display: block;
     width: 100%;
     padding: 13px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     border: 1px dashed rgba(167, 139, 250, 0.3);
     background: rgba(167, 139, 250, 0.05);
     color: rgba(255, 255, 255, 0.45);
@@ -568,7 +624,7 @@ select.campo-formulario option {
     max-width: 500px;
     box-sizing: border-box;
     overflow: hidden;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     box-shadow: 0 4px 32px rgba(0, 0, 0, 0.2);
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.09);
@@ -598,7 +654,7 @@ select.campo-formulario option {
     border: 1px solid rgba(255, 255, 255, 0.09);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     justify-content: space-between;
     align-items: center;
     display: flex;
@@ -628,7 +684,7 @@ select.campo-formulario option {
     width: 70px;
     height: 70px;
     object-fit: cover;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     flex-shrink: 0;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -645,12 +701,12 @@ select.campo-formulario option {
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 160px;
-    color: #fff;
+    color: var(--branco);
     font-size: 14px;
 }
 
 .T-Produtos span {
-    color: #a78bfa;
+    color: var(--roxo-claro);
     font-size: 13px;
     font-weight: 500;
 }
@@ -667,9 +723,9 @@ select.campo-formulario option {
 .disp {
     padding: 4px 10px;
     background: rgba(52, 211, 153, 0.12);
-    color: #34d399 !important;
+    color: var(--verde) !important;
     border: 1px solid rgba(52, 211, 153, 0.25);
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     min-width: 80px;
     text-align: center;
     font-size: 11px;
@@ -679,9 +735,9 @@ select.campo-formulario option {
 /* Botão editar */
 .btn-editar-item {
     padding: 4px 10px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     background: rgba(99, 102, 241, 0.12);
-    color: #818cf8;
+    color: var(--indigo-claro);
     border: 1px solid rgba(99, 102, 241, 0.25);
     min-width: 80px;
     text-align: center;
@@ -699,9 +755,9 @@ select.campo-formulario option {
 /* Botão excluir */
 .excl {
     padding: 4px 10px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     background: rgba(239, 68, 68, 0.1);
-    color: #f87171;
+    color: var(--vermelho);
     border: 1px solid rgba(239, 68, 68, 0.22);
     min-width: 80px;
     text-align: center;
@@ -740,9 +796,9 @@ select.campo-formulario option {
 .chip-vendido {
     padding: 4px 10px;
     background: rgba(245, 166, 35, 0.18);
-    color: #f5a623 !important;
+    color: var(--amarelo) !important;
     border: 1px solid rgba(245, 166, 35, 0.4);
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     min-width: 80px;
     text-align: center;
     font-size: 11px;
@@ -751,7 +807,7 @@ select.campo-formulario option {
 
 .btn-bloqueado {
     padding: 4px 10px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     background: rgba(255, 255, 255, 0.04);
     color: rgba(255, 255, 255, 0.35);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -780,10 +836,10 @@ select.campo-formulario option {
     width: fit-content;
     font-size: 11px;
     font-weight: 700;
-    color: #f87171;
+    color: var(--vermelho);
     background: rgba(239, 68, 68, 0.16);
     border: 1px solid rgba(239, 68, 68, 0.4);
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     padding: 2px 9px;
 }
 
@@ -801,11 +857,11 @@ select.campo-formulario option {
 .int {
     font-size: 17px;
     padding: 10px 14px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     border: none;
     font-weight: 700;
     box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
-    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    background: linear-gradient(135deg, var(--roxo-medio) 0%, var(--indigo) 100%);
     color: white;
     cursor: pointer;
     transition: transform 0.1s ease, box-shadow 0.15s, opacity 0.2s;
@@ -822,7 +878,7 @@ select.campo-formulario option {
 h3 {
     margin-top: 10px;
     font-size: 16px;
-    color: #fff;
+    color: var(--branco);
     width: 100%;
 }
 
@@ -839,11 +895,11 @@ h3 {
 .compartilhar {
     font-size: 15px;
     padding: 10px 14px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     border: 1px solid rgba(167, 139, 250, 0.35);
     font-weight: 700;
     background: rgba(167, 139, 250, 0.1);
-    color: #c4b5fd;
+    color: var(--roxo-suave);
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
 }
@@ -857,7 +913,7 @@ h3 {
 .qrcode {
     font-size: 15px;
     padding: 10px 14px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     border: 1px solid rgba(255, 255, 255, 0.12);
     font-weight: 700;
     background: rgba(255, 255, 255, 0.06);
@@ -879,11 +935,11 @@ h3 {
 .btn-listas-prontas {
     font-size: 14px;
     padding: 10px 14px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     border: 1px solid rgba(52, 211, 153, 0.3);
     font-weight: 700;
     background: rgba(52, 211, 153, 0.1);
-    color: #34d399;
+    color: var(--verde);
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
     white-space: nowrap;
@@ -907,18 +963,18 @@ h3 {
 }
 .modal-qr-content {
     background: white; padding: 20px;
-    border-radius: 12px; text-align: center;
+    border-radius: var(--radius-md2); text-align: center;
     box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
     max-width: 300px; width: 90%;
 }
-.modal-qr-content h4 { margin-top: 0; color: #333; }
+.modal-qr-content h4 { margin-top: 0; color: var(--cinza-mais-escuro); }
 #canvas-qrcode { margin: 15px auto; display: flex; justify-content: center; }
 .btn-qr-action {
     background: #007bff; color: white; border: none;
-    padding: 8px 16px; border-radius: 6px;
+    padding: 8px 16px; border-radius: var(--radius-sm);
     cursor: pointer; font-weight: bold; margin: 5px;
 }
-.btn-qr-fechar { background: #6c757d; }
+.btn-qr-fechar { background: var(--cinza-texto); }
 
 /* ===== MODAL CONFIRMAÇÃO EXCLUSÃO ===== */
 .modal-confirm {
@@ -933,7 +989,7 @@ h3 {
 .modal-confirm-content {
     background: white;
     padding: 28px 24px;
-    border-radius: 16px;
+    border-radius: var(--radius-lg2);
     text-align: center;
     box-shadow: 0 8px 32px rgba(0,0,0,0.18);
     max-width: 320px; width: 90%;
@@ -959,19 +1015,19 @@ h3 {
     justify-content: center;
 }
 .btn-confirm-sim {
-    background: #e53935; color: white; border: none;
-    padding: 10px 24px; border-radius: 50px;
+    background: var(--vermelho-forte); color: white; border: none;
+    padding: 10px 24px; border-radius: var(--radius-pill);
     cursor: pointer; font-weight: bold; font-size: 14px;
     transition: background 0.2s;
 }
-.btn-confirm-sim:hover { background: #c62828; }
+.btn-confirm-sim:hover { background: var(--vermelho-escuro); }
 .btn-confirm-nao {
-    background: #eeeeee; color: #444; border: none;
-    padding: 10px 24px; border-radius: 50px;
+    background: var(--cinza-bem-claro); color: var(--cinza-escuro); border: none;
+    padding: 10px 24px; border-radius: var(--radius-pill);
     cursor: pointer; font-weight: bold; font-size: 14px;
     transition: background 0.2s;
 }
-.btn-confirm-nao:hover { background: #ddd; }
+.btn-confirm-nao:hover { background: var(--cinza-claro); }
 
 /* ===== MODAL EDITAR ===== */
 .modal-editar {
@@ -985,14 +1041,14 @@ h3 {
 .modal-editar-content {
     background: white;
     padding: 28px 24px;
-    border-radius: 16px;
+    border-radius: var(--radius-lg2);
     box-shadow: 0 8px 32px rgba(0,0,0,0.18);
     max-width: 380px; width: 93%;
     animation: popIn 0.2s ease;
 }
 .modal-editar-content h4 {
     margin: 0 0 16px;
-    color: #333;
+    color: var(--cinza-mais-escuro);
     font-size: 18px;
 }
 .modal-editar-content input,
@@ -1000,8 +1056,8 @@ h3 {
     display: block;
     width: 100%;
     padding: 12px 16px;
-    border-radius: 50px;
-    border: 1px solid #ddd;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--cinza-claro);
     font-size: 14px;
     margin-bottom: 12px;
     box-sizing: border-box;
@@ -1009,7 +1065,7 @@ h3 {
 .modal-editar-content label {
     font-size: 13px;
     font-weight: bold;
-    color: #555;
+    color: var(--cinza-medio);
     display: block;
     margin-bottom: 4px;
     margin-left: 8px;
@@ -1023,12 +1079,12 @@ h3 {
 .btn-editar-salvar {
     background: linear-gradient(135deg, #5b1ebd, #3532d1);
     color: white; border: none;
-    padding: 10px 28px; border-radius: 50px;
+    padding: 10px 28px; border-radius: var(--radius-pill);
     cursor: pointer; font-weight: bold; font-size: 14px;
 }
 .btn-editar-cancelar {
-    background: #eee; color: #444; border: none;
-    padding: 10px 20px; border-radius: 50px;
+    background: var(--cinza-bem-claro); color: var(--cinza-escuro); border: none;
+    padding: 10px 20px; border-radius: var(--radius-pill);
     cursor: pointer; font-weight: bold; font-size: 14px;
 }
 
@@ -1047,9 +1103,9 @@ h3 {
 }
 .toast {
     background: #323232;
-    color: #fff;
+    color: var(--branco);
     padding: 12px 22px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     font-size: 14px;
     font-weight: 500;
     box-shadow: 0 4px 16px rgba(0,0,0,0.22);
@@ -1063,8 +1119,8 @@ h3 {
     text-align: center;
 }
 .toast.sucesso { background: #2e7d32; }
-.toast.erro    { background: #c62828; }
-.toast.aviso   { background: #e65100; }
+.toast.erro    { background: var(--vermelho-escuro); }
+.toast.aviso   { background: var(--laranja); }
 
 @keyframes toastIn {
     to { opacity: 1; transform: translateY(0); }
@@ -1080,7 +1136,7 @@ h3 {
 /* ===== CONTADOR DE ITENS ===== */
 .contador-itens {
     font-size: 12px;
-    color: #555;
+    color: var(--cinza-medio);
     text-align: right;
     padding: 4px 0 8px;
     font-weight: 600;
@@ -1096,7 +1152,7 @@ h3 {
     background: rgba(196, 181, 253, 0.1);
     backdrop-filter: blur(10px);
     font-size: 16px;
-    color: #c4b5fd;
+    color: var(--roxo-suave);
     margin-bottom: 10px;
     margin-top: 10px;
     cursor: pointer;
@@ -1123,7 +1179,7 @@ não é clicável. */
     backdrop-filter: blur(10px);
     font-size: 13px;
     font-weight: 700;
-    color: #c4b5fd;
+    color: var(--roxo-suave);
     white-space: nowrap;
 }
 
@@ -1131,8 +1187,8 @@ não é clicável. */
     position: absolute;
     top: -4px;
     right: -4px;
-    background: #e53935;
-    color: #fff;
+    background: var(--vermelho-forte);
+    color: var(--branco);
     font-size: 10px;
     font-weight: 700;
     border-radius: 50%;
@@ -1154,7 +1210,7 @@ não é clicável. */
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(167, 139, 250, 0.2);
     box-shadow: -8px 0 40px rgba(0,0,0,0.4);
-    border-radius: 20px 0 0 20px;
+    border-radius: var(--radius-xl) 0 0 20px;
     position: fixed;
     top: 0;
     right: -420px;
@@ -1185,7 +1241,7 @@ não é clicável. */
 .notif-titulo {
     font-size: 18px;
     font-weight: 700;
-    color: #fff;
+    color: var(--branco);
 }
 
 .notif-acoes {
@@ -1196,9 +1252,9 @@ não é clicável. */
 .btn-exportar-notif {
     background: rgba(167,139,250,0.15);
     border: 1px solid rgba(167,139,250,0.3);
-    color: #c4b5fd;
+    color: var(--roxo-suave);
     padding: 6px 14px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -1216,13 +1272,13 @@ não é clicável. */
 }
 
 .notif-lista::-webkit-scrollbar { width: 4px; }
-.notif-lista::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 4px; }
-.notif-lista::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.35); border-radius: 4px; }
+.notif-lista::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: var(--radius-xs); }
+.notif-lista::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.35); border-radius: var(--radius-xs); }
 
 .notif-item {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 12px;
+    border-radius: var(--radius-md2);
     padding: 12px 14px;
     display: flex;
     flex-direction: column;
@@ -1251,7 +1307,7 @@ não é clicável. */
 .notif-item-nome {
     font-size: 14px;
     font-weight: 700;
-    color: #a78bfa;
+    color: var(--roxo-claro);
 }
 
 .notif-item-presente {
@@ -1267,7 +1323,7 @@ não é clicável. */
 
 .notif-item-valor {
     font-size: 12px;
-    color: #34d399;
+    color: var(--verde);
     font-weight: 600;
 }
 
@@ -1290,7 +1346,7 @@ não é clicável. */
     flex: 1 1 120px;
     background: rgba(16,185,129,0.08);
     border: 1px solid rgba(16,185,129,0.2);
-    border-radius: 12px;
+    border-radius: var(--radius-md2);
     padding: 12px 14px;
     display: flex;
     flex-direction: column;
@@ -1306,14 +1362,14 @@ não é clicável. */
 .saldo-valor {
     font-size: 18px;
     font-weight: 700;
-    color: #34d399;
+    color: var(--verde);
 }
 .btn-solicitar-saque {
     flex: 1 1 120px;
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    background: linear-gradient(135deg, var(--roxo-medio), var(--indigo));
     border: none;
-    border-radius: 12px;
-    color: #fff;
+    border-radius: var(--radius-md2);
+    color: var(--branco);
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -1342,7 +1398,7 @@ não é clicável. */
 .modal-saque-content {
     background: #120a2e;
     border: 1px solid rgba(167,139,250,0.25);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     padding: 28px 24px;
     width: min(400px, 94vw);
     box-shadow: 0 24px 60px rgba(0,0,0,0.6);
@@ -1351,7 +1407,7 @@ não é clicável. */
 .modal-saque-content h4 {
     font-size: 17px;
     font-weight: 700;
-    color: #fff;
+    color: var(--branco);
     margin-bottom: 6px;
 }
 .modal-saque-content p {
@@ -1363,10 +1419,10 @@ não é clicável. */
     display: block;
     width: 100%;
     padding: 12px 16px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     border: 1px solid rgba(255,255,255,0.13);
     background: rgba(255,255,255,0.07);
-    color: #fff;
+    color: var(--branco);
     font-size: 14px;
     outline: none;
     margin-bottom: 12px;
@@ -1379,10 +1435,10 @@ não é clicável. */
 }
 .modal-saque-aviso {
     font-size: 12px;
-    color: #f59e0b;
+    color: var(--amarelo-forte);
     background: rgba(245,158,11,0.1);
     border: 1px solid rgba(245,158,11,0.2);
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     padding: 10px 14px;
     margin-bottom: 16px;
 }
@@ -1392,10 +1448,10 @@ não é clicável. */
 }
 .btn-saque-confirmar {
     flex: 1;
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    background: linear-gradient(135deg, var(--roxo-medio), var(--indigo));
     border: none;
-    border-radius: 50px;
-    color: #fff;
+    border-radius: var(--radius-pill);
+    color: var(--branco);
     font-size: 14px;
     font-weight: 700;
     padding: 11px;
@@ -1407,7 +1463,7 @@ não é clicável. */
     flex: 1;
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     color: rgba(255,255,255,0.6);
     font-size: 14px;
     font-weight: 600;
@@ -1421,11 +1477,11 @@ não é clicável. */
 }
 #registros::-webkit-scrollbar-track {
     background: rgba(255,255,255,0.04);
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
 }
 #registros::-webkit-scrollbar-thumb {
     background: rgba(167,139,250,0.35);
-    border-radius: 4px;
+    border-radius: var(--radius-xs);
 }
 #registros::-webkit-scrollbar-thumb:hover {
     background: rgba(167,139,250,0.6);
@@ -1443,7 +1499,7 @@ não é clicável. */
     flex: 1 1 80px;
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
+    border-radius: var(--radius-md2);
     padding: 10px 12px;
     display: flex;
     flex-direction: column;
@@ -1463,10 +1519,10 @@ não é clicável. */
 .resumo-valor {
     font-size: 15px;
     font-weight: 700;
-    color: #fff;
+    color: var(--branco);
 }
 .resumo-valor-destaque {
-    color: #a78bfa;
+    color: var(--roxo-claro);
 }
 .resumo-ja-sacado {
     font-size: 10px;
@@ -1482,7 +1538,7 @@ não é clicável. */
     box-sizing: border-box;
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
+    border-radius: var(--radius-md2);
     padding: 10px 14px;
     display: flex;
     align-items: center;
@@ -1510,7 +1566,7 @@ não é clicável. */
     font-weight: 600;
 }
 .taxa-titulo strong {
-    color: #a78bfa;
+    color: var(--roxo-claro);
 }
 .taxa-subtitulo {
     font-size: 11px;
@@ -1523,7 +1579,7 @@ não é clicável. */
     font-size: 12px;
     font-weight: 700;
     padding: 6px 14px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     border: 1.5px solid rgba(167,139,250,0.35);
     background: rgba(255,255,255,0.05);
     color: rgba(255,255,255,0.5);
@@ -1537,8 +1593,8 @@ não é clicável. */
 }
 .btn-taxa.ativo {
     background: rgba(167,139,250,0.25);
-    border-color: #a78bfa;
-    color: #a78bfa;
+    border-color: var(--roxo-claro);
+    color: var(--roxo-claro);
 }
 /* Toggle switch */
 .toggle-switch {
@@ -1591,7 +1647,7 @@ não é clicável. */
 .modal-detalhe-content {
     background: rgba(24, 14, 56, 0.97);
     border: 1px solid rgba(167, 139, 250, 0.25);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     max-width: 380px;
     width: 100%;
     padding: 24px;
@@ -1621,7 +1677,7 @@ não é clicável. */
     width: 100%;
     height: 200px;
     object-fit: cover;
-    border-radius: 14px;
+    border-radius: var(--radius-lg);
     border: 1px solid rgba(255,255,255,0.1);
     margin-bottom: 18px;
 }
@@ -1629,7 +1685,7 @@ não é clicável. */
 .modal-detalhe-titulo {
     font-size: 19px;
     font-weight: 700;
-    color: #fff;
+    color: var(--branco);
     margin-bottom: 10px;
     word-break: break-word;
 }
@@ -1645,16 +1701,16 @@ não é clicável. */
 .modal-detalhe-linha:last-of-type { border-bottom: none; }
 
 .modal-detalhe-label { color: rgba(255,255,255,0.5); }
-.modal-detalhe-valor { color: #fff; font-weight: 600; text-align: right; }
-.modal-detalhe-valor.destaque { color: #a78bfa; font-size: 15px; }
-.modal-detalhe-valor.dourado { color: #f5a623; }
-.modal-detalhe-valor.vermelho { color: #f87171; }
+.modal-detalhe-valor { color: var(--branco); font-weight: 600; text-align: right; }
+.modal-detalhe-valor.destaque { color: var(--roxo-claro); font-size: 15px; }
+.modal-detalhe-valor.dourado { color: var(--amarelo); }
+.modal-detalhe-valor.vermelho { color: var(--vermelho); }
 
 .modal-detalhe-status {
     display: inline-block;
     margin-top: 14px;
     padding: 5px 14px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     font-size: 12px;
     font-weight: 700;
 }
@@ -1672,7 +1728,7 @@ não é clicável. */
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(167, 139, 250, 0.2);
     box-shadow: -8px 0 40px rgba(0,0,0,0.4);
-    border-radius: 20px 0 0 20px;
+    border-radius: var(--radius-xl) 0 0 20px;
     position: fixed;
     top: 0;
     right: -420px;
@@ -1704,7 +1760,7 @@ não é clicável. */
 .listas-titulo {
     font-size: 18px;
     font-weight: 700;
-    color: #fff;
+    color: var(--branco);
 }
 
 .listas-subtitulo {
@@ -1723,8 +1779,8 @@ não é clicável. */
 }
 
 .categorias-prontas::-webkit-scrollbar { width: 4px; }
-.categorias-prontas::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 4px; }
-.categorias-prontas::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.35); border-radius: 4px; }
+.categorias-prontas::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: var(--radius-xs); }
+.categorias-prontas::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.35); border-radius: var(--radius-xs); }
 
 .categoria-pronta-card {
     display: flex;
@@ -1732,7 +1788,7 @@ não é clicável. */
     gap: 12px;
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 14px;
+    border-radius: var(--radius-lg);
     padding: 14px 16px;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
@@ -1758,7 +1814,7 @@ não é clicável. */
 .categoria-pronta-nome {
     font-size: 15px;
     font-weight: 700;
-    color: #fff;
+    color: var(--branco);
 }
 
 .categoria-pronta-qtd {
@@ -1783,7 +1839,7 @@ não é clicável. */
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(167, 139, 250, 0.2);
     box-shadow: -8px 0 40px rgba(0,0,0,0.4);
-    border-radius: 20px 0 0 20px;
+    border-radius: var(--radius-xl) 0 0 20px;
     position: fixed;
     top: 0;
     right: -420px;
@@ -1815,7 +1871,7 @@ não é clicável. */
 .btn-voltar-categorias {
     background: rgba(167,139,250,0.12);
     border: 1px solid rgba(167,139,250,0.25);
-    color: #c4b5fd;
+    color: var(--roxo-suave);
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -1830,7 +1886,7 @@ não é clicável. */
 .itens-prontos-titulo {
     font-size: 17px;
     font-weight: 700;
-    color: #fff;
+    color: var(--branco);
 }
 
 .itens-prontos-marcar-todos {
@@ -1846,7 +1902,7 @@ não é clicável. */
     border: 1px solid rgba(255,255,255,0.1);
     color: rgba(255,255,255,0.7);
     padding: 8px 10px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -1868,8 +1924,8 @@ não é clicável. */
 }
 
 .itens-prontos-lista::-webkit-scrollbar { width: 4px; }
-.itens-prontos-lista::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 4px; }
-.itens-prontos-lista::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.35); border-radius: 4px; }
+.itens-prontos-lista::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: var(--radius-xs); }
+.itens-prontos-lista::-webkit-scrollbar-thumb { background: rgba(167,139,250,0.35); border-radius: var(--radius-xs); }
 
 .item-pronto-linha {
     display: flex;
@@ -1877,7 +1933,7 @@ não é clicável. */
     gap: 12px;
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
+    border-radius: var(--radius-md2);
     padding: 10px 12px;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
@@ -1895,7 +1951,7 @@ não é clicável. */
 .item-pronto-check {
     width: 20px;
     height: 20px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     border: 2px solid rgba(255,255,255,0.25);
     flex-shrink: 0;
     display: flex;
@@ -1907,9 +1963,9 @@ não é clicável. */
 }
 
 .item-pronto-linha.selecionado .item-pronto-check {
-    background: #34d399;
-    border-color: #34d399;
-    color: #0d0821;
+    background: var(--verde);
+    border-color: var(--verde);
+    color: var(--fundo-escuro);
 }
 
 .item-pronto-emoji {
@@ -1927,7 +1983,7 @@ não é clicável. */
 .item-pronto-nome {
     font-size: 13.5px;
     font-weight: 600;
-    color: #fff;
+    color: var(--branco);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1935,7 +1991,7 @@ não é clicável. */
 
 .item-pronto-preco {
     font-size: 12px;
-    color: #a78bfa;
+    color: var(--roxo-claro);
 }
 
 .item-pronto-selo-definir-valor {
@@ -1943,10 +1999,10 @@ não é clicável. */
     width: fit-content;
     font-size: 11px;
     font-weight: 600;
-    color: #f5a623;
+    color: var(--amarelo);
     background: rgba(245, 166, 35, 0.14);
     border: 1px solid rgba(245, 166, 35, 0.35);
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     padding: 2px 9px;
     margin-top: 2px;
 }
@@ -1967,10 +2023,10 @@ não é clicável. */
 }
 
 .btn-add-selecionados {
-    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    background: linear-gradient(135deg, var(--roxo-medio) 0%, var(--indigo) 100%);
     border: none;
-    border-radius: 50px;
-    color: #fff;
+    border-radius: var(--radius-pill);
+    color: var(--branco);
     font-size: 14px;
     font-weight: 700;
     padding: 11px 22px;
@@ -2010,7 +2066,7 @@ não é clicável. */
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.09);
-        border-radius: 20px;
+        border-radius: var(--radius-xl);
         width: 100%;
         max-width: 500px;
         display: flex;
@@ -2076,7 +2132,7 @@ não é clicável. */
     max-width: 310px;
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.10);
-    border-radius: 14px;
+    border-radius: var(--radius-lg);
     padding: 12px 16px;
     margin: 14px 0 8px;
     box-sizing: border-box;
@@ -2142,7 +2198,7 @@ não é clicável. */
     width: 100%;
     max-width: 340px;
     padding: 9px 16px;
-    border-radius: 14px;
+    border-radius: var(--radius-lg);
     border: 1.5px dashed rgba(167, 139, 250, 0.4);
     background: rgba(167, 139, 250, 0.06);
     color: rgba(255,255,255,0.75);
@@ -2157,7 +2213,7 @@ não é clicável. */
 .upload-area:hover {
     background: rgba(167, 139, 250, 0.14);
     border-color: rgba(167, 139, 250, 0.7);
-    color: #fff;
+    color: var(--branco);
     transform: translateY(-1px);
 }
 .upload-icone { font-size: 16px; }
@@ -2202,7 +2258,7 @@ não é clicável. */
     align-items: center;
     gap: 8px;
     padding: 7px 14px 7px 8px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.14);
     cursor: pointer;
@@ -2218,7 +2274,7 @@ não é clicável. */
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: #a78bfa;
+    background: var(--roxo-claro);
     border: 2px solid rgba(255,255,255,0.85);
     box-shadow: 0 0 0 1px rgba(0,0,0,0.25), 0 2px 6px rgba(0,0,0,0.35);
     flex-shrink: 0;
@@ -2259,7 +2315,7 @@ não é clicável. */
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #e9d5ff, #a78bfa 70%);
+    background: radial-gradient(circle at 35% 35%, var(--roxo-bem-claro), var(--roxo-claro) 70%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2269,11 +2325,11 @@ não é clicável. */
     box-shadow: 0 2px 8px rgba(0,0,0,0.35);
 }
 .toggle-modo-icones input:checked + .toggle-slider-icones {
-    background: linear-gradient(135deg, #fcd34d, #f59e0b);
+    background: linear-gradient(135deg, var(--amarelo-claro), var(--amarelo-forte));
 }
 .toggle-modo-icones input:checked + .toggle-slider-icones .toggle-thumb-icone {
     left: 30px;
-    background: radial-gradient(circle at 35% 35%, #fef3c7, #fbbf24 70%);
+    background: radial-gradient(circle at 35% 35%, var(--amarelo-bem-claro), var(--amarelo-medio) 70%);
     box-shadow: 0 0 14px rgba(252,211,77,0.85), 0 2px 8px rgba(0,0,0,0.3);
 }
 
@@ -2295,10 +2351,10 @@ não é clicável. */
 .campo-cab {
     width: 100%;
     padding: 8px 12px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     border: 1px solid rgba(255,255,255,0.12);
     background: rgba(255,255,255,0.04);
-    color: #fff;
+    color: var(--branco);
     font-size: 13px;
     font-family: inherit;
     transition: border 0.2s, background 0.2s;
@@ -2318,13 +2374,13 @@ não é clicável. */
    Preview mini — réplica do card da lista (escuro / claro)
    ============================================================ */
 .preview-mini-grid {
-    --mini-acento: #a78bfa;
+    --mini-acento: var(--roxo-claro);
     --mini-acento-rgb: 167, 139, 250;
     /* tokens (modo escuro = padrão) */
     --mini-card-bg: rgba(255,255,255,0.055);
     --mini-card-borda: rgba(255,255,255,0.11);
     --mini-card-sombra: 0 8px 24px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.08);
-    --mini-titulo: #ffffff;
+    --mini-titulo: var(--branco);
     --mini-img-bg: rgba(255,255,255,0.04);
     --mini-preco-bg: color-mix(in oklab, var(--mini-acento) 14%, transparent);
     --mini-preco-borda: color-mix(in oklab, var(--mini-acento) 35%, transparent);
@@ -2333,11 +2389,11 @@ não é clicável. */
     --mini-rotulo: rgba(255,255,255,0.45);
     --mini-badge-bg: rgba(52,211,153,0.13);
     --mini-badge-borda: rgba(52,211,153,0.30);
-    --mini-badge-texto: #34d399;
+    --mini-badge-texto: var(--verde);
     --mini-btn-bg: color-mix(in oklab, var(--mini-acento) 70%, transparent);
     --mini-btn-borda: color-mix(in oklab, var(--mini-acento) 50%, transparent);
     --mini-btn-sombra: 0 4px 14px color-mix(in oklab, var(--mini-acento) 45%, transparent);
-    --mini-btn-texto: #ffffff;
+    --mini-btn-texto: var(--branco);
 
     display: flex;
     flex-direction: column;
@@ -2370,7 +2426,7 @@ não é clicável. */
     align-items: center;
     gap: 10px;
     padding: 10px 13px;
-    border-radius: 14px;
+    border-radius: var(--radius-lg);
     background: var(--mini-card-bg);
     border: 1px solid var(--mini-card-borda);
     box-shadow: var(--mini-card-sombra);
@@ -2393,7 +2449,7 @@ não é clicável. */
 .cartao-mini-img {
     width: 90px;
     height: 90px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     border: 1px solid color-mix(in oklab, var(--mini-acento) 18%, transparent);
     flex-shrink: 0;
     display: flex;
@@ -2430,7 +2486,7 @@ não é clicável. */
 .cartao-mini-preco-box {
     background: var(--mini-preco-bg);
     border: 1px solid var(--mini-preco-borda);
-    border-radius: 8px;
+    border-radius: var(--radius-sm2);
     padding: 7px 34px;
     display: flex;
     align-items: center;
@@ -2464,14 +2520,14 @@ não é clicável. */
     background: var(--mini-badge-bg);
     border: 1px solid var(--mini-badge-borda);
     padding: 3px 13px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     text-transform: uppercase;
 }
 
 .cartao-mini-btn {
     margin-top: 2px;
     padding: 5px 26px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     border: 1px solid var(--mini-btn-borda);
     background: var(--mini-btn-bg);
     color: var(--mini-btn-texto);
@@ -2497,10 +2553,10 @@ não é clicável. */
 .btn-visualizar {
     width: 100%;
     height: 38px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     border: 1px solid rgba(167, 139, 250, 0.4);
     background: rgba(167, 139, 250, 0.12);
-    color: #e9d5ff;
+    color: var(--roxo-bem-claro);
     font-weight: 600;
     font-size: 13px;
     cursor: pointer;
@@ -2533,7 +2589,7 @@ não é clicável. */
 .modal-confirm-tema-box {
     background: rgba(18, 10, 45, 0.95);
     border: 1px solid rgba(167,139,250,0.3);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     padding: 28px;
     max-width: 380px;
     width: 100%;
@@ -2541,7 +2597,7 @@ não é clicável. */
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
 .modal-confirm-tema-box h3 {
-    color: #f87171;
+    color: var(--vermelho);
     font-size: 18px;
     margin-bottom: 10px;
 }
@@ -2555,7 +2611,7 @@ não é clicável. */
 .botao-confirm {
     flex: 1;
     padding: 10px 16px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     font-weight: 600;
     font-size: 13px;
     cursor: pointer;
@@ -2564,13 +2620,13 @@ não é clicável. */
 }
 .botao-confirm-cancel {
     background: rgba(167,139,250,0.15);
-    color: #c4b5fd;
+    color: var(--roxo-suave);
     border-color: rgba(167,139,250,0.3);
 }
 .botao-confirm-cancel:hover { background: rgba(167,139,250,0.25); }
 .botao-confirm-sair {
     background: rgba(239, 68, 68, 0.18);
-    color: #f87171;
+    color: var(--vermelho);
     border-color: rgba(239, 68, 68, 0.35);
 }
 .botao-confirm-sair:hover { background: rgba(239, 68, 68, 0.3); }
@@ -2640,7 +2696,7 @@ select {
     z-index: 800;
     display: flex;
     flex-direction: column;
-    background: #0D0821;
+    background: var(--fundo-escuro);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
@@ -2674,11 +2730,11 @@ select {
 .preview-iframe-badge {
     background: rgba(167, 139, 250, 0.15);
     border: 1px solid rgba(167, 139, 250, 0.35);
-    color: #c4b5fd;
+    color: var(--roxo-suave);
     font-size: 12px;
     font-weight: 700;
     padding: 4px 12px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     white-space: nowrap;
 }
 
@@ -2694,11 +2750,11 @@ select {
     flex-shrink: 0;
     background: rgba(239, 68, 68, 0.12);
     border: 1px solid rgba(239, 68, 68, 0.30);
-    color: #f87171;
+    color: var(--vermelho);
     font-size: 13px;
     font-weight: 700;
     padding: 6px 16px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     cursor: pointer;
     transition: background 0.2s, transform 0.15s;
     font-family: inherit;
@@ -2743,7 +2799,7 @@ select {
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 3px;
-    background: var(--acento, #a78bfa);
+    background: var(--acento, var(--roxo-claro));
     opacity: 0.8;
 }
 
@@ -2758,7 +2814,7 @@ select {
     font-weight: 700;
     letter-spacing: -1px;
     margin-bottom: 14px;
-    color: #fff;
+    color: var(--branco);
 }
 
 .preview-lista-corpo .conteudo-boas-vindas p {
@@ -2773,9 +2829,9 @@ select {
     padding: 14px 36px;
     font-size: 1rem;
     background: rgba(var(--acento-rgb, 167,139,250), 0.22);
-    color: #fff;
+    color: var(--branco);
     border: 1px solid rgba(var(--acento-rgb, 167,139,250), 0.50);
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     cursor: pointer;
     font-weight: 700;
     font-family: inherit;
@@ -2797,7 +2853,7 @@ select {
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.12);
     padding: 10px 22px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     font-family: inherit;
     font-weight: 600;
     font-size: 13px;
@@ -2810,7 +2866,7 @@ select {
 .preview-lista-corpo .cartao-produto {
     background: var(--glass-bg, rgba(255,255,255,0.055));
     border: 1px solid var(--glass-borda, rgba(255,255,255,0.11));
-    border-radius: 16px;
+    border-radius: var(--radius-lg2);
     box-shadow: 0 8px 32px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.08);
     display: flex;
     align-items: center;
@@ -2826,7 +2882,7 @@ select {
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, var(--acento, #a78bfa), transparent);
+    background: linear-gradient(90deg, transparent, var(--acento, var(--roxo-claro)), transparent);
     opacity: 0.6;
 }
 
@@ -2853,7 +2909,7 @@ select {
 .preview-lista-corpo .imagem-produto img {
     width: 100%;
     height: auto;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     object-fit: cover;
     border: 1px solid rgba(var(--acento-rgb, 167,139,250), 0.18);
     box-shadow: 0 4px 16px rgba(0,0,0,0.30);
@@ -2870,7 +2926,7 @@ select {
     text-align: center;
     font-size: 1.05rem;
     font-weight: 700;
-    color: var(--texto-titulo, #fff);
+    color: var(--texto-titulo, var(--branco));
 }
 
 .preview-lista-corpo .rodape-produto {
@@ -2884,7 +2940,7 @@ select {
     flex-direction: column;
     align-items: center;
     padding: 10px 14px;
-    border-radius: 12px;
+    border-radius: var(--radius-md2);
     background: var(--preco-bg, rgba(167,139,250,0.10));
     border: 1px solid var(--preco-borda, rgba(167,139,250,0.30));
     box-shadow: 0 0 18px var(--preco-glow, rgba(167,139,250,0.18));
@@ -2902,17 +2958,17 @@ select {
     margin-top: 3px;
     font-size: 18px;
     font-weight: 700;
-    color: var(--preco-texto, #c4b5fd);
+    color: var(--preco-texto, var(--roxo-suave));
 }
 
 .preview-lista-corpo .disponibilidade.disponivel {
     margin-top: 6px;
     display: inline-block;
     padding: 3px 12px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     background: rgba(52,211,153,0.13);
     border: 1px solid rgba(52,211,153,0.30);
-    color: #34d399;
+    color: var(--verde);
     font-weight: 700;
     font-size: 11px;
     text-transform: uppercase;
@@ -2923,7 +2979,7 @@ select {
     margin-top: 6px;
     display: inline-block;
     padding: 3px 12px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     background: rgba(245,166,35,0.10);
     border: 1px solid rgba(245,166,35,0.25);
     color: rgba(245,166,35,0.70);
@@ -2943,7 +2999,7 @@ select {
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.12);
     padding: 11px 14px;
-    border-radius: 50px;
+    border-radius: var(--radius-pill);
     font-weight: 700;
     font-family: inherit;
     font-size: 15px;
@@ -2954,7 +3010,7 @@ select {
 .preview-lista-corpo .botao.primario {
     background: var(--btn-bg, rgba(124,58,237,0.70));
     border: 1px solid var(--btn-borda, rgba(167,139,250,0.50));
-    color: var(--btn-texto, #ffffff);
+    color: var(--btn-texto, var(--branco));
     box-shadow: 0 4px 20px var(--btn-sombra, rgba(124,58,237,0.45));
 }
 
@@ -2968,7 +3024,7 @@ select {
     padding: 16px 24px;
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     max-width: 360px;
 }
 
@@ -2997,7 +3053,7 @@ select {
 .preview-lista-corpo .cd-valor {
     font-size: 2rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--branco);
     line-height: 1;
 }
 
@@ -3016,18 +3072,18 @@ select {
 }
 
 /* Modo claro no preview */
-.preview-lista-corpo.tema-claro .titulo-produto { color: #111 !important; }
+.preview-lista-corpo.tema-claro .titulo-produto { color: var(--preto-suave) !important; }
 .preview-lista-corpo.tema-claro .rotulo-preco   { color: rgba(0,0,0,0.42) !important; }
 .preview-lista-corpo.tema-claro .countdown-bloco {
     background: rgba(255,255,255,0.75);
     border-color: rgba(0,0,0,0.10);
 }
-.preview-lista-corpo.tema-claro .cd-valor       { color: #111; }
+.preview-lista-corpo.tema-claro .cd-valor       { color: var(--preto-suave); }
 .preview-lista-corpo.tema-claro .cd-evento-label { color: rgba(0,0,0,0.55); }
 .preview-lista-corpo.tema-claro .cd-label       { color: rgba(0,0,0,0.40); }
 .preview-lista-corpo.tema-claro .item-esgotado .titulo-produto { color: rgba(0,0,0,0.25) !important; }
 
-@media (max-width: 480px) {
+@media (max-width: 471px) {
     .preview-iframe-hint { display: none; }
     .preview-iframe-topbar { padding: 8px 12px; }
     .preview-lista-corpo .conteudo-boas-vindas h1 { font-size: 1.8rem; }
@@ -3043,7 +3099,7 @@ select {
     padding: 10px 14px;
     background: rgba(167, 139, 250, 0.07);
     border: 1px solid rgba(167, 139, 250, 0.18);
-    border-radius: 10px;
+    border-radius: var(--radius-md);
 }
 
 /* Linha principal: info + botões Sim/Não */
@@ -3086,15 +3142,15 @@ select {
     position: relative;
     width: 34px;
     height: 20px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: rgba(255,255,255,0.12);
     border: 1px solid rgba(255,255,255,0.20);
     transition: background .22s, border-color .22s;
     flex-shrink: 0;
 }
 .cotas-check-hidden:checked + .cotas-switch-track {
-    background: #7c3aed;
-    border-color: #a78bfa;
+    background: var(--roxo-medio);
+    border-color: var(--roxo-claro);
 }
 .cotas-switch-thumb {
     position: absolute;
@@ -3103,7 +3159,7 @@ select {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #fff;
+    background: var(--branco);
     box-shadow: 0 1px 4px rgba(0,0,0,0.35);
     transition: transform .22s cubic-bezier(.4,0,.2,1);
 }
@@ -3128,15 +3184,15 @@ select {
     position: relative;
     width: 34px;
     height: 20px;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: rgba(255,255,255,0.12);
     border: 1px solid rgba(255,255,255,0.20);
     transition: background .22s, border-color .22s;
     flex-shrink: 0;
 }
 .cotas-check-hidden:checked + .cotas-switch-track {
-    background: #7c3aed;
-    border-color: #a78bfa;
+    background: var(--roxo-medio);
+    border-color: var(--roxo-claro);
 }
 .cotas-switch-thumb {
     position: absolute;
@@ -3145,7 +3201,7 @@ select {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #fff;
+    background: var(--branco);
     box-shadow: 0 1px 4px rgba(0,0,0,0.35);
     transition: transform .22s cubic-bezier(.4,0,.2,1);
 }
@@ -3164,7 +3220,7 @@ select {
     font-size: 12px;
     font-weight: 700;
     padding: 6px 14px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     border: 1.5px solid rgba(167,139,250,0.35);
     background: rgba(255,255,255,0.05);
     color: rgba(255,255,255,0.5);
@@ -3178,8 +3234,8 @@ select {
 }
 .btn-cota.ativo {
     background: rgba(167,139,250,0.25);
-    border-color: #a78bfa;
-    color: #a78bfa;
+    border-color: var(--roxo-claro);
+    color: var(--roxo-claro);
 }
 
 /* Linha de quantidade de cotas — aparece ao ativar */
@@ -3205,7 +3261,7 @@ select {
     font-size: 12px;
     font-weight: 700;
     padding: 4px 12px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     border: 1.5px solid rgba(167,139,250,0.35);
     background: rgba(255,255,255,0.05);
     color: rgba(255,255,255,0.5);
@@ -3219,14 +3275,14 @@ select {
 }
 .btn-cota-qtd.ativo {
     background: rgba(167,139,250,0.25);
-    border-color: #a78bfa;
-    color: #a78bfa;
+    border-color: var(--roxo-claro);
+    color: var(--roxo-claro);
 }
 
 /* Preview do valor */
 .cotas-preview {
     font-size: 11px;
-    color: #a78bfa;
+    color: var(--roxo-claro);
     font-weight: 600;
 }
 
@@ -3235,7 +3291,7 @@ select {
     background: rgba(124,58,237,0.05);
     border-color: rgba(124,58,237,0.18);
 }
-#modalEditar .cotas-titulo { color: #5b21b6; }
+#modalEditar .cotas-titulo { color: var(--roxo-mais-escuro); }
 #modalEditar .cotas-subtitulo { color: rgba(0,0,0,0.40); }
 #modalEditar .btn-cota,
 #modalEditar .btn-cota-qtd {
@@ -3246,23 +3302,23 @@ select {
 #modalEditar .btn-cota:hover,
 #modalEditar .btn-cota-qtd:hover {
     background: rgba(109,40,217,0.14);
-    color: #5b21b6;
+    color: var(--roxo-mais-escuro);
 }
 #modalEditar .btn-cota.ativo,
 #modalEditar .btn-cota-qtd.ativo {
     background: rgba(124,58,237,0.20);
-    border-color: #7c3aed;
-    color: #7c3aed;
+    border-color: var(--roxo-medio);
+    color: var(--roxo-medio);
 }
-#modalEditar .cotas-preview { color: #6d28d9; }
+#modalEditar .cotas-preview { color: var(--roxo-escuro); }
 #modalEditar .cotas-qtd-label { color: rgba(0,0,0,0.45); }
 #modalEditar .cotas-switch-track {
     background: rgba(0,0,0,0.10);
     border-color: rgba(0,0,0,0.18);
 }
 #modalEditar .cotas-check-hidden:checked + .cotas-switch-track {
-    background: #7c3aed;
-    border-color: #6d28d9;
+    background: var(--roxo-medio);
+    border-color: var(--roxo-escuro);
 }
 
 /* Badge no card do item cadastrado */
@@ -3270,10 +3326,10 @@ select {
     display: inline-block;
     margin-top: 4px;
     padding: 2px 8px;
-    border-radius: 12px;
+    border-radius: var(--radius-md2);
     background: rgba(167, 139, 250, 0.15);
     border: 1px solid rgba(167, 139, 250, 0.30);
-    color: #c4b5fd;
+    color: var(--roxo-suave);
     font-size: 11px;
     font-weight: 600;
 }
@@ -3299,30 +3355,30 @@ select {
 }
 
 #modalEditar .cotas-check-hidden:checked + .cotas-switch-track {
-    background: #7c3aed;
-    border-color: #6d28d9;
+    background: var(--roxo-medio);
+    border-color: var(--roxo-escuro);
 }
 
 #modalEditar .btn-cota {
     border-color: rgba(109, 40, 217, 0.35);
     background: rgba(109, 40, 217, 0.07);
-    color: #5b21b6;
+    color: var(--roxo-mais-escuro);
 }
 
 #modalEditar .btn-cota:hover {
     background: rgba(109, 40, 217, 0.16);
-    border-color: #7c3aed;
+    border-color: var(--roxo-medio);
 }
 
 #modalEditar .btn-cota.ativo {
-    background: #7c3aed;
-    border-color: #6d28d9;
-    color: #fff;
+    background: var(--roxo-medio);
+    border-color: var(--roxo-escuro);
+    color: var(--branco);
     box-shadow: 0 0 8px rgba(124,58,237,0.30);
 }
 
 #modalEditar .cotas-preview {
-    color: #6d28d9;
+    color: var(--roxo-escuro);
 }
 
 /* Override toggle no modal editar */
@@ -3331,6 +3387,6 @@ select {
     border-color: rgba(0,0,0,0.18);
 }
 #modalEditar .cotas-check-hidden:checked + .cotas-switch-track {
-    background: #7c3aed;
-    border-color: #6d28d9;
+    background: var(--roxo-medio);
+    border-color: var(--roxo-escuro);
 }

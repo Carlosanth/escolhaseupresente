@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Cadastro de Presentes</title>
     <link rel="stylesheet" href="cadastro-style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#110a1f">
@@ -2120,26 +2123,33 @@
             if (editCheck) {
                 if (cotasTotal >= 2) {
                     editCheck.checked = true;
-                    if (editOpcoes) editOpcoes.classList.add('visivel');
+                    // ✅ CORRIGIDO: era classList.add('visivel'), que não tem
+                    // nenhum efeito no CSS (a classe .visivel não existe). O
+                    // jeito que realmente controla a exibição é o display,
+                    // igual o resto do sistema já faz.
+                    if (editOpcoes) editOpcoes.style.display = 'flex';
                     editCotasSelecionadas = cotasTotal;
-                    editBtns?.querySelectorAll('.btn-cota').forEach(b => {
+                    // ✅ CORRIGIDO: era '.btn-cota', mas os botões reais são
+                    // '.btn-cota-qtd' — por isso o número nunca ficava
+                    // destacado ao abrir a edição de um item com cota.
+                    editBtns?.querySelectorAll('.btn-cota-qtd').forEach(b => {
                         b.classList.toggle('ativo', parseInt(b.dataset.cotas) === cotasTotal);
                     });
                     // Mostra preview
                     if (editPrev && produto.preco) {
-                        const precoLimpoP = produto.preco.replace(/R\s*\$/gi,'').replace(/ /g,'').replace(/\./g,'').replace(',','.').trim();
+                        const precoLimpoP = produto.preco.replace(/R\s*\$/gi,'').replace(/ /g,'').replace(/\./g,'').replace(',','.').trim();
                         const num = parseFloat(precoLimpoP);
                         if (!isNaN(num) && num > 0) {
                             editPrev.textContent = '→ Cada cota valerá ' + (num / cotasTotal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                            editPrev.classList.add('visivel');
+                            editPrev.style.display = 'inline';
                         }
                     }
                 } else {
                     editCheck.checked = false;
-                    if (editOpcoes) editOpcoes.classList.remove('visivel');
+                    if (editOpcoes) editOpcoes.style.display = 'none';
                     editCotasSelecionadas = 0;
-                    editBtns?.querySelectorAll('.btn-cota').forEach(b => b.classList.remove('ativo'));
-                    if (editPrev) { editPrev.textContent = ''; editPrev.classList.remove('visivel'); }
+                    editBtns?.querySelectorAll('.btn-cota-qtd').forEach(b => b.classList.remove('ativo'));
+                    if (editPrev) { editPrev.textContent = ''; editPrev.style.display = 'none'; }
                 }
             }
 
