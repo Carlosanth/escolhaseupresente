@@ -92,8 +92,7 @@ html, body {
 }
 
 /* Logo na nav */
-.nav-itens::before {
-    content: '✦ Escolha Seu Presente';
+.logo {
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.1em;
@@ -103,7 +102,13 @@ html, body {
     background: rgba(196, 181, 253, 0.1);
     border: 1px solid rgba(196, 181, 253, 0.2);
     border-radius: var(--radius-pill);
-    margin: 8px 0;
+}
+
+@media (max-width: 480px) {
+    .logo {
+        font-size: 11px;
+        margin-top: 20px;
+    }
 }
 
 /* ===== NAV z-index ===== */
@@ -512,7 +517,7 @@ html, body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 10px 3px 10px;
+    padding: 0px 10px 0px 0px;
     border-radius: var(--radius-sm2);
     font-size: 14px;
     color: rgba(255, 255, 255, 0.55);
@@ -2083,9 +2088,11 @@ não é clicável. */
         display: flex;
         align-items: flex-start;
         margin-top: 0;
+        max-height: 647px;
     }
 
     h3 { font-size: 18px; }
+
 }
 
 @media (max-width: 1260px) {
