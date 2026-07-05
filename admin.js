@@ -714,7 +714,7 @@
     });
 
     // Modelo de planilha — mesmas colunas essenciais para criar um item em
-    // "produtos_teste" (o resto: disponível, taxa, usuario_id etc. é
+    // "presentes" (o resto: disponível, taxa, usuario_id etc. é
     // preenchido automaticamente na importação).
     document.getElementById('btnBaixarModeloExcel').addEventListener('click', () => {
         const dados = [
@@ -861,7 +861,7 @@
                 // o mesmo cliente = mesmo documento => "set" atualiza em vez de duplicar.
                 const produtoId = `${clienteLPSelecionadoUid}-${categoriaLimpaNome}-${nomeLimpo}`;
 
-                batch.set(doc(db, "produtos_teste", produtoId), {
+                batch.set(doc(db, "presentes", produtoId), {
                     categoria:               nomeCategoria,
                     disponivel:              true,
                     imagem:                  item.imagem || 'https://i.ibb.co/0jjSyNRG/logo.png',
@@ -1118,7 +1118,7 @@
             const batch = writeBatch(db);
 
             // 1. Produtos do cliente
-            const produtosSnap = await getDocs(query(collection(db, "produtos_teste"), where("usuario_id", "==", uid)));
+            const produtosSnap = await getDocs(query(collection(db, "presentes"), where("usuario_id", "==", uid)));
             produtosSnap.forEach(d => batch.delete(d.ref));
 
             // 2. Saques do cliente
@@ -1191,7 +1191,7 @@
     }
 
     function escutarProdutos() {
-        onSnapshot(collection(db, "produtos_teste"), async (snap) => {
+        onSnapshot(collection(db, "presentes"), async (snap) => {
             todosOsProdutos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
             // Coletar UIDs únicos

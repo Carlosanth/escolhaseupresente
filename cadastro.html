@@ -1536,7 +1536,7 @@
                     const nomeLimpo = item.nome.replace(/[\/#\$\.\[\]]/g, "").trim();
                     const produtoId = `${usuarioAtualUid}-${categoriaLimpaCat}-${nomeLimpo}`;
 
-                    await setDoc(doc(db, "produtos_teste", produtoId), {
+                    await setDoc(doc(db, "presentes", produtoId), {
                         categoria:               nomeCategoria,
                         disponivel:              true,
                         imagem:                  item.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg',
@@ -1627,7 +1627,7 @@
                     payloadAdicionar.cotas_total       = cotasSelecionadas;
                     payloadAdicionar.cotas_disponiveis = cotasSelecionadas;
                 }
-                await setDoc(doc(db, "produtos_teste", produtoId), payloadAdicionar);
+                await setDoc(doc(db, "presentes", produtoId), payloadAdicionar);
 
                 // Limpa estado de cotas do formulário
                 cotasSelecionadas = 0;
@@ -1655,7 +1655,7 @@
         // ESCUTAR PRODUTOS
         // ================================================================
         function escutarProdutosDoBanco() {
-            const q = query(collection(db, "produtos_teste"), where("usuario_id", "==", usuarioAtualUid));
+            const q = query(collection(db, "presentes"), where("usuario_id", "==", usuarioAtualUid));
             unsubscribeProdutos = onSnapshot(q, (querySnapshot) => {
                 // Remove só os cards de item (.base), preservando o resto do
                 // container (mensagem "nenhum item", scroll, etc.) e evitando
@@ -1808,7 +1808,7 @@
                     const original = parseInt(p.preco_original_centavos || p.preco_centavos || 0);
                     const novoCentavos = Math.round(original * fator);
                     const novoPreco = (novoCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    return updateDoc(doc(db, "produtos_teste", p.id), {
+                    return updateDoc(doc(db, "presentes", p.id), {
                         preco_original_centavos: original.toString(),
                         preco_centavos: novoCentavos.toString(),
                         preco: novoPreco,
@@ -1973,7 +1973,7 @@
                         textoBotao: 'Excluir',
                         callback:   async () => {
                             try {
-                                await deleteDoc(doc(db, "produtos_teste", documentoId));
+                                await deleteDoc(doc(db, "presentes", documentoId));
                                 mostrarToast(`"${tituloExibicao}" excluído.`, 'normal', '🗑️');
                             } catch (error) {
                                 console.error("Erro ao deletar item:", error);
@@ -2219,7 +2219,7 @@
                     payloadEditar.cotas_total       = 0;
                     payloadEditar.cotas_disponiveis = 0;
                 }
-                await updateDoc(doc(db, "produtos_teste", editandoId), payloadEditar);
+                await updateDoc(doc(db, "presentes", editandoId), payloadEditar);
                 modalEditar.style.display = 'none';
                 mostrarToast('Item atualizado!', 'sucesso', '✅');
             } catch (error) {

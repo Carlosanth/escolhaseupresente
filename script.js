@@ -284,7 +284,7 @@
     }
 
     // ── Produtos em tempo real ─────────────────────────────────
-    db.collection("produtos_teste").where("usuario_id", "==", usuarioIdUrl)
+    db.collection("presentes").where("usuario_id", "==", usuarioIdUrl)
       .onSnapshot((snapshot) => {
        try {
         listaContainer.innerHTML = "";
