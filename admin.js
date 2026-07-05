@@ -1924,7 +1924,7 @@
         const maxLucro = Math.max(1, ...meses.map(m => m.lucro));
         const nomeMes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
-        if (entregues.length === 0) {
+        if (contribuicoes.length === 0) {
             container.innerHTML = '<p style="text-align:center; color:var(--text3); font-size:13px; padding:30px 0;">Nenhum dado ainda.</p>';
             return;
         }
