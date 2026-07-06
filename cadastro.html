@@ -2284,13 +2284,23 @@
         // ================================================================
         // CÁLCULO DE SALDO — função única, sem duplicação
         // ================================================================
+        // ✅ CORRIGIDO: antes somava só produtos 100% fechados (cota parcial
+        // não entrava na conta) e sempre assumia "cliente paga a taxa" —
+        // não considerava taxa_quem_paga nenhuma vez. Agora usa a mesma
+        // função central de todo o resto do sistema.
         function calcularSaldo() {
-            const vendidos = todosOsProdutos.filter(p => p.disponivel === false && p.presenteado_por);
-            const totalOriginalCentavos = vendidos.reduce((acc, p) =>
-                acc + parseInt(p.preco_original_centavos || p.preco_centavos || 0), 0);
-            const taxa = parseFloat(TAXA_PERCENTUAL);
-            const lucroTotal   = Math.round(totalOriginalCentavos * taxa / 100);
-            const repasseTotal = totalOriginalCentavos - lucroTotal;
+            const contribuicoes = obterTodasContribuicoes();
+
+            let totalOriginalCentavos = 0; // total bruto pago pelos convidados
+            let lucroTotal = 0;            // soma das taxas (minha receita)
+            let repasseTotal = 0;          // soma do que o cliente tem direito a receber
+
+            contribuicoes.forEach(c => {
+                const r = calcularRepasseCliente(c, c.produto);
+                totalOriginalCentavos += r.valorBruto;
+                lucroTotal += r.taxaCentavos;
+                repasseTotal += r.repasseCentavos;
+            });
 
             const totalJaSacadoCentavos = meusSaques
                 .filter(s => s.status === 'pago')
