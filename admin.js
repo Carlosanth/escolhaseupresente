@@ -1585,14 +1585,30 @@
     // alguns lugares foram atualizados e outros não, gerando saldo errado.
     // Agora TODO lugar que precisa desse cálculo chama essa função — só existe
     // um lugar pra corrigir/entender a regra de taxa.
+    // ✅ CORRIGIDO: quando "convidado paga a taxa", o valor gravado na
+    // contribuição já vem BRUTO (com a taxa somada em cima — é assim que o
+    // convidado é cobrado o valor certo). Antes esse valor bruto era exibido
+    // direto como "repasse" (o que você recebe), inflando o valor mostrado.
+    // Agora, nesse modo, o valor líquido é obtido revertendo a taxa embutida
+    // (divide por 1+taxa%), em vez de simplesmente repetir o valor bruto.
     function calcularRepasse(contribuicao) {
         const p         = contribuicao.produto;
-        const valor     = contribuicao.valorCentavos;
+        const valorBruto = contribuicao.valorCentavos; // o que o convidado de fato pagou
         const quemPaga  = p.taxa_quem_paga || 'convidado';
         const taxaPerc  = parseFloat(p.taxa_percentual != null ? p.taxa_percentual : taxaGlobal);
-        const taxaCentavos = Math.round(valor * taxaPerc / 100);
-        const repasseCentavos = quemPaga === 'convidado' ? valor : valor - taxaCentavos;
-        return { valor, quemPaga, taxaPerc, taxaCentavos, repasseCentavos };
+
+        let taxaCentavos, repasseCentavos;
+        if (quemPaga === 'convidado') {
+            // valorBruto = preço + taxa já embutida → reverte pra achar o líquido
+            repasseCentavos = Math.round(valorBruto / (1 + taxaPerc / 100));
+            taxaCentavos = valorBruto - repasseCentavos;
+        } else {
+            // valorBruto = preço cheio (sem nada embutido) → desconta a taxa
+            taxaCentavos = Math.round(valorBruto * taxaPerc / 100);
+            repasseCentavos = valorBruto - taxaCentavos;
+        }
+
+        return { valor: valorBruto, quemPaga, taxaPerc, taxaCentavos, repasseCentavos };
     }
 
     // ✅ NOVO: junta as contribuições de cada produto (cada pagamento — cota

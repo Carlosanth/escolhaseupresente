@@ -2480,6 +2480,31 @@
         // nem some o valor certo quando o presente tem mais de um contribuinte.
         let notifJaVistas = new Set();
 
+        function fmtMoeda(centavos) {
+            return (parseInt(centavos || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // ✅ FONTE ÚNICA DE VERDADE aqui no cadastro (mesma lógica do admin.js).
+        // Quando "convidado paga a taxa", o valor gravado na contribuição já
+        // vem BRUTO (preço + taxa embutida — é assim que o convidado é cobrado
+        // certinho). Por isso, nesse modo, "quanto você recebe" precisa reverter
+        // essa taxa embutida (dividir por 1+taxa%), não repetir o valor bruto.
+        function calcularRepasseCliente(c, p) {
+            const valorBruto = parseInt(c.valorCentavos || 0);
+            const quemPaga   = p.taxa_quem_paga || taxaQuemPaga || 'convidado';
+            const taxaPerc   = parseFloat(p.taxa_percentual != null ? p.taxa_percentual : (TAXA_PERCENTUAL || 0));
+
+            let taxaCentavos, repasseCentavos;
+            if (quemPaga === 'convidado') {
+                repasseCentavos = Math.round(valorBruto / (1 + taxaPerc / 100));
+                taxaCentavos = valorBruto - repasseCentavos;
+            } else {
+                taxaCentavos = Math.round(valorBruto * taxaPerc / 100);
+                repasseCentavos = valorBruto - taxaCentavos;
+            }
+            return { valorBruto, quemPaga, taxaPerc, taxaCentavos, repasseCentavos };
+        }
+
         // Junta as contribuições de todos os produtos numa lista única "achatada".
         // Mantém compatibilidade com presentes antigos (de antes do sistema de
         // contribuições existir), que só tinham presenteado_por + disponivel:false.
@@ -2572,8 +2597,6 @@
 
             contribuicoes.forEach(c => {
                 const p = c.produto;
-                const valorCentavos = parseInt(c.valorCentavos || 0);
-                const valorFmt = (valorCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 let dataFmt = 'Data não registrada';
                 if (c.data) {
                     let dataObj = null;
@@ -2608,15 +2631,40 @@
                     textoPresente += ` (cota ${c.cotas.length > 1 ? c.cotas.join(', ') : c.cotas[0]}${totalCotas ? ' de ' + totalCotas : ''} — ${ocupadas}/${totalCotas} pagas)`;
                 }
                 spanPresente.textContent = textoPresente;
-                const spanValor = document.createElement('span');
-                spanValor.className = 'notif-item-valor';
-                spanValor.textContent = valorFmt;
+
+                // ✅ CORRIGIDO: agora usa o cálculo central, que reverte a taxa
+                // embutida corretamente quando é o convidado que paga.
+                const repasse = calcularRepasseCliente(c, p);
+                const linhaValor = document.createElement('div');
+                linhaValor.className = 'notif-item-valor-linha';
+
+                const spanPago = document.createElement('span');
+                spanPago.className = 'notif-item-valor notif-item-valor-secundario';
+                spanPago.textContent = 'Pago: ' + fmtMoeda(repasse.valorBruto);
+
+                const spanTaxa = document.createElement('span');
+                spanTaxa.className = 'notif-item-valor notif-item-valor-secundario';
+                spanTaxa.textContent = 'Taxa: ' + fmtMoeda(repasse.taxaCentavos);
+
+                const spanRecebido = document.createElement('span');
+                spanRecebido.className = 'notif-item-valor notif-item-valor-principal';
+                spanRecebido.textContent = 'Você recebe: ' + fmtMoeda(repasse.repasseCentavos);
+
+                const badgeTaxa = document.createElement('span');
+                badgeTaxa.className = 'badge-taxa ' + (repasse.quemPaga === 'convidado' ? 'badge-taxa-convidado' : 'badge-taxa-cliente');
+                badgeTaxa.textContent = repasse.quemPaga === 'convidado' ? 'taxa: convidado' : 'taxa: descontada';
+
+                linhaValor.appendChild(spanPago);
+                linhaValor.appendChild(spanTaxa);
+                linhaValor.appendChild(spanRecebido);
+                linhaValor.appendChild(badgeTaxa);
+
                 const spanData = document.createElement('span');
                 spanData.className = 'notif-item-data';
                 spanData.textContent = '📅 ' + dataFmt;
                 item.appendChild(spanNome);
                 item.appendChild(spanPresente);
-                item.appendChild(spanValor);
+                item.appendChild(linhaValor);
                 item.appendChild(spanData);
 
                 // ✅ NOVO: botão que gera o recibo próprio da plataforma (não o
@@ -2643,13 +2691,17 @@
         // quem paga a taxa da plataforma). É um documento interno — não
         // substitui o comprovante bancário oficial, que fica só no admin.
         function abrirReciboCliente(c, p) {
-            const valorPago   = parseInt(c.valorCentavos || 0);
-            const taxaDesse   = p.taxa_quem_paga || taxaQuemPaga || 'convidado';
-            const taxaPerc    = parseFloat(p.taxa_percentual != null ? p.taxa_percentual : TAXA_PERCENTUAL || 0);
-            const taxaCentavos = Math.round(valorPago * taxaPerc / 100);
-            const vocRecebe   = taxaDesse === 'convidado' ? valorPago : valorPago - taxaCentavos;
+            // ✅ CORRIGIDO: usa o mesmo cálculo central (reverte a taxa
+            // embutida quando é o convidado que paga, em vez de mostrar o
+            // valor bruto como se fosse o que você recebeu).
+            const repasse = calcularRepasseCliente(c, p);
+            const valorPago    = repasse.valorBruto;
+            const taxaCentavos = repasse.taxaCentavos;
+            const vocRecebe    = repasse.repasseCentavos;
+            const taxaDesse    = repasse.quemPaga;
+            const taxaPerc     = repasse.taxaPerc;
 
-            const fmt = (centavos) => (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const fmt = fmtMoeda;
 
             let dataObj = new Date();
             if (c.data) {
@@ -2671,7 +2723,7 @@
             }
 
             const linhaTaxa = taxaPerc > 0
-                ? `<div class="r"><span>Taxa da plataforma (${taxaPerc}%)</span><span>${taxaDesse === 'convidado' ? 'paga pelo convidado' : '- ' + fmt(taxaCentavos)}</span></div>`
+                ? `<div class="r"><span>Taxa da plataforma (${taxaPerc}%)</span><span>${fmt(taxaCentavos)}${taxaDesse === 'convidado' ? ' (paga pelo convidado)' : ' (descontada do seu repasse)'}</span></div>`
                 : '';
 
             const html = `<!doctype html>
@@ -2750,7 +2802,7 @@
       <span>${dataFmt} · ${horaFmt}</span>
     </div>
     <div class="amount">
-      <div class="label">Valor da contribuição</div>
+      <div class="label">Valor pago pelo convidado</div>
       <div class="value">${fmt(valorPago)}</div>
       <div class="status">Pago</div>
     </div>
