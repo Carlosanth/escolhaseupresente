@@ -106,15 +106,18 @@ html, body {
 
 @media (max-width: 480px) {
     .logo {
-        font-size: 11px;
-        margin-top: 20px;
+        font-size: 12px;
+        /*margin-top: 20px;*/
+        margin: 15px 0 6px;
+        padding: 10px 15px;
+       
     }
 }
 
 /* ===== NAV z-index ===== */
 .nav {
     position: sticky; /*relative*/
-    top: 0;
+    top: -7vh; /*0*/
     z-index: 500; /* acima do .cartao que tem position:relative sem z-index */
 }
 
