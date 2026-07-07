@@ -1789,6 +1789,7 @@ não é clicável. */
     width: min(400px, 100vw);
     transition: right 0.5s ease-in-out;
     overflow: hidden;
+    z-index: 500;
 }
 
 .area-listas.ativo { right: 0; }
