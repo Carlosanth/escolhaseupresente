@@ -91,15 +91,6 @@
     font-weight: 600;
   }
   .tabela-dados td { color: var(--text2); }
-  .aviso {
-    background: rgba(245,166,35,0.08);
-    border: 1px solid rgba(245,166,35,0.25);
-    border-radius: 12px;
-    padding: 14px 16px;
-    font-size: 13px;
-    color: #fcd34d;
-    margin: 24px 0;
-  }
   .contato-box {
     background: var(--card);
     border: 1px solid var(--border);
@@ -121,92 +112,66 @@
   <div class="wrap">
     <a class="voltar" href="/">← Voltar ao início</a>
     <h1>Política de Privacidade</h1>
-    <div class="atualizado">Última atualização: [DATA] · Versão 1.0</div>
+    <div class="atualizado">Última atualização: 7 de julho de 2026 · Versão 1.1</div>
 
-    <p>Esta Política de Privacidade explica como a <strong>Escolha Seu Presente</strong> ("nós", "plataforma") coleta, usa, armazena e protege os dados pessoais de quem usa o site — tanto quem cria uma lista de presentes ("cliente" ou "anfitrião") quanto quem presenteia um item da lista ("convidado"). Ela segue os princípios da <strong>Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD)</strong>.</p>
+    <p>Esta Política de Privacidade descreve com transparência como a plataforma <strong>Escolha Seu Presente</strong> realiza o tratamento de dados pessoais de Clientes e Convidados, em total conformidade com a <strong>Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD)</strong>.</p>
 
-    <h2>1. Quem é o controlador dos dados</h2>
-    <p>A Escolha Seu Presente é a controladora dos dados pessoais tratados nesta plataforma, nos termos do art. 5º, VI, da LGPD. Dúvidas, solicitações ou reclamações sobre o tratamento de dados podem ser enviadas para <strong>[EMAIL_CONTATO_LGPD]</strong>.</p>
+    <h2>1. Controlador dos Dados e Encarregado (DPO)</h2>
+    <p>A Escolha Seu Presente atua na qualidade de Controladora dos dados pessoais coletados. Para exercer qualquer direito previsto em lei ou esclarecer dúvidas, o titular poderá contactar diretamente o nosso Encarregado pelo tratamento de dados através do e-mail <strong>escolhaseupresente@gmail.com</strong>.</p>
 
-    <h2>2. Quais dados coletamos</h2>
-    <p>Os dados coletados variam conforme o seu papel na plataforma:</p>
+    <h2>2. Escopo, Categorias e Coleta de Dados Pessoais</h2>
+    <p>O volume de dados coletados varia estritamente conforme a natureza da interação do usuário com a interface:</p>
 
     <table class="tabela-dados">
-      <tr><th>Perfil</th><th>Dados coletados</th><th>Quando</th></tr>
+      <tr><th>Perfil do Titular</th><th>Dados Pessoais Coletados</th><th>Finalidade Legal (Art. 7º, LGPD)</th></tr>
       <tr>
-        <td><strong>Cliente</strong> (cria a lista)</td>
-        <td>Nome, e-mail, senha (gerenciada de forma criptografada por nosso provedor de autenticação, nunca vemos a senha em texto puro), CPF, e opcionalmente cidade/estado</td>
-        <td>No cadastro e na etapa de verificação de identidade (necessária para liberar os repasses de valores recebidos)</td>
+        <td><strong>Cliente</strong> (Anfitrião)</td>
+        <td>Nome completo, e-mail de contato, credenciais criptografadas de acesso (via token do provedor), CPF e dados da conta bancária de mesma titularidade.</td>
+        <td>Execução de contrato e procedimentos preliminares (Art. 7º, V) + Proteção ao crédito e prevenção à fraude (Art. 7º, X).</td>
       </tr>
       <tr>
-        <td><strong>Convidado</strong> (presenteia, sem precisar de conta)</td>
-        <td>Nome informado no momento do presente, endereço IP, e dados de pagamento processados diretamente pelo nosso parceiro de pagamentos</td>
-        <td>Ao escolher presentear um item da lista</td>
+        <td><strong>Convidado</strong> (Doador)</td>
+        <td>Nome informado no momento da dedicação do presente, Endereço de IP, metadados do navegador e dados transacionais brutos de pagamento.</td>
+        <td>Execução de contrato (Art. 7º, V) + Legítimo Interesse para segurança do ambiente (Art. 7º, IX).</td>
       </tr>
       <tr>
         <td>Ambos</td>
-        <td>Preferência de tema (claro/escuro), dados técnicos básicos de navegação para o funcionamento do site (não usamos cookies de rastreamento publicitário)</td>
-        <td>Durante a navegação no site</td>
+        <td>Preferência estética de interface (modo escuro/claro), logs técnicos do sistema e cookies estritamente operacionais de sessão.</td>
+        <td>Legítimo Interesse de otimização de produto (Art. 7º, IX).</td>
       </tr>
     </table>
 
-    <p><strong>Importante sobre pagamentos:</strong> nós não armazenamos número de cartão, CVV ou dados bancários sensíveis do convidado. O pagamento é processado inteiramente pelo nosso parceiro de pagamentos (PIX/cartão), e nós apenas recebemos a confirmação de que o pagamento foi concluído, o valor e um link de comprovante.</p>
+    <p><strong>Segurança de Dados Bancários de Pagamento:</strong> A Escolha Seu Presente <strong>não coleta, não processa e não armazena</strong> em infraestrutura própria dados sensíveis de pagamento como número de cartões de crédito, códigos CVV ou senhas. Essas informações são criptografadas diretamente na ponta e trafegadas via ambiente seguro TLS ao ecossistema do gateway de pagamento parceiro.</p>
 
-    <h2>3. Para que usamos os dados</h2>
+    <h2>3. Finalidades Específicas do Tratamento</h2>
     <ul>
-      <li>Viabilizar a criação e exibição da lista de presentes;</li>
-      <li>Processar pagamentos e calcular/realizar o repasse de valores ao cliente;</li>
-      <li>Confirmar a identidade do cliente antes de liberar repasses financeiros (verificação via CPF), como medida antifraude;</li>
-      <li>Enviar comunicações relacionadas ao uso da plataforma (confirmações, avisos sobre a conta);</li>
-      <li>Prevenir fraudes, abusos e uso indevido da plataforma (por exemplo, limitar tentativas excessivas de uma mesma origem);</li>
-      <li>Cumprir obrigações legais e fiscais aplicáveis.</li>
-    </ul>
-    <p>Não vendemos dados pessoais a terceiros, nem os usamos para fins de publicidade direcionada.</p>
-
-    <h2>4. Com quem compartilhamos dados</h2>
-    <p>Para funcionar, a plataforma depende de alguns prestadores de serviço que também tratam dados em nosso nome, sempre limitados ao necessário para prestar o serviço contratado:</p>
-    <ul>
-      <li><strong>Google Firebase / Google Cloud</strong> — hospedagem do banco de dados, autenticação de contas e das funções de back-end;</li>
-      <li><strong>Parceiro de pagamentos (processador de PIX/cartão)</strong> — processamento das transações de pagamento dos convidados;</li>
-      <li><strong>Serviço de automação de fluxo de pagamento</strong> — intermediação entre a confirmação do pagamento e a atualização da lista;</li>
-      <li><strong>Serviço de hospedagem de imagens</strong> — armazenamento das fotos dos itens cadastrados nas listas.</li>
-    </ul>
-    <p>Não compartilhamos dados pessoais além do necessário para essas finalidades, e exigimos que esses parceiros também protejam adequadamente os dados tratados.</p>
-
-    <h2>5. Cookies e armazenamento local</h2>
-    <p>Usamos armazenamento local do navegador apenas para lembrar sua preferência de tema (claro/escuro) e para o funcionamento do aplicativo como PWA (Progressive Web App). Não usamos cookies de rastreamento de terceiros para fins publicitários.</p>
-
-    <h2>6. Por quanto tempo guardamos os dados</h2>
-    <p>Mantemos os dados da conta do cliente enquanto ela estiver ativa. Dados de transações e registros de auditoria são mantidos pelo prazo necessário para cumprir obrigações legais, fiscais e para resolução de eventuais disputas, mesmo após o encerramento da conta.</p>
-
-    <h2>7. Seus direitos como titular dos dados</h2>
-    <p>De acordo com o art. 18 da LGPD, você pode solicitar a qualquer momento, mediante contato pelo e-mail informado no topo desta política:</p>
-    <ul>
-      <li>Confirmação de que tratamos seus dados, e acesso a eles;</li>
-      <li>Correção de dados incompletos, inexatos ou desatualizados;</li>
-      <li>Anonimização, bloqueio ou eliminação de dados desnecessários ou tratados em desconformidade com a lei;</li>
-      <li>Portabilidade dos dados a outro fornecedor de serviço;</li>
-      <li>Eliminação dos dados tratados com base no seu consentimento, ressalvadas as hipóteses de guarda obrigatória por lei (como dados fiscais);</li>
-      <li>Informação sobre com quem compartilhamos seus dados;</li>
-      <li>Revogação do consentimento, quando aplicável.</li>
+      <li>Viabilizar a infraestrutura técnica das listas de presentes virtuais e o processamento de saques;</li>
+      <li>Garantir a integridade das operações antifraude, por meio da validação cadastral de CPF e cruzamento de endereços de IP para proteção do ecossistema financeiro;</li>
+      <li>Emitir alertas automáticos transacionais relativos ao status operacional da conta (confirmações de depósitos de presentes e avisos técnicos de segurança);</li>
+      <li>Cumprimento de obrigações legais, fiscais e regulatórias junto à administração pública e autoridades financeiras do Brasil.</li>
     </ul>
 
-    <h2>8. Segurança dos dados</h2>
-    <p>Adotamos medidas técnicas e administrativas para proteger os dados pessoais contra acessos não autorizados e situações acidentais ou ilícitas de destruição, perda, alteração, comunicação ou difusão. Nenhum sistema é 100% imune a incidentes, e caso ocorra um incidente que possa gerar risco relevante, notificaremos as pessoas afetadas e a Autoridade Nacional de Proteção de Dados (ANPD) conforme exigido pela LGPD.</p>
+    <h2>4. Compartilhamento Necessário de Dados</h2>
+    <p>O compartilhamento de informações está restrito ao mínimo necessário para a execução técnica do serviço, condicionado a operadores contratados que guardam rígidos padrões de segurança digital:</p>
+    <ul>
+      <li><strong>Google Firebase / Google Cloud Platform:</strong> Hospedagem lógica, persistência da base de dados e gestão de autenticação segura;</li>
+      <li><strong>Gateway de Pagamentos / Instituição de Pagamento de Intermediação:</strong> Processamento das transações de cartões de crédito e arranjos Pix;</li>
+      <li><strong>Serviços de Automação de Infraestrutura / Webhooks:</strong> Intermediação e sincronização automática de eventos transacionais;</li>
+      <li><strong>Servidor de Armazenamento de Arquivos em Nuvem:</strong> Hospedagem estática das imagens enviadas para personalização das listas.</li>
+    </ul>
 
-    <h2>9. Uso por menores de idade</h2>
-    <p>A plataforma não é direcionada a menores de 18 anos. Se você é responsável legal por um menor e acredita que ele forneceu dados pessoais na plataforma sem sua autorização, entre em contato para que possamos avaliar a remoção desses dados.</p>
+    <h2>5. Retenção e Descarte de Dados</h2>
+    <p>Os dados associados às contas de Clientes serão guardados enquanto o cadastro permanecer ativo no ecossistema da plataforma. Diante da solicitação de exclusão do cadastro, dados transacionais, fiscais e registros de logs obrigatórios determinados pelo Marco Civil da Internet (Lei nº 12.965/2014) serão retidos pelos prazos prescricionais previstos na legislação civil, tributária e de defesa do consumidor para o resguardo de direitos em juízo.</p>
 
-    <h2>10. Alterações nesta política</h2>
-    <p>Podemos atualizar esta Política de Privacidade periodicamente. Alterações relevantes serão comunicadas por um aviso na plataforma. Recomendamos revisar esta página de tempos em tempos.</p>
+    <h2>6. Direitos do Titular (Artigo 18, LGPD)</h2>
+    <p>A qualquer momento, mediante requisição direta enviada ao e-mail de suporte jurídico indicado, o titular de dados poderá requerer: confirmação de tratamento, acesso imediato aos dados cadastrais, correção de erros, eliminação de informações não obrigatórias por lei, portabilidade sistêmica e revogação de consentimentos anteriormente concedidos.</p>
+
+    <h2>7. Segurança da Informação</h2>
+    <p>Implementamos salvaguardas técnicas adequadas como criptografia em trânsito e em repouso, políticas restritivas de controle de acesso interno aos dados e monitoramento preventivo de tráfego. Em caso de incidentes relevantes de segurança que possam gerar risco aos titulares, realizaremos os planos de contenção e notificaremos as partes afetadas e a ANPD nos exatos prazos regulamentares.</p>
 
     <div class="contato-box">
-      <h2 style="margin-top:0; border-top:none; padding-top:0;">11. Contato</h2>
-      <p style="margin-bottom:0;">Para exercer seus direitos ou tirar dúvidas sobre esta política, escreva para <strong>[EMAIL_CONTATO_LGPD]</strong> ou pelo WhatsApp <strong>[WHATSAPP_CONTATO]</strong>.</p>
-    </div>
-
-    <div class="aviso">
-      ⚠️ Este documento é uma minuta gerada para servir de ponto de partida e ainda não passou por revisão jurídica. Antes de publicar oficialmente, recomenda-se a revisão por um advogado especializado em LGPD, especialmente por a plataforma processar dados de pagamento e documento (CPF).
+      <h2 style="margin-top:0; border-top:none; padding-top:0;">8. Contato do DPO / Canal Judicial</h2>
+      <p style="margin-bottom:0;">Para exercer seus direitos de privacidade ou reportar inconformidades técnicas, envie e-mail detalhado para <strong>escolhaseupresente@gmail.com</strong>.</p>
     </div>
 
     <footer>Escolha Seu Presente · <a href="/termos.html">Termos de Uso</a></footer>
