@@ -113,7 +113,8 @@ html, body {
 
 /* ===== NAV z-index ===== */
 .nav {
-    position: relative;
+    position: sticky; /*relative*/
+    top: 0;
     z-index: 500; /* acima do .cartao que tem position:relative sem z-index */
 }
 
@@ -536,7 +537,7 @@ html, body {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    min-height: 100vh;
+    /*min-height: 100vh;*/
     padding: 20px 0;
     position: relative;
 }
