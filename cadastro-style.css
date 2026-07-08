@@ -106,15 +106,18 @@ html, body {
 
 @media (max-width: 480px) {
     .logo {
-        font-size: 11px;
-        margin-top: 20px;
+        font-size: 12px;
+        /*margin-top: 20px;*/
+        margin: 15px 0 6px;
+        padding: 10px 15px;
+       
     }
 }
 
 /* ===== NAV z-index ===== */
 .nav {
-    position: sticky;
-    top: 0;
+    position: sticky; /*relative*/
+    top: -7vh; /*0*/
     z-index: 500; /* acima do .cartao que tem position:relative sem z-index */
 }
 
@@ -537,7 +540,7 @@ html, body {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    min-height: 100vh;
+    /*min-height: 100vh;*/
     padding: 20px 0;
     position: relative;
 }
@@ -3365,133 +3368,4 @@ select {
     color: var(--roxo-suave);
     font-size: 11px;
     font-weight: 600;
-}
-
-/* ================================================================
-   LAYOUT DE DESKTOP — sidebar + grade de itens + notificação em linha
-   Ativa só a partir de 1024px. Abaixo disso, tudo continua igual ao
-   layout mobile original (sidebar escondida, resto sem alteração).
-   ================================================================ */
-.sidebar-desktop {
-    display: none;
-}
-
-@media (min-width: 1024px) {
-    .sidebar-desktop {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        width: 200px;
-        padding: 90px 14px 20px;
-        background: rgba(255, 255, 255, 0.02);
-        border-right: 1px solid rgba(255, 255, 255, 0.08);
-        z-index: 400; /* abaixo da .nav (500), que cobre o topo da sidebar */
-        overflow-y: auto;
-    }
-
-    .sidebar-marca {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        color: var(--roxo-suave);
-        padding: 0 10px 14px;
-    }
-
-    .sidebar-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 10px 12px;
-        border-radius: var(--radius-md);
-        background: none;
-        border: none;
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 13px;
-        font-family: inherit;
-        cursor: pointer;
-        text-align: left;
-        position: relative;
-        transition: background .15s, color .15s;
-    }
-    .sidebar-item:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: #fff;
-    }
-    .sidebar-item.ativo {
-        background: rgba(167, 139, 250, 0.15);
-        color: var(--roxo-suave);
-    }
-    .sidebar-icone {
-        font-size: 15px;
-    }
-    .sidebar-badge {
-        margin-left: auto;
-        background: var(--vermelho);
-        color: #fff;
-        font-size: 10px;
-        font-weight: 700;
-        border-radius: var(--radius-pill);
-        padding: 1px 6px;
-        min-width: 16px;
-        text-align: center;
-    }
-
-    /* Empurra o conteúdo principal pra direita, liberando espaço pra sidebar */
-    .cartao {
-        margin-left: 200px;
-    }
-
-    /* Os botões originais de tema/notificação continuam existindo (usados
-       no mobile) mas ficam escondidos no desktop — a sidebar já cobre essa
-       função, sem duplicar UI. */
-    #tema,
-    #btnNotif {
-        display: none;
-    }
-
-    /* Itens cadastrados: grade em vez de lista empilhada */
-    #registros {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 12px;
-        align-items: start;
-    }
-    .base {
-        flex-direction: column;
-        align-items: stretch;
-        width: auto;
-    }
-    .base-card {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .base img {
-        width: 100%;
-        height: 110px;
-    }
-
-    /* Notificações: uma linha só por contribuição, em vez de empilhado */
-    .notif-item {
-        flex-direction: row;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 6px 16px;
-    }
-    .notif-item-nome {
-        min-width: 120px;
-    }
-    .notif-item-presente {
-        flex: 1;
-        min-width: 140px;
-    }
-    .notif-item-valor-linha {
-        width: auto;
-    }
-    .notif-item-valor-principal {
-        width: auto;
-    }
 }

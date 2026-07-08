@@ -61,23 +61,6 @@
         </div>
     </div>
 
-    <!-- ✅ NOVO: sidebar de navegação, só aparece em telas largas (desktop).
-         Não duplica lógica nenhuma — os botões aqui só "clicam" nos botões
-         originais (#tema, #btnNotif), que continuam existindo pro mobile. -->
-    <aside class="sidebar-desktop" id="sidebarDesktop">
-        <div class="sidebar-marca">✦ Escolha Seu Presente</div>
-        <button type="button" class="sidebar-item ativo" id="sidebarMeusItens">
-            <span class="sidebar-icone">🎁</span> Meus itens
-        </button>
-        <button type="button" class="sidebar-item" id="sidebarNotificacoes">
-            <span class="sidebar-icone">🔔</span> Notificações
-            <span class="sidebar-badge" id="sidebarNotifBadge" style="display:none;">0</span>
-        </button>
-        <button type="button" class="sidebar-item" id="sidebarTemas">
-            <span class="sidebar-icone">🎨</span> Temas da lista
-        </button>
-    </aside>
-
     <div class="cartao">
         <!-- PAINEL DE TEMAS -->
         <div class="area-temas">
@@ -2501,21 +2484,6 @@
         const fecharNotif = document.getElementById('fecharNotif');
         const notifBadge  = document.getElementById('notifBadge');
         const notifLista  = document.getElementById('notifLista');
-        const sidebarNotifBadge = document.getElementById('sidebarNotifBadge');
-
-        // ✅ NOVO: sidebar de desktop — os botões só "clicam" nos botões
-        // originais, sem duplicar nenhuma lógica de abrir/fechar painel.
-        document.getElementById('sidebarNotificacoes')?.addEventListener('click', () => {
-            document.getElementById('btnNotif')?.click();
-        });
-        document.getElementById('sidebarTemas')?.addEventListener('click', () => {
-            document.getElementById('tema')?.click();
-        });
-        document.getElementById('sidebarMeusItens')?.addEventListener('click', () => {
-            areaNotif?.classList.remove('ativo');
-            document.querySelector('.area-temas')?.classList.remove('ativo');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
         let unsubscribeNotif = null;
         // ✅ NOVO: agora guarda IDs de CONTRIBUIÇÕES (produtoId#index), não de produtos —
         // assim cada pagamento parcial de cota vira notificação própria e não some
@@ -2592,7 +2560,6 @@
             if (areaNotif.classList.contains('ativo')) {
                 notifBadge.style.display = 'none';
                 notifBadge.textContent = '0';
-                if (sidebarNotifBadge) { sidebarNotifBadge.style.display = 'none'; sidebarNotifBadge.textContent = '0'; }
                 notifJaVistas = new Set(obterTodasContribuicoes().map(c => c.id));
             }
         });
@@ -2625,10 +2592,6 @@
             if (novos.length > 0 && !areaNotif.classList.contains('ativo')) {
                 notifBadge.style.display = 'flex';
                 notifBadge.textContent = novos.length > 9 ? '9+' : novos.length;
-                if (sidebarNotifBadge) {
-                    sidebarNotifBadge.style.display = 'flex';
-                    sidebarNotifBadge.textContent = novos.length > 9 ? '9+' : novos.length;
-                }
             }
 
             if (contribuicoes.length === 0) {
