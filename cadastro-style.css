@@ -2902,6 +2902,15 @@ select {
     padding: 8px 16px 40px;
 }
 
+/* ✅ NOVO: faltava a largura do card (.conteudo) aqui — por isso o preview
+   não respeitava o mesmo grid/responsividade da lista.html real. No
+   Style.css original ela é 480px no desktop e 100% em telas pequenas;
+   essa regra estava presente lá mas nunca foi copiada pra cá. */
+.preview-lista-corpo .conteudo {
+    width: 480px;
+    transition: width 0.3s ease;
+}
+
 .preview-lista-corpo .controle-layout {
     display: flex;
     justify-content: center;
@@ -3146,6 +3155,9 @@ select {
     .preview-iframe-hint { display: none; }
     .preview-iframe-topbar { padding: 8px 12px; }
     .preview-lista-corpo .conteudo-boas-vindas h1 { font-size: 1.8rem; }
+    /* ✅ NOVO: mesma regra que faltava acima, agora pro breakpoint mobile —
+       sem isso o card ficava com 480px fixo mesmo em tela pequena. */
+    .preview-lista-corpo .conteudo { width: 100%; max-width: 100%; }
     .preview-lista-corpo .cartao-produto { flex-direction: row; gap: 12px; padding: 12px; }
     .preview-lista-corpo .imagem-produto { max-width: 40%; }
 }
