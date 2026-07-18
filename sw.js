@@ -7,7 +7,7 @@
 // ⚠️ IMPORTANTE: sempre que publicar uma atualização do site, troque o
 // número da versão abaixo (ex: 'v1' -> 'v2'). Isso garante que o navegador
 // detecte que o sw.js mudou e force a atualização em todo mundo.
-const CACHE_NAME = 'presentes-v4';
+const CACHE_NAME = 'presentes-v5';
 const ASSETS = [
   '/',
   '/index.html',
