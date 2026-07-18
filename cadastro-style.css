@@ -3446,3 +3446,58 @@ select {
     .site-footer { padding: 24px 20px 28px; }
     .footer-inner { gap: 8px 16px; }
 }
+
+/* ================================================================
+   CATEGORIA + LINK DO PRODUTO — lado a lado no formulário de cadastro
+================================================================ */
+.campos-lado-a-lado {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+.campos-lado-a-lado > .categoria,
+.campos-lado-a-lado > .link-produto-campo {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+@media (max-width: 480px) {
+    .campos-lado-a-lado {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
+/* ================================================================
+   LABEL ESTILIZADO NO LUGAR DO <input type="file"> NATIVO
+   Fica verde clarinho quando uma imagem já foi escolhida.
+================================================================ */
+.label-upload-imagem {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 13px 18px;
+    border-radius: var(--radius-pill);
+    border: 1px dashed rgba(255, 255, 255, 0.20);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+
+.label-upload-imagem:hover {
+    border-color: rgba(167, 139, 250, 0.5);
+    background: rgba(167, 139, 250, 0.08);
+}
+
+.label-upload-imagem.imagem-selecionada {
+    border-style: solid;
+    border-color: var(--verde);
+    background: var(--verde-bem-claro);
+    color: #1a5c3a;
+}

@@ -256,18 +256,26 @@
                         </div>
                     </div>
 
-                    <div class="categoria">
-                        <div class="nome">Inserir categoria <span>(Opcional)</span></div>
-                        <select id="selectCategoria" class="campo-formulario" style="width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 8px;">
-                            <option value="">Selecione uma categoria...</option>
-                            <option value="MANUAL">➕ Adicionar nova categoria...</option>
-                        </select>
-                        <input type="text" id="categoriaManual" class="campo-formulario" placeholder="Digite a nova categoria aqui" style="display: none;">
+                    <div class="campos-lado-a-lado">
+                        <div class="categoria">
+                            <div class="nome">Inserir categoria <span>(Opcional)</span></div>
+                            <select id="selectCategoria" class="campo-formulario" style="width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 8px;">
+                                <option value="">Selecione uma categoria...</option>
+                                <option value="MANUAL">➕ Adicionar nova categoria...</option>
+                            </select>
+                            <input type="text" id="categoriaManual" class="campo-formulario" placeholder="Digite a nova categoria aqui" style="display: none;">
+                        </div>
+
+                        <div class="link-produto-campo">
+                            <div class="nome">Link do produto <span>(Opcional — só você vê)</span></div>
+                            <input type="url" id="inputLinkProduto" class="campo-formulario" placeholder="https://..." style="width: 100%; padding: 10px; border-radius: 4px;">
+                        </div>
                     </div>
                     
                     <div class="Carregar-arquivo">
                         <div class="nome">Inserir imagem do produto</div>
-                        <input type="file" id="fotoProduto" class="arquivo" accept="image/*">
+                        <input type="file" id="fotoProduto" class="arquivo" accept="image/*" style="display:none;">
+                        <label for="fotoProduto" id="labelFotoProduto" class="label-upload-imagem">📷 Adicionar imagem</label>
                     </div>
                 </div>
                 <div class="salva-it">
@@ -353,6 +361,10 @@
                 <span class="modal-detalhe-label">Categoria</span>
                 <span class="modal-detalhe-valor" id="detalheCategoria"></span>
             </div>
+            <div class="modal-detalhe-linha" id="detalheLinhaLinkProduto" style="display:none;">
+                <span class="modal-detalhe-label">Link do produto</span>
+                <a class="modal-detalhe-valor" id="detalheLinkProduto" href="#" target="_blank" rel="noopener noreferrer">🔗 Abrir</a>
+            </div>
             <div class="modal-detalhe-linha" id="detalheLinhaValor">
                 <span class="modal-detalhe-label">Valor</span>
                 <span class="modal-detalhe-valor destaque" id="detalheValor"></span>
@@ -392,6 +404,9 @@
             <select id="editCategoria">
                 <option value="">Sem categoria</option>
             </select>
+
+            <label>Link do produto <span style="font-weight:normal; color:#999;">(opcional, só você vê)</span></label>
+            <input type="url" id="editLinkProduto" placeholder="https://...">
 
             <label>Nova imagem <span style="font-weight:normal; color:#999;">(opcional)</span></label>
             <input type="file" id="editFoto" accept="image/*" style="border-radius: 10px; padding: 10px;">
@@ -486,7 +501,7 @@
     <script type="module">
         import { firebaseConfig } from "./firebase-config.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, deleteDoc, updateDoc, getDocs, getDoc, collection, query, where, onSnapshot, serverTimestamp, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, deleteDoc, updateDoc, getDocs, getDoc, collection, query, where, onSnapshot, serverTimestamp, orderBy, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         
@@ -582,7 +597,21 @@
         const inputPreco           = document.getElementById('precoProduto');
         const selectCategoria      = document.getElementById('selectCategoria');
         const inputCategoriaManual = document.getElementById('categoriaManual');
+        const inputLinkProduto     = document.getElementById('inputLinkProduto');
         const inputFoto            = document.getElementById('fotoProduto');
+        const labelFotoProduto     = document.getElementById('labelFotoProduto');
+
+        // ✅ NOVO: label estilizado no lugar do input de arquivo nativo —
+        // mostra o nome do arquivo e fica verde clarinho quando selecionado.
+        inputFoto?.addEventListener('change', () => {
+            if (inputFoto.files && inputFoto.files[0]) {
+                labelFotoProduto.textContent = `✅ ${inputFoto.files[0].name}`;
+                labelFotoProduto.classList.add('imagem-selecionada');
+            } else {
+                labelFotoProduto.textContent = '📷 Adicionar imagem';
+                labelFotoProduto.classList.remove('imagem-selecionada');
+            }
+        });
         const containerRegistros   = document.getElementById('registros');
         const btnSair              = document.getElementById('btnSair');
 
@@ -606,6 +635,7 @@
         const editNome          = document.getElementById('editNome');
         const editPreco         = document.getElementById('editPreco');
         const editCategoria     = document.getElementById('editCategoria');
+        const editLinkProduto   = document.getElementById('editLinkProduto');
         const editFoto          = document.getElementById('editFoto');
         const btnEditarSalvar   = document.getElementById('btnEditarSalvar');
         const btnEditarCancelar = document.getElementById('btnEditarCancelar');
@@ -1663,6 +1693,12 @@
                     titulo:                  nome,
                     usuario_id:              usuarioAtualUid
                 };
+                // ✅ NOVO: link de referência do produto — só o dono vê (não
+                // entra em nenhuma tela do convidado). Só grava se preenchido.
+                const linkProdutoDigitado = inputLinkProduto?.value.trim();
+                if (linkProdutoDigitado) {
+                    payloadAdicionar.link_produto = linkProdutoDigitado;
+                }
                 if (cotasSelecionadas >= 2) {
                     payloadAdicionar.cotas_total       = cotasSelecionadas;
                     payloadAdicionar.cotas_disponiveis = cotasSelecionadas;
@@ -2062,6 +2098,17 @@
             document.getElementById('detalheTitulo').textContent = tituloExibicao;
             document.getElementById('detalheCategoria').textContent = categoriaExibicao;
 
+            // ✅ NOVO: link de referência do produto — só aparece se o dono
+            // cadastrou um. Essa tela não existe na lista.html do convidado.
+            const linhaLink = document.getElementById('detalheLinhaLinkProduto');
+            const linkEl    = document.getElementById('detalheLinkProduto');
+            if (produto.link_produto) {
+                linkEl.href = produto.link_produto;
+                linhaLink.style.display = 'flex';
+            } else {
+                linhaLink.style.display = 'none';
+            }
+
             const valorEl = document.getElementById('detalheValor');
             if (semValorDefinido) {
                 valorEl.textContent = '⚠️ Valor não definido';
@@ -2164,6 +2211,7 @@
                 : (produto.preco || '');
             editPreco.value     = precoOriginalEdicao;
             editCategoria.value = produto.categoria || '';
+            if (editLinkProduto) editLinkProduto.value = produto.link_produto || '';
             editFoto.value      = '';
 
             // Pré-popula o bloco de cotas com os valores salvos no produto
@@ -2263,6 +2311,10 @@
                     categoria:               novaCat || "Sem Categoria",
                     imagem:                  urlImagemFinal
                 };
+                // ✅ NOVO: link do produto — salva se preenchido, remove do
+                // documento (deleteField) se o campo foi deixado em branco.
+                const linkProdutoEditado = editLinkProduto?.value.trim();
+                payloadEditar.link_produto = linkProdutoEditado ? linkProdutoEditado : deleteField();
                 if (editCotasSelecionadas >= 2) {
                     payloadEditar.cotas_total       = editCotasSelecionadas;
                     payloadEditar.cotas_disponiveis = editCotasSelecionadas;
@@ -2293,7 +2345,12 @@
             selectCategoria.value = '';
             inputCategoriaManual.value = '';
             inputCategoriaManual.style.display = 'none';
+            if (inputLinkProduto) inputLinkProduto.value = '';
             inputFoto.value = '';
+            if (labelFotoProduto) {
+                labelFotoProduto.textContent = '📷 Adicionar imagem';
+                labelFotoProduto.classList.remove('imagem-selecionada');
+            }
         }
 
         // ================================================================
