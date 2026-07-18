@@ -1235,9 +1235,10 @@
                 const userLogadoEmailEl = document.getElementById('userLogadoEmail');
                 if (userLogadoEmailEl) userLogadoEmailEl.textContent = "Não autenticado";
                 containerRegistros.innerHTML = '<p style="padding:10px;">Redirecionando...</p>';
-                if (unsubscribeProdutos)   unsubscribeProdutos();
-                if (unsubscribeCategorias) unsubscribeCategorias();
-                if (unsubscribeSaques)     unsubscribeSaques();
+                if (unsubscribeProdutos)       unsubscribeProdutos();
+                if (unsubscribeCategorias)     unsubscribeCategorias();
+                if (unsubscribeCategoriasCustom) unsubscribeCategoriasCustom();
+                if (unsubscribeSaques)         unsubscribeSaques();
                 window.location.href = "index.html";
             }
         });
@@ -1267,29 +1268,68 @@
         // ================================================================
         // CATEGORIAS
         // ================================================================
+        // Guarda o resultado dos dois listeners (padrão/global + privadas do
+        // usuário) pra poder mesclar sempre que qualquer um dos dois mudar.
+        let categoriasPadraoCache = [];
+        let categoriasCustomCache = [];
+        let unsubscribeCategoriasCustom = null;
+
+        function renderizarOpcoesCategoria() {
+            const opcaoManual = '<option value="MANUAL">➕ Adicionar nova categoria...</option>';
+            selectCategoria.innerHTML = `<option value="">Selecione uma categoria...</option>${opcaoManual}`;
+            editCategoria.innerHTML = '<option value="">Sem categoria</option>';
+
+            const adicionarOpcao = (nomeCategoria) => {
+                const opt1 = document.createElement('option');
+                opt1.value = nomeCategoria;
+                opt1.textContent = nomeCategoria;
+                selectCategoria.insertBefore(opt1, selectCategoria.lastElementChild);
+                const opt2 = document.createElement('option');
+                opt2.value = nomeCategoria;
+                opt2.textContent = nomeCategoria;
+                editCategoria.appendChild(opt2);
+            };
+
+            // Padrão (globais, visíveis pra todo mundo) primeiro...
+            categoriasPadraoCache.forEach(adicionarOpcao);
+            // ...depois as privadas do usuário logado (não duplica nome repetido)
+            categoriasCustomCache
+                .filter(nome => !categoriasPadraoCache.includes(nome))
+                .forEach(adicionarOpcao);
+        }
+
         function escutarCategoriasDoBanco() {
             try {
                 unsubscribeCategorias = onSnapshot(collection(db, "categorias"), (querySnapshot) => {
-                    const opcaoManual = '<option value="MANUAL">➕ Adicionar nova categoria...</option>';
-                    selectCategoria.innerHTML = `<option value="">Selecione uma categoria...</option>${opcaoManual}`;
-                    editCategoria.innerHTML = '<option value="">Sem categoria</option>';
-
+                    categoriasPadraoCache = [];
                     querySnapshot.forEach((docSnap) => {
                         const catData = docSnap.data();
                         const nomeCategoria = catData.nome || docSnap.id;
-                        if (nomeCategoria) {
-                            const opt1 = document.createElement('option');
-                            opt1.value = nomeCategoria;
-                            opt1.textContent = nomeCategoria;
-                            selectCategoria.insertBefore(opt1, selectCategoria.lastElementChild);
-                            const opt2 = document.createElement('option');
-                            opt2.value = nomeCategoria;
-                            opt2.textContent = nomeCategoria;
-                            editCategoria.appendChild(opt2);
-                        }
+                        if (nomeCategoria) categoriasPadraoCache.push(nomeCategoria);
                     });
+                    renderizarOpcoesCategoria();
                 });
             } catch (err) { console.error("Erro ao buscar categorias:", err); }
+
+            // ✅ NOVO: categorias criadas manualmente pelo usuário ficam numa
+            // subcoleção privada (usuarios/{uid}/categoriasCustom) — só ele
+            // (e ninguém mais) consegue ler/escrever nelas, então elas nunca
+            // aparecem para outros usuários cadastrando os próprios itens.
+            try {
+                if (!usuarioAtualUid) return;
+                unsubscribeCategoriasCustom = onSnapshot(
+                    collection(db, "usuarios", usuarioAtualUid, "categoriasCustom"),
+                    (querySnapshot) => {
+                        categoriasCustomCache = [];
+                        querySnapshot.forEach((docSnap) => {
+                            const catData = docSnap.data();
+                            const nomeCategoria = catData.nome || docSnap.id;
+                            if (nomeCategoria) categoriasCustomCache.push(nomeCategoria);
+                        });
+                        renderizarOpcoesCategoria();
+                    }
+                );
+            } catch (err) { console.error("Erro ao buscar categorias privadas:", err); }
         }
 
         // ================================================================
@@ -1634,7 +1674,10 @@
                 cotasCtrl?.desativar();
 
                 if (selectCategoria.value === 'MANUAL' && category) {
-                    const catRef = doc(db, "categorias", categoriaLimpa);
+                    // ✅ CORRIGIDO: categoria digitada manualmente agora vai pra
+                    // subcoleção privada do usuário — antes ia pra "categorias"
+                    // (global), e por isso aparecia no formulário de TODO MUNDO.
+                    const catRef = doc(db, "usuarios", usuarioAtualUid, "categoriasCustom", categoriaLimpa);
                     const catSnap = await getDoc(catRef);
                     if (!catSnap.exists()) {
                         await setDoc(catRef, { nome: category });
@@ -2110,7 +2153,16 @@
             editandoImagemAtual = produto.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
 
             editNome.value      = produto.titulo    || '';
-            editPreco.value     = produto.preco     || '';
+            // ✅ CORRIGIDO: usar sempre o preço ORIGINAL (sem taxa), nunca o
+            // campo "preco" (que já pode ter a taxa do convidado embutida).
+            // Carregar "preco" aqui fazia a taxa ser somada DE NOVO ao salvar,
+            // o que mudava preco_centavos/preco_original_centavos e violava a
+            // regra do Firestore que proíbe o dono de alterar esses campos —
+            // por isso a edição falhava com "Missing or insufficient permissions".
+            const precoOriginalEdicao = produto.preco_original_centavos
+                ? (parseInt(produto.preco_original_centavos, 10) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                : (produto.preco || '');
+            editPreco.value     = precoOriginalEdicao;
             editCategoria.value = produto.categoria || '';
             editFoto.value      = '';
 
