@@ -3462,9 +3462,13 @@ select {
 }
 
 @media (max-width: 480px) {
-    .campos-lado-a-lado {
-        flex-direction: column;
-        gap: 0;
+    /* Continua lado a lado no celular — só diminui um pouco a fonte/
+       padding do campo de categoria (nomes tendem a ser mais longos)
+       pra caber o texto sem cortar. */
+    .campos-lado-a-lado .categoria #selectCategoria,
+    .campos-lado-a-lado .categoria #categoriaManual {
+        padding: 10px 8px;
+        font-size: 12px;
     }
 }
 
