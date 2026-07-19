@@ -1,6 +1,6 @@
 {
   "name": "Escolha Seu Presente",
-  "short_name": "Presentes",
+  "short_name": "Escolha seu Presente",
   "description": "Sua lista de presentes personalizada",
   "start_url": "/",
   "display": "standalone",
