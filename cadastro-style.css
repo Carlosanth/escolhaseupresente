@@ -3505,3 +3505,70 @@ select {
     background: var(--verde-bem-claro);
     color: #1a5c3a;
 }
+
+/* ===== CLASSES UTILITÁRIAS ===== */
+.oculto {
+    display: none !important;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+.campo-cab-ajuda {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.35);
+    margin-top: -6px;
+    display: block;
+}
+
+.emoji-grande {
+    font-size: 20px;
+}
+
+.label-secundario {
+    font-weight: normal;
+    color: #999;
+}
+
+.registros-lista {
+    width: 100%;
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.saque-cpf-aviso {
+    color: #a78bfa;
+    font-size: 11px;
+    margin-top: -8px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.nome-i {
+    padding-bottom: 16px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #cbd9d4;
+}
+
+.campo-cab-label {
+    margin-top: 10px;
+}
+
+select.campo-formulario {
+    cursor: pointer;
+}
+
+#inputDataEvento {
+    cursor: pointer;
+}

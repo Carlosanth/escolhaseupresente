@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#110a1f">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect fill='%23110a1f' width='180' height='180'/></svg>">
     <!-- Performance hints -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -52,10 +52,10 @@
                 </div>
                 <button class="btn-tema" id="tema">TEMAS DA LISTA</button>
                 <button class="btn-notif" id="btnNotif">
-                <span class="saldo-mini-badge" id="saldoMiniBadge" style="display:none;">
+                <span class="saldo-mini-badge oculto" id="saldoMiniBadge">
                     💰 <span id="saldoMiniValor">R$ 0,00</span>
                 </span>                    
-                    🔔 <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+                    🔔 <span class="notif-badge oculto" id="notifBadge">0</span>
                 </button>
             </div>   
         </div>
@@ -66,8 +66,8 @@
         <div class="area-temas">
             <button class="fechar" id="fechar">Fechar</button>
             <div class="painel">
-                <span class="nome-i" style="padding-bottom: 16px; font-size: 22px; font-weight: 600; color: #cbd9d4;">Escolha a imagem inicial</span>
-                <div class="painel-de-imagens" style="margin-bottom: 16px;">
+                <span class="nome-i">Escolha a imagem inicial</span>
+                <div class="painel-de-imagens">
                     <div class="painel-incial">
                         <div class="carousel-box">
                             <div class="carousel-track-outer">
@@ -104,11 +104,11 @@
                     <textarea id="inputDescricaoBoasVindas" class="campo-cab campo-cab-area" maxlength="280" rows="3" placeholder="Ficamos muito felizes em compartilhar este momento tão especial com você..."></textarea>
 
                     <!-- DATA DO EVENTO — contagem regressiva -->
-                    <label class="campo-cab-label" for="inputDataEvento" style="margin-top:10px;">
+                    <label class="campo-cab-label" for="inputDataEvento">
                         ⏳ Data do evento (contagem regressiva)
                     </label>
-                    <input type="datetime-local" id="inputDataEvento" class="campo-cab" style="cursor:pointer;">
-                    <span style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:-6px;">Deixe em branco para não exibir a contagem</span>
+                    <input type="datetime-local" id="inputDataEvento" class="campo-cab">
+                    <span class="campo-cab-ajuda">Deixe em branco para não exibir a contagem</span>
                 </div>
 
                 <!-- TÍTULO + COR/MODO LADO A LADO -->
@@ -188,7 +188,7 @@
             <button class="fechar" id="fecharListas">Fechar</button>
             <div class="listas-painel">
                 <div class="listas-header">
-                    <span style="font-size:20px;">📑</span>
+                    <span class="emoji-grande">📑</span>
                     <span class="listas-titulo">Listas prontas</span>
                 </div>
                 <span class="listas-subtitulo">Escolha uma categoria para ver itens sugeridos</span>
@@ -227,11 +227,23 @@
                         <input type="text" id="nomeProduto" class="campo-formulario" placeholder="Qual o nome do item?">
                     </div>
                     
-                    <div class="preço">
-                        <div class="nome">Inserir valor</div>
-                        <input type="tel" id="precoProduto" class="campo-formulario" placeholder="R$ 0,00">
+                    <div class="preço" style="display: flex; gap: 10px;">
+                        <div class="organização">
+                            <div class="nome">Inserir valor</div>
+                            <input type="tel" id="precoProduto" class="campo-formulario" placeholder="R$ 0,00">
+                        </div>
+                        
+                        <div class="categoria">
+                            <div class="nome">Inserir categoria <span>(Opcional)</span></div>
+                            <select id="selectCategoria" class="campo-formulario" title="Selecione uma categoria">
+                                <option value="">Selecionar</option>
+                                <option value="MANUAL">➕ Adicionar nova categoria...</option>
+                            </select>
+                            <input type="text" id="categoriaManual" class="campo-formulario oculto" placeholder="Digite a nova categoria aqui">
+                        </div>
+                        
                     </div>
-
+                    
                     <!-- BLOCO DE COTAS -->
                     <div class="cotas-bloco" id="cotasBloco">
                         <div class="cotas-row">
@@ -240,7 +252,8 @@
                                 <span class="cotas-subtitulo" id="cotasSubtitulo">Múltiplos convidados contribuem</span>
                             </div>
                             <label class="cotas-switch-wrap" for="cotasCheck">
-                                <input type="checkbox" id="cotasCheck" class="cotas-check-hidden">
+                                <label for="cotasCheck" class="sr-only">Dividir em cotas</label>
+                        <input type="checkbox" id="cotasCheck" class="cotas-check-hidden">
                                 <span class="cotas-switch-track"><span class="cotas-switch-thumb"></span></span>
                             </label>
                         </div>
@@ -257,24 +270,16 @@
                     </div>
 
                     <div class="campos-lado-a-lado">
-                        <div class="categoria">
-                            <div class="nome">Inserir categoria <span>(Opcional)</span></div>
-                            <select id="selectCategoria" class="campo-formulario" style="width: 100%; padding: 10px; border-radius: 4px; margin-bottom: 8px;">
-                                <option value="">Selecione uma categoria...</option>
-                                <option value="MANUAL">➕ Adicionar nova categoria...</option>
-                            </select>
-                            <input type="text" id="categoriaManual" class="campo-formulario" placeholder="Digite a nova categoria aqui" style="display: none;">
-                        </div>
 
                         <div class="link-produto-campo">
                             <div class="nome">Link do produto</div>
-                            <input type="url" id="inputLinkProduto" class="campo-formulario" placeholder="Opcional — só você vê" style="width: 100%; padding: 10px; border-radius: 4px;">
+                            <input type="url" id="inputLinkProduto" class="campo-formulario" placeholder="Opcional — só você vê">
                         </div>
                     </div>
                     
                     <div class="Carregar-arquivo">
                         <div class="nome">Inserir imagem do produto</div>
-                        <input type="file" id="fotoProduto" class="arquivo" accept="image/*" style="display:none;">
+                        <input type="file" id="fotoProduto" class="arquivo oculto" accept="image/*">
                         <label for="fotoProduto" id="labelFotoProduto" class="label-upload-imagem">Adicionar imagem</label>
                     </div>
                 </div>
@@ -297,7 +302,7 @@
                 <h3>📋 Meus Itens Cadastrados</h3>
 
                 <!-- CARDS DE RESUMO -->
-                <div class="resumo-cards" id="resumoCards" style="display:none;">
+                <div class="resumo-cards oculto" id="resumoCards">
                     <div class="resumo-card">
                         <span class="resumo-label">🛍️ Itens</span>
                         <span class="resumo-valor" id="resumoQtd">0</span>
@@ -305,12 +310,12 @@
                     <div class="resumo-card resumo-card-destaque">
                         <span class="resumo-label" id="resumoReceberLabel">✅ Você receberá</span>
                         <span class="resumo-valor resumo-valor-destaque" id="resumoReceber">R$ 0,00</span>
-                        <small class="resumo-ja-sacado" id="resumoJaSacado" style="display:none;"></small>
+                        <small class="resumo-ja-sacado oculto" id="resumoJaSacado"></small>
                     </div>
                 </div>
 
                 <!-- INTERRUPTOR DE TAXA -->
-                <div class="taxa-bloco" id="taxaBloco" style="display:none;">
+                <div class="taxa-bloco oculto" id="taxaBloco">
                     <div class="taxa-info">
                         <span class="taxa-titulo">Taxa de serviço <strong id="taxaPercentualLabel">2,8%</strong></span>
                         <span class="taxa-subtitulo" id="taxaSubtitulo">Quem absorve o custo?</span>
@@ -321,7 +326,7 @@
                     </div>
                 </div>
 
-                <div id="registros" style="width: 100%; max-height: 480px; overflow-y: auto; padding-right: 4px;"></div>
+                <div id="registros" class="registros-lista"></div>
             </div>
         </div>
     </div>
@@ -361,7 +366,7 @@
                 <span class="modal-detalhe-label">Categoria</span>
                 <span class="modal-detalhe-valor" id="detalheCategoria"></span>
             </div>
-            <div class="modal-detalhe-linha" id="detalheLinhaLinkProduto" style="display:none;">
+            <div class="modal-detalhe-linha oculto" id="detalheLinhaLinkProduto">
                 <span class="modal-detalhe-label">Link do produto</span>
                 <a class="modal-detalhe-valor" id="detalheLinkProduto" href="#" target="_blank" rel="noopener noreferrer">🔗 Abrir</a>
             </div>
@@ -369,19 +374,19 @@
                 <span class="modal-detalhe-label">Valor</span>
                 <span class="modal-detalhe-valor destaque" id="detalheValor"></span>
             </div>
-            <div class="modal-detalhe-linha" id="detalheLinhaExtra" style="display:none;">
+            <div class="modal-detalhe-linha oculto" id="detalheLinhaExtra">
                 <span class="modal-detalhe-label" id="detalheLabelExtra"></span>
                 <span class="modal-detalhe-valor" id="detalheValorExtra"></span>
             </div>
-            <div class="modal-detalhe-linha" id="detalheLinhaPresenteado" style="display:none;">
+            <div class="modal-detalhe-linha oculto" id="detalheLinhaPresenteado">
                 <span class="modal-detalhe-label">Presenteado por</span>
                 <span class="modal-detalhe-valor dourado" id="detalhePresenteadoPor"></span>
             </div>
-            <div class="modal-detalhe-linha" id="detalheLinhaCotas" style="display:none;">
+            <div class="modal-detalhe-linha oculto" id="detalheLinhaCotas">
                 <span class="modal-detalhe-label">Cotas</span>
                 <span class="modal-detalhe-valor" id="detalheInfoCotas"></span>
             </div>
-            <div class="modal-detalhe-linha" id="detalheLinhaValorCota" style="display:none;">
+            <div class="modal-detalhe-linha oculto" id="detalheLinhaValorCota">
                 <span class="modal-detalhe-label">Valor por cota</span>
                 <span class="modal-detalhe-valor destaque" id="detalheValorCota"></span>
             </div>
@@ -401,15 +406,15 @@
             <input type="tel" id="editPreco" placeholder="R$ 0,00">
 
             <label>Categoria</label>
-            <select id="editCategoria">
+            <select id="editCategoria" title="Selecione uma categoria">
                 <option value="">Sem categoria</option>
             </select>
 
-            <label>Link do produto <span style="font-weight:normal; color:#999;">(opcional, só você vê)</span></label>
+            <label>Link do produto <span class="label-secundario">(opcional, só você vê)</span></label>
             <input type="url" id="editLinkProduto" placeholder="https://...">
 
-            <label>Nova imagem <span style="font-weight:normal; color:#999;">(opcional)</span></label>
-            <input type="file" id="editFoto" accept="image/*" style="border-radius: 10px; padding: 10px;">
+            <label>Nova imagem <span class="label-secundario">(opcional)</span></label>
+            <input type="file" id="editFoto" accept="image/*" title="Selecione uma nova imagem">
 
             <!-- COTAS NO MODAL DE EDIÇÃO -->
             <div class="cotas-bloco" id="editCotasBloco">
@@ -418,8 +423,9 @@
                         <span class="cotas-titulo">Dividir em cotas?</span>
                         <span class="cotas-subtitulo" id="editCotasSubtitulo">Múltiplos convidados contribuem</span>
                     </div>
+                    <label for="editCotasCheck" class="sr-only">Dividir em cotas</label>
                     <label class="cotas-switch-wrap" for="editCotasCheck">
-                        <input type="checkbox" id="editCotasCheck" class="cotas-check-hidden">
+                        <input type="checkbox" id="editCotasCheck" class="cotas-check-hidden" title="Dividir em cotas">
                         <span class="cotas-switch-track"><span class="cotas-switch-thumb"></span></span>
                     </label>
                 </div>
@@ -451,7 +457,7 @@
             <input type="text" id="saqueNome" placeholder="Nome completo">
             <label>CPF (chave PIX)</label>
             <input type="text" id="saqueCpf" placeholder="000.000.000-00">
-            <small id="saqueCpfAviso" style="display:none; color:#a78bfa; font-size:11px; margin-top:-8px; margin-bottom:10px;"></small>
+            <small id="saqueCpfAviso" class="saque-cpf-aviso oculto"></small>
             <label>WhatsApp</label>
             <input type="text" id="saqueWhatsapp" placeholder="(85) 99999-9999">
             <div class="modal-saque-aviso">
@@ -474,12 +480,12 @@
         <button class="fechar" id="fecharNotif">Fechar</button>
         <div class="notif-painel">
             <div class="notif-header">
-                <span style="font-size:20px;">🔔</span>
+                <span class="emoji-grande">🔔</span>
                 <span class="notif-titulo">Presentes Recebidos</span>
             </div>
 
             <!-- SALDO + SOLICITAR SAQUE -->
-            <div class="saldo-bloco" id="saldoBloco" style="display:none;">
+            <div class="saldo-bloco oculto" id="saldoBloco">
                 <div class="saldo-card">
                     <span class="saldo-label">💰 Saldo disponível</span>
                     <span class="saldo-valor" id="saldoDisponivel">R$ 0,00</span>
