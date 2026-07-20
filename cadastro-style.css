@@ -602,6 +602,7 @@ select.campo-formulario option {
     margin-bottom: 5px;
     margin-top: 15px;
     color: rgba(255, 255, 255, 0.7);
+    text-align: center;
 }
 
 .nome span {
