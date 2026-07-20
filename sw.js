@@ -60,6 +60,14 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // ✅ CORRIGIDO: a Cache API só aceita requisições com esquema http(s).
+  // Extensões do Chrome (adblock, gerenciador de senhas, etc.) disparam
+  // requisições com esquema "chrome-extension://", e tentar dar cache.put
+  // nelas jogava o erro "Request scheme 'chrome-extension' is unsupported".
+  if (!url.startsWith('http')) {
+    return;
+  }
+
   // ✅ CORRIGIDO: estratégia agora é "rede primeiro, cache como reserva".
   // Antes era o contrário (cache primeiro), o que servia versões antigas
   // dos arquivos mesmo com internet disponível e um deploy novo no ar.
