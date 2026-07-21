@@ -317,6 +317,7 @@
           const wrap = document.createElement('main');
           wrap.className = 'conteudo';
           wrap.dataset.categoria = produto.categoria?.trim() || '';
+          wrap.dataset.testid = 'produto-card';
           if (!produto.disponivel) wrap.classList.add('item-esgotado');
 
           // Usa DOM seguro para campos vindos do Firestore
@@ -358,6 +359,7 @@
           const cotasDisp      = Math.max(0, cotasTotal - cotasOcupadas.length);
           const temCotas       = cotasTotal >= 2;
           const cotasAcabaram  = temCotas && cotasDisp <= 0;
+          wrap.dataset.temCota = temCotas ? 'true' : 'false';
 
           const precoCentavos = parseInt(produto.preco_centavos || 0);
 
@@ -366,6 +368,7 @@
               // Produto com cotas: UM botão que abre o popup de escolha
               const btnCotas = document.createElement('button');
               btnCotas.className = 'botao primario botao-escolha-cotas';
+              btnCotas.dataset.testid        = 'btn-escolher-cota';
               btnCotas.dataset.id            = id;
               btnCotas.dataset.titulo        = produto.titulo || '';
               btnCotas.dataset.cotasTotal    = cotasTotal;
@@ -380,13 +383,18 @@
                   .toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
                 const tagCotas = document.createElement('div');
                 tagCotas.className = 'tag-cotas-lista';
-                tagCotas.textContent = `🎯 ${cotasDisp}/${cotasTotal} cotas · ${porCotaFmt} cada`;
+                // Número isolado num span próprio (data-testid) — o texto
+                // completo da tag mistura vários dados, mas o teste de
+                // regressão precisa só do número de cotas disponíveis
+                // pra comparar antes/depois de uma reserva.
+                tagCotas.innerHTML = `🎯 <span data-testid="cotas-disponiveis">${cotasDisp}</span>/${cotasTotal} cotas · ${porCotaFmt} cada`;
                 caixaPreco.appendChild(tagCotas);
               }
             } else {
               // Produto normal: botão padrão
               const btn = document.createElement('button');
               btn.className = 'botao primario botao-presentear';
+              btn.dataset.testid  = 'btn-presentear';
               btn.dataset.id     = id;
               btn.dataset.titulo = produto.titulo || '';
               btn.textContent    = '😊 Presentear 😊';
@@ -529,7 +537,7 @@
 
           ${btnTudoHTML}
 
-          <button type="button" class="opcao-escolha opcao-cota" id="btn-escolha-cota">
+          <button type="button" class="opcao-escolha opcao-cota" id="btn-escolha-cota" data-testid="btn-contribuir-com-cota">
             <span class="opcao-escolha-emoji">🎯</span>
             <span class="opcao-escolha-textos">
               <span class="opcao-escolha-titulo">Contribuir com cota</span>
@@ -591,6 +599,7 @@
         botoesHTML += `
           <button type="button"
             class="btn-cota-valor${ocupada ? ' ocupada' : ''}"
+            data-testid="btn-selecionar-cota"
             data-num="${n}"
             ${atributos}>
             ${conteudo}
@@ -621,7 +630,7 @@
 
           <div class="modal-botoes" style="margin-top:14px;">
             <button id="btn-voltar-modal-cotas" class="botao">Voltar</button>
-            <button id="btn-confirmar-cotas" class="botao primario" disabled>Confirmar</button>
+            <button id="btn-confirmar-cotas" data-testid="btn-confirmar-selecao-cotas" class="botao primario" disabled>Confirmar</button>
           </div>
         </div>`;
 
