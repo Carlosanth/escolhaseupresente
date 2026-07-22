@@ -225,6 +225,9 @@
                     <div class="nomeitem">
                         <div class="nome">Inserir nome do item</div>
                         <input type="text" id="nomeProduto" class="campo-formulario" placeholder="Qual o nome do item?">
+                        <!-- ✅ NOVO: sugestões de imagem profissional vindas do banco
+                             curado pelo admin, aparecendo conforme o cliente digita. -->
+                        <div id="sugestoesImagemBanco" style="display:none; gap:8px; flex-wrap:wrap; margin-top:8px; padding:8px; background:rgba(255,255,255,0.04); border-radius:10px;"></div>
                     </div>
                     
                     <div class="preço" style="display: flex; gap: 10px;">
@@ -277,6 +280,11 @@
                         <div class="nome">Inserir imagem do produto</div>
                         <input type="file" id="fotoProduto" class="arquivo" accept="image/*" style="display:none;">
                         <label for="fotoProduto" id="labelFotoProduto" class="label-upload-imagem">Adicionar imagem</label>
+                        <div id="imagemBancoSelecionadaAviso" style="display:none; align-items:center; gap:8px; margin-top:6px; font-size:12px; color:#a3e635;">
+                            <img id="imagemBancoSelecionadaThumb" src="" alt="" style="width:32px; height:32px; border-radius:6px; object-fit:cover;">
+                            <span>Usando imagem sugerida</span>
+                            <button type="button" id="btnLimparImagemBanco" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:12px; text-decoration:underline;">trocar</button>
+                        </div>
                     </div>
                 </div>
                 <div class="salva-it">
@@ -521,6 +529,7 @@
         let unsubscribeCategorias = null;
         let unsubscribeSaques = null;
         let imagemSelecionadaParaO_Banco = "";
+        let urlImagemBancoSugeridaSelecionada = ""; // imagem escolhida do banco de imagens do admin (banco_imagens)
         let totalItensAtual = 0;
         let taxaQuemPaga = "convidado"; // "convidado" ou "cliente"
         let todosOsProdutos = []; // cache local para recalcular sem recarregar
@@ -608,10 +617,33 @@
             if (inputFoto.files && inputFoto.files[0]) {
                 labelFotoProduto.textContent = `✅ ${inputFoto.files[0].name}`;
                 labelFotoProduto.classList.add('imagem-selecionada');
+                // Upload manual sempre tem prioridade sobre a sugestão do banco —
+                // se o cliente escolheu subir a própria foto, ela é usada.
+                urlImagemBancoSugeridaSelecionada = '';
+                const avisoBanco = document.getElementById('imagemBancoSelecionadaAviso');
+                if (avisoBanco) avisoBanco.style.display = 'none';
             } else {
                 labelFotoProduto.textContent = '📷 Adicionar imagem';
                 labelFotoProduto.classList.remove('imagem-selecionada');
             }
+        });
+
+        // ✅ NOVO: busca sugestões no banco de imagens do admin conforme o
+        // cliente digita o nome do produto (com debounce pra não disparar
+        // uma busca a cada tecla).
+        let debounceBuscaBancoImagens = null;
+        inputNome?.addEventListener('input', () => {
+            clearTimeout(debounceBuscaBancoImagens);
+            debounceBuscaBancoImagens = setTimeout(() => {
+                buscarSugestoesImagemBanco(inputNome.value);
+            }, 400);
+        });
+
+        document.getElementById('btnLimparImagemBanco')?.addEventListener('click', () => {
+            urlImagemBancoSugeridaSelecionada = '';
+            const aviso = document.getElementById('imagemBancoSelecionadaAviso');
+            if (aviso) aviso.style.display = 'none';
+            document.querySelectorAll('.sugestao-imagem-banco').forEach(b => b.style.borderColor = 'transparent');
         });
         const containerRegistros   = document.getElementById('registros');
         const btnSair              = document.getElementById('btnSair');
@@ -1392,6 +1424,76 @@
         }
 
         // ================================================================
+        // BANCO DE IMAGENS DO ADMIN — sugestão automática ao digitar o nome
+        // ================================================================
+        // Mesma normalização usada no admin.js ao cadastrar uma imagem —
+        // precisa ser idêntica dos dois lados pra bater a comparação.
+        const PALAVRAS_IGNORADAS_BANCO = new Set(['de','da','do','das','dos','com','para','pra','a','o','e','um','uma','uns','umas','em','no','na']);
+        function normalizarTagsBanco(nome) {
+            return (nome || '')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .replace(/[^a-z0-9\s]/g, ' ')
+                .split(/\s+/)
+                .filter(p => p.length >= 2 && !PALAVRAS_IGNORADAS_BANCO.has(p));
+        }
+
+        let bancoImagensCacheCliente = null; // carregado uma vez, filtrado localmente a cada tecla
+        async function garantirBancoImagensCarregado() {
+            if (bancoImagensCacheCliente) return bancoImagensCacheCliente;
+            try {
+                const snap = await getDocs(collection(db, "banco_imagens"));
+                bancoImagensCacheCliente = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (e) {
+                console.warn("Não foi possível carregar o banco de imagens:", e.message);
+                bancoImagensCacheCliente = [];
+            }
+            return bancoImagensCacheCliente;
+        }
+
+        async function buscarSugestoesImagemBanco(nomeDigitado) {
+            const container = document.getElementById('sugestoesImagemBanco');
+            if (!container) return;
+
+            const termos = normalizarTagsBanco(nomeDigitado);
+            if (!termos.length) { container.style.display = 'none'; container.innerHTML = ''; return; }
+
+            const banco = await garantirBancoImagensCarregado();
+            const encontrados = banco.filter(item =>
+                (item.tags || []).some(tag => termos.includes(tag))
+            ).slice(0, 6); // no máximo 6 sugestões, pra não poluir a tela
+
+            if (!encontrados.length) { container.style.display = 'none'; container.innerHTML = ''; return; }
+
+            container.style.display = 'flex';
+            container.innerHTML = `<div style="width:100%; font-size:11px; color:#a3a3a3; margin-bottom:2px;">✨ Imagens sugeridas — clique pra usar:</div>` +
+                encontrados.map(item => `
+                    <button type="button" class="sugestao-imagem-banco" data-url="${item.imagemUrl}" data-nome="${(item.nome || '').replace(/"/g, '&quot;')}"
+                        style="border:2px solid transparent; border-radius:8px; padding:2px; background:none; cursor:pointer;">
+                        <img src="${item.imagemUrl}" alt="${item.nome || ''}" style="width:56px; height:56px; object-fit:cover; border-radius:6px; display:block;">
+                    </button>
+                `).join('');
+
+            container.querySelectorAll('.sugestao-imagem-banco').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    urlImagemBancoSugeridaSelecionada = btn.dataset.url;
+                    container.querySelectorAll('.sugestao-imagem-banco').forEach(b => b.style.borderColor = 'transparent');
+                    btn.style.borderColor = '#a3e635';
+
+                    const aviso = document.getElementById('imagemBancoSelecionadaAviso');
+                    const thumb = document.getElementById('imagemBancoSelecionadaThumb');
+                    if (aviso && thumb) {
+                        thumb.src = urlImagemBancoSugeridaSelecionada;
+                        aviso.style.display = 'flex';
+                    }
+                    // Como já tem imagem escolhida, o upload manual fica opcional —
+                    // mas se o usuário subir um arquivo depois, ele tem prioridade
+                    // (ver handler do inputFoto.change abaixo).
+                });
+            });
+        }
+
+        // ================================================================
         // LISTAS PRONTAS — categorias e itens vêm do Firestore
         // (cadastrados pelo admin em listas_prontas/{catId}/itens/{itemId})
         // ================================================================
@@ -1672,8 +1774,13 @@
 
             let urlImagemFinal = 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
             if (fotoArquivo) {
+                // Upload manual do cliente tem prioridade sobre a sugestão do banco.
                 const blob = await redimensionarImagem(fotoArquivo);
                 urlImagemFinal = await fazerUploadImagemImgBB(blob);
+            } else if (urlImagemBancoSugeridaSelecionada) {
+                // ✅ NOVO: usa a imagem sugerida do banco do admin, sem precisar
+                // fazer upload nenhum — ela já está hospedada.
+                urlImagemFinal = urlImagemBancoSugeridaSelecionada;
             }
 
             const categoriaLimpa = (category || "SemCategoria").replace(/[\/#\$\.\[\]]/g, "").trim();
@@ -2352,6 +2459,12 @@
                 labelFotoProduto.textContent = '📷 Adicionar imagem';
                 labelFotoProduto.classList.remove('imagem-selecionada');
             }
+            // ✅ NOVO: limpa a seleção do banco de imagens junto com o resto do formulário
+            urlImagemBancoSugeridaSelecionada = '';
+            const avisoBanco = document.getElementById('imagemBancoSelecionadaAviso');
+            if (avisoBanco) avisoBanco.style.display = 'none';
+            const sugestoesBanco = document.getElementById('sugestoesImagemBanco');
+            if (sugestoesBanco) { sugestoesBanco.style.display = 'none'; sugestoesBanco.innerHTML = ''; }
         }
 
         // ================================================================

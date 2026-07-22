@@ -51,6 +51,9 @@
             <button class="nav-item" data-secao="listas-prontas">
                 <span class="icon">🎁</span><span>Listas Prontas</span>
             </button>
+            <button class="nav-item" data-secao="banco-imagens">
+                <span class="icon">🖼️</span><span>Banco de Imagens</span>
+            </button>
             <button class="nav-item" data-secao="comunicados">
                 <span class="icon">📢</span><span>Comunicados</span>
             </button>
@@ -364,6 +367,24 @@
             </div>
         </section>
 
+        <!-- ===== SEÇÃO: BANCO DE IMAGENS ===== -->
+        <section class="secao" id="secao-banco-imagens">
+            <div class="lp-toolbar">
+                <div class="lp-toolbar-acoes">
+                    <button class="btn-lp-primario" id="btnNovaImagemBanco">➕ Nova imagem</button>
+                </div>
+                <input type="text" id="inputBuscarBancoImagens" class="campo-form-admin" placeholder="🔍 Buscar por nome ou tag..." style="max-width:280px; margin:0;">
+            </div>
+            <p style="font-size:12px; color:var(--text2); margin:0 0 16px;">
+                Fotos profissionais que você cadastra aqui. Quando um cliente digitar o nome
+                de um produto no cadastro dele, essas imagens aparecem como sugestão — ele
+                pode usar a sua ou continuar subindo a foto dele mesmo.
+            </p>
+            <div class="lp-grid-itens" id="bancoImagensGrid">
+                <div class="lp-vazio">Carregando...</div>
+            </div>
+        </section>
+
         <section class="secao" id="secao-comunicados">
             <div class="taxa-config-card" style="margin-bottom:20px;">
                 <h3>📢 Novo comunicado global</h3>
@@ -496,6 +517,26 @@
         <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
             <button class="btn-tabela" id="btnCancelarItemLP" style="background:var(--surface2); color:var(--text2);">Cancelar</button>
             <button class="btn-tabela btn-marcar-pago" id="btnSalvarItemLP">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL BANCO DE IMAGENS -->
+<div class="modal-admin" id="modalImagemBanco">
+    <div class="modal-admin-content" style="max-width:440px;">
+        <div class="modal-admin-header">
+            <h3 id="modalImagemBancoTitulo">➕ Nova imagem</h3>
+            <button class="btn-fechar-modal" id="btnFecharModalImagemBanco">✕</button>
+        </div>
+        <span class="label-form-admin">Nome do produto</span>
+        <input type="text" id="inputImagemBancoNome" class="campo-form-admin" placeholder="Ex: Fogão 4 bocas preto">
+        <span class="label-form-admin">Imagem (profissional/alta qualidade)</span>
+        <img id="imagemBancoPreview" class="lp-preview-imagem" alt="Pré-visualização">
+        <input type="file" id="inputImagemBancoArquivo" class="upload-form-admin" accept="image/*">
+        <div id="imagemBancoTagsPreview" style="font-size:11px; color:var(--text3); margin-top:8px;"></div>
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:12px;">
+            <button class="btn-tabela" id="btnCancelarImagemBanco" style="background:var(--surface2); color:var(--text2);">Cancelar</button>
+            <button class="btn-tabela btn-marcar-pago" id="btnSalvarImagemBanco">Salvar</button>
         </div>
     </div>
 </div>
