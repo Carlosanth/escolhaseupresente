@@ -383,6 +383,30 @@
             <div class="lp-grid-itens" id="bancoImagensGrid">
                 <div class="lp-vazio">Carregando...</div>
             </div>
+
+            <!-- ✅ NOVO: termos que os clientes buscaram e não acharam sugestão —
+                 pista do que vale a pena cadastrar em seguida. -->
+            <div class="card-tabela" style="margin-top:24px;">
+                <div class="card-tabela-header">
+                    <h3>🔍 Buscas sem sugestão</h3>
+                    <span style="font-size:11px;color:var(--text3);">O que os clientes procuraram e não achou nada parecido</span>
+                </div>
+                <div id="listaBuscasSemResultado" style="padding:8px 0;">
+                    <p style="font-size:13px;color:var(--text3);padding:16px;">Carregando...</p>
+                </div>
+            </div>
+
+            <!-- ✅ NOVO: fotos que clientes já subiram manualmente, pra você
+                 aproveitar sem precisar baixar/subir de novo. -->
+            <div class="card-tabela" style="margin-top:24px;">
+                <div class="card-tabela-header">
+                    <h3>📥 Imagens enviadas por clientes</h3>
+                    <span style="font-size:11px;color:var(--text3);">Reaproveite direto pro banco, sem novo upload</span>
+                </div>
+                <div class="lp-grid-itens" id="imagensClientesGrid" style="padding:12px;">
+                    <div class="lp-vazio">Carregando...</div>
+                </div>
+            </div>
         </section>
 
         <section class="secao" id="secao-comunicados">
@@ -530,6 +554,8 @@
         </div>
         <span class="label-form-admin">Nome do produto</span>
         <input type="text" id="inputImagemBancoNome" class="campo-form-admin" placeholder="Ex: Fogão 4 bocas preto">
+        <span class="label-form-admin">Sinônimos (opcional, separados por vírgula)</span>
+        <input type="text" id="inputImagemBancoSinonimos" class="campo-form-admin" placeholder="Ex: cooktop, fogão de embutir">
         <span class="label-form-admin">Imagem (profissional/alta qualidade)</span>
         <img id="imagemBancoPreview" class="lp-preview-imagem" alt="Pré-visualização">
         <input type="file" id="inputImagemBancoArquivo" class="upload-form-admin" accept="image/*">

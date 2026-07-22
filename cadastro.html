@@ -15,6 +15,63 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        /* ✅ NOVO: linha horizontal de sugestões do banco de imagens */
+        .sugestoes-imagem-banco-row {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(167,139,250,0.5) transparent;
+        }
+        .sugestoes-imagem-banco-row::-webkit-scrollbar { height: 6px; }
+        .sugestoes-imagem-banco-row::-webkit-scrollbar-track { background: transparent; }
+        .sugestoes-imagem-banco-row::-webkit-scrollbar-thumb {
+            background: rgba(167,139,250,0.5);
+            border-radius: 10px;
+        }
+        .sugestoes-imagem-banco-row::-webkit-scrollbar-thumb:hover { background: rgba(167,139,250,0.8); }
+
+        .sugestao-imagem-banco-item {
+            flex: 0 0 auto;
+            position: relative;
+            width: 64px;
+            height: 64px;
+            border-radius: 10px;
+            padding: 0;
+            border: 2px solid transparent;
+            cursor: pointer;
+            background: none;
+            overflow: hidden;
+            transition: border-color .15s ease, transform .1s ease;
+        }
+        .sugestao-imagem-banco-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .sugestao-imagem-banco-item:active { transform: scale(0.95); }
+        .sugestao-imagem-banco-item.selecionada { border-color: #a3e635; }
+        .sugestao-imagem-banco-item.selecionada::after {
+            content: "✓";
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: #a3e635;
+            color: #1a1530;
+            font-size: 11px;
+            font-weight: 700;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+    </style>
 </head>
 <body>
 
@@ -225,9 +282,6 @@
                     <div class="nomeitem">
                         <div class="nome">Inserir nome do item</div>
                         <input type="text" id="nomeProduto" class="campo-formulario" placeholder="Qual o nome do item?">
-                        <!-- ✅ NOVO: sugestões de imagem profissional vindas do banco
-                             curado pelo admin, aparecendo conforme o cliente digita. -->
-                        <div id="sugestoesImagemBanco" style="display:none; gap:8px; flex-wrap:wrap; margin-top:8px; padding:8px; background:rgba(255,255,255,0.04); border-radius:10px;"></div>
                     </div>
                     
                     <div class="preço" style="display: flex; gap: 10px;">
@@ -280,10 +334,13 @@
                         <div class="nome">Inserir imagem do produto</div>
                         <input type="file" id="fotoProduto" class="arquivo" accept="image/*" style="display:none;">
                         <label for="fotoProduto" id="labelFotoProduto" class="label-upload-imagem">Adicionar imagem</label>
-                        <div id="imagemBancoSelecionadaAviso" style="display:none; align-items:center; gap:8px; margin-top:6px; font-size:12px; color:#a3e635;">
-                            <img id="imagemBancoSelecionadaThumb" src="" alt="" style="width:32px; height:32px; border-radius:6px; object-fit:cover;">
-                            <span>Usando imagem sugerida</span>
-                            <button type="button" id="btnLimparImagemBanco" style="background:none; border:none; color:#f87171; cursor:pointer; font-size:12px; text-decoration:underline;">trocar</button>
+                        <!-- ✅ NOVO: sugestões de imagem profissional vindas do banco do
+                             admin, em linha horizontal com scroll — clicar seleciona
+                             na hora (sem recarregar outra miniatura), clicar de novo
+                             desmarca. -->
+                        <div id="sugestoesImagemBancoWrap" style="display:none;">
+                            <div style="font-size:11px; color:rgba(255,255,255,0.5); margin:10px 0 6px;">✨ Imagens sugeridas — toque pra usar:</div>
+                            <div id="sugestoesImagemBanco" class="sugestoes-imagem-banco-row"></div>
                         </div>
                     </div>
                 </div>
@@ -510,7 +567,7 @@
     <script type="module">
         import { firebaseConfig } from './js/firebase-config.js';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, deleteDoc, updateDoc, getDocs, getDoc, collection, query, where, onSnapshot, serverTimestamp, orderBy, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, deleteDoc, updateDoc, getDocs, getDoc, collection, query, where, onSnapshot, serverTimestamp, orderBy, deleteField, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         
@@ -618,10 +675,11 @@
                 labelFotoProduto.textContent = `✅ ${inputFoto.files[0].name}`;
                 labelFotoProduto.classList.add('imagem-selecionada');
                 // Upload manual sempre tem prioridade sobre a sugestão do banco —
-                // se o cliente escolheu subir a própria foto, ela é usada.
+                // se o cliente escolheu subir a própria foto, ela é usada, e
+                // qualquer sugestão marcada na linha de miniaturas é desmarcada.
                 urlImagemBancoSugeridaSelecionada = '';
-                const avisoBanco = document.getElementById('imagemBancoSelecionadaAviso');
-                if (avisoBanco) avisoBanco.style.display = 'none';
+                document.querySelectorAll('.sugestao-imagem-banco-item.selecionada')
+                    .forEach(b => b.classList.remove('selecionada'));
             } else {
                 labelFotoProduto.textContent = '📷 Adicionar imagem';
                 labelFotoProduto.classList.remove('imagem-selecionada');
@@ -639,12 +697,6 @@
             }, 400);
         });
 
-        document.getElementById('btnLimparImagemBanco')?.addEventListener('click', () => {
-            urlImagemBancoSugeridaSelecionada = '';
-            const aviso = document.getElementById('imagemBancoSelecionadaAviso');
-            if (aviso) aviso.style.display = 'none';
-            document.querySelectorAll('.sugestao-imagem-banco').forEach(b => b.style.borderColor = 'transparent');
-        });
         const containerRegistros   = document.getElementById('registros');
         const btnSair              = document.getElementById('btnSair');
 
@@ -1451,44 +1503,78 @@
             return bancoImagensCacheCliente;
         }
 
+        // Evita gravar o mesmo termo sem resultado várias vezes na mesma
+        // sessão (o usuário digitando letra por letra geraria muito lixo).
+        const termosSemResultadoJaLogados = new Set();
+        async function registrarBuscaSemResultado(termos) {
+            const chave = termos.join(' ');
+            if (!chave || termosSemResultadoJaLogados.has(chave)) return;
+            termosSemResultadoJaLogados.add(chave);
+            try {
+                await addDoc(collection(db, "buscas_banco_imagens_sem_resultado"), {
+                    termos,
+                    termo_original: chave,
+                    usuario_id: usuarioAtualUid || null,
+                    criado_em: serverTimestamp(),
+                });
+            } catch (e) {
+                // Log é "nice to have" — nunca deve travar o cadastro se falhar.
+                console.warn("Não foi possível registrar busca sem resultado:", e.message);
+            }
+        }
+
         async function buscarSugestoesImagemBanco(nomeDigitado) {
+            const wrap = document.getElementById('sugestoesImagemBancoWrap');
             const container = document.getElementById('sugestoesImagemBanco');
-            if (!container) return;
+            if (!wrap || !container) return;
 
             const termos = normalizarTagsBanco(nomeDigitado);
-            if (!termos.length) { container.style.display = 'none'; container.innerHTML = ''; return; }
+            if (!termos.length) { wrap.style.display = 'none'; container.innerHTML = ''; return; }
 
             const banco = await garantirBancoImagensCarregado();
+
+            // ✅ CORRIGIDO: antes bastava UMA palavra bater ("mesa" sozinha
+            // fazia "mesa de centro" aparecer numa busca por "mesa de
+            // jantar"). Agora exige que TODAS as palavras digitadas estejam
+            // nas tags da imagem — "mesa" continua trazendo tudo que é
+            // mesa, mas "mesa de jantar" só traz o que tem as duas tags.
             const encontrados = banco.filter(item =>
-                (item.tags || []).some(tag => termos.includes(tag))
-            ).slice(0, 6); // no máximo 6 sugestões, pra não poluir a tela
+                termos.every(t => (item.tags || []).includes(t))
+            ).slice(0, 10);
 
-            if (!encontrados.length) { container.style.display = 'none'; container.innerHTML = ''; return; }
+            if (!encontrados.length) {
+                wrap.style.display = 'none';
+                container.innerHTML = '';
+                registrarBuscaSemResultado(termos);
+                return;
+            }
 
-            container.style.display = 'flex';
-            container.innerHTML = `<div style="width:100%; font-size:11px; color:#a3a3a3; margin-bottom:2px;">✨ Imagens sugeridas — clique pra usar:</div>` +
-                encontrados.map(item => `
-                    <button type="button" class="sugestao-imagem-banco" data-url="${item.imagemUrl}" data-nome="${(item.nome || '').replace(/"/g, '&quot;')}"
-                        style="border:2px solid transparent; border-radius:8px; padding:2px; background:none; cursor:pointer;">
-                        <img src="${item.imagemUrl}" alt="${item.nome || ''}" style="width:56px; height:56px; object-fit:cover; border-radius:6px; display:block;">
-                    </button>
-                `).join('');
+            wrap.style.display = 'block';
+            container.innerHTML = encontrados.map(item => `
+                <button type="button" class="sugestao-imagem-banco-item" data-url="${item.imagemUrl}">
+                    <img src="${item.imagemUrl}" alt="${(item.nome || '').replace(/"/g, '&quot;')}" loading="lazy">
+                </button>
+            `).join('');
 
-            container.querySelectorAll('.sugestao-imagem-banco').forEach(btn => {
+            container.querySelectorAll('.sugestao-imagem-banco-item').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    urlImagemBancoSugeridaSelecionada = btn.dataset.url;
-                    container.querySelectorAll('.sugestao-imagem-banco').forEach(b => b.style.borderColor = 'transparent');
-                    btn.style.borderColor = '#a3e635';
-
-                    const aviso = document.getElementById('imagemBancoSelecionadaAviso');
-                    const thumb = document.getElementById('imagemBancoSelecionadaThumb');
-                    if (aviso && thumb) {
-                        thumb.src = urlImagemBancoSugeridaSelecionada;
-                        aviso.style.display = 'flex';
+                    const jaEstavaSelecionada = btn.classList.contains('selecionada');
+                    // Clique numa já selecionada = desmarca (toggle). Clique
+                    // numa diferente = troca a seleção pra ela.
+                    container.querySelectorAll('.sugestao-imagem-banco-item').forEach(b => b.classList.remove('selecionada'));
+                    if (jaEstavaSelecionada) {
+                        urlImagemBancoSugeridaSelecionada = '';
+                    } else {
+                        btn.classList.add('selecionada');
+                        urlImagemBancoSugeridaSelecionada = btn.dataset.url;
+                        // Se o cliente tinha escolhido subir um arquivo próprio antes,
+                        // selecionar uma sugestão agora sobrescreve essa escolha.
+                        if (inputFoto) inputFoto.value = '';
+                        if (labelFotoProduto) {
+                            labelFotoProduto.textContent = '📷 Adicionar imagem';
+                            labelFotoProduto.classList.remove('imagem-selecionada');
+                        }
                     }
-                    // Como já tem imagem escolhida, o upload manual fica opcional —
-                    // mas se o usuário subir um arquivo depois, ele tem prioridade
-                    // (ver handler do inputFoto.change abaixo).
                 });
             });
         }
@@ -2461,10 +2547,10 @@
             }
             // ✅ NOVO: limpa a seleção do banco de imagens junto com o resto do formulário
             urlImagemBancoSugeridaSelecionada = '';
-            const avisoBanco = document.getElementById('imagemBancoSelecionadaAviso');
-            if (avisoBanco) avisoBanco.style.display = 'none';
+            const sugestoesWrap = document.getElementById('sugestoesImagemBancoWrap');
             const sugestoesBanco = document.getElementById('sugestoesImagemBanco');
-            if (sugestoesBanco) { sugestoesBanco.style.display = 'none'; sugestoesBanco.innerHTML = ''; }
+            if (sugestoesWrap) sugestoesWrap.style.display = 'none';
+            if (sugestoesBanco) sugestoesBanco.innerHTML = '';
         }
 
         // ================================================================
