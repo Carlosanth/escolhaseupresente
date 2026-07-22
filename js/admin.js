@@ -16,7 +16,7 @@
         window.formatarData = formatarData;
         window.formatarMoeda = formatarMoeda;
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, writeBatch, addDoc, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -111,6 +111,175 @@
     }
 
     // ================================================================
+    // BANCO DE IMAGENS — fotos profissionais cadastradas só pelo admin,
+    // sugeridas automaticamente pro cliente quando ele digita o nome de
+    // um produto no cadastro dele (cadastro.html busca nesta coleção).
+    // ================================================================
+
+    // Quebra o nome digitado em palavras-chave: tira acento, deixa
+    // minúsculo, remove pontuação e palavras muito curtas/genéricas.
+    // Ex: "Fogão 4 Bocas Preto" -> ["fogao", "4", "bocas", "preto"]
+    const PALAVRAS_IGNORADAS = new Set(['de','da','do','das','dos','com','para','pra','a','o','e','um','uma','uns','umas','em','no','na']);
+    function normalizarTags(nome) {
+        return (nome || '')
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/g, ' ')
+            .split(/\s+/)
+            .filter(p => p.length >= 2 && !PALAVRAS_IGNORADAS.has(p))
+            .slice(0, 12); // limite razoável de tags por item
+    }
+
+    let bancoImagensCache = [];
+    let editandoImagemBancoId = null;
+    let urlImagemBancoSelecionada = '';
+
+    function escutarBancoImagens() {
+        onSnapshot(collection(db, "banco_imagens"), snap => {
+            bancoImagensCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderizarGridBancoImagens(bancoImagensCache);
+        }, err => console.error("Erro ao carregar banco de imagens:", err));
+    }
+
+    function renderizarGridBancoImagens(lista) {
+        const grid = document.getElementById('bancoImagensGrid');
+        if (!grid) return;
+        if (!lista.length) { grid.innerHTML = '<div class="lp-vazio">Nenhuma imagem cadastrada ainda.</div>'; return; }
+        grid.innerHTML = lista.map(item => `
+            <div class="lp-card-item" data-item-id="${item.id}">
+                <img src="${item.imagemUrl}" alt="${escapeHTML(item.nome || '')}" loading="lazy">
+                <div class="lp-card-item-corpo">
+                    <div class="lp-card-item-nome">${escapeHTML(item.nome || '')}</div>
+                    <div style="font-size:10px; color:var(--text3); margin:2px 0 8px;">${(item.tags || []).map(t => '#' + escapeHTML(t)).join(' ')}</div>
+                    <div class="lp-card-item-acoes">
+                        <button class="btn-tabela btn-detalhe btn-editar-imagem-banco" data-id="${item.id}">✏️ Editar</button>
+                        <button class="btn-tabela btn-excluir-cliente btn-excluir-imagem-banco" data-id="${item.id}">🗑️</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        grid.querySelectorAll('.btn-editar-imagem-banco').forEach(btn => {
+            btn.addEventListener('click', () => abrirModalImagemBanco(btn.dataset.id));
+        });
+        grid.querySelectorAll('.btn-excluir-imagem-banco').forEach(btn => {
+            btn.addEventListener('click', () => excluirImagemBanco(btn.dataset.id));
+        });
+    }
+
+    function abrirModalImagemBanco(id = null) {
+        editandoImagemBancoId = id;
+        urlImagemBancoSelecionada = '';
+        const titulo = document.getElementById('modalImagemBancoTitulo');
+        const inputNome = document.getElementById('inputImagemBancoNome');
+        const preview = document.getElementById('imagemBancoPreview');
+        const tagsPreview = document.getElementById('imagemBancoTagsPreview');
+        document.getElementById('inputImagemBancoArquivo').value = '';
+
+        if (id) {
+            const item = bancoImagensCache.find(i => i.id === id);
+            titulo.textContent = '✏️ Editar imagem';
+            inputNome.value = item?.nome || '';
+            urlImagemBancoSelecionada = item?.imagemUrl || '';
+            if (urlImagemBancoSelecionada) { preview.src = urlImagemBancoSelecionada; preview.style.display = 'block'; }
+            else { preview.style.display = 'none'; }
+            tagsPreview.textContent = (item?.tags || []).map(t => '#' + t).join(' ');
+        } else {
+            titulo.textContent = '➕ Nova imagem';
+            inputNome.value = '';
+            preview.style.display = 'none';
+            tagsPreview.textContent = '';
+        }
+        document.getElementById('modalImagemBanco').classList.add('ativo');
+    }
+
+    document.getElementById('btnNovaImagemBanco')?.addEventListener('click', () => abrirModalImagemBanco(null));
+    document.getElementById('btnFecharModalImagemBanco')?.addEventListener('click', () => document.getElementById('modalImagemBanco').classList.remove('ativo'));
+    document.getElementById('btnCancelarImagemBanco')?.addEventListener('click', () => document.getElementById('modalImagemBanco').classList.remove('ativo'));
+
+    // Atualiza a prévia das tags em tempo real conforme o admin digita o nome
+    document.getElementById('inputImagemBancoNome')?.addEventListener('input', (e) => {
+        const tagsPreview = document.getElementById('imagemBancoTagsPreview');
+        if (tagsPreview) tagsPreview.textContent = normalizarTags(e.target.value).map(t => '#' + t).join(' ');
+    });
+
+    document.getElementById('inputImagemBancoArquivo')?.addEventListener('change', async (e) => {
+        const arquivo = e.target.files[0];
+        if (!arquivo) return;
+        const preview = document.getElementById('imagemBancoPreview');
+        preview.style.display = 'block';
+        preview.src = URL.createObjectURL(arquivo);
+
+        // Imagens do banco são pra ficar bonitas em cards grandes — mantém
+        // resolução um pouco maior que o padrão de 600x600 usado em outros uploads.
+        const blob = await redimensionarImagem(arquivo, 900, 900, 0.88);
+        const url = await fazerUploadImagemImgBB(blob);
+        urlImagemBancoSelecionada = url;
+        preview.src = url;
+        toast('✅ Imagem enviada!');
+    });
+
+    document.getElementById('btnSalvarImagemBanco')?.addEventListener('click', async () => {
+        const nome = document.getElementById('inputImagemBancoNome').value.trim();
+        if (!nome) { toast('⚠️ Informe o nome do produto.'); return; }
+        if (!urlImagemBancoSelecionada) { toast('⚠️ Selecione uma imagem.'); return; }
+
+        const btn = document.getElementById('btnSalvarImagemBanco');
+        btn.disabled = true;
+        btn.textContent = 'Salvando...';
+
+        try {
+            const dados = {
+                nome,
+                tags: normalizarTags(nome),
+                imagemUrl: urlImagemBancoSelecionada,
+                atualizado_em: serverTimestamp(),
+            };
+            if (editandoImagemBancoId) {
+                await setDoc(doc(db, "banco_imagens", editandoImagemBancoId), dados, { merge: true });
+                toast('✅ Imagem atualizada!');
+            } else {
+                dados.criado_em = serverTimestamp();
+                await addDoc(collection(db, "banco_imagens"), dados);
+                toast('✅ Imagem adicionada ao banco!');
+            }
+            document.getElementById('modalImagemBanco').classList.remove('ativo');
+        } catch (e) {
+            console.error(e);
+            toast('❌ Erro ao salvar imagem.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Salvar';
+        }
+    });
+
+    async function excluirImagemBanco(id) {
+        if (!confirm('Excluir esta imagem do banco? Isso não afeta produtos que já usam essa imagem, só remove a sugestão futura.')) return;
+        try {
+            await deleteDoc(doc(db, "banco_imagens", id));
+            toast('🗑 Imagem removida do banco.');
+        } catch (e) {
+            console.error(e);
+            toast('❌ Erro ao excluir.');
+        }
+    }
+
+    // Busca local simples (o grid já vem inteiro via onSnapshot — coleção
+    // pequena o suficiente pra filtrar no navegador sem precisar de índice)
+    document.getElementById('inputBuscarBancoImagens')?.addEventListener('input', (e) => {
+        const termo = e.target.value.trim().toLowerCase();
+        if (!termo) { renderizarGridBancoImagens(bancoImagensCache); return; }
+        const termos = normalizarTags(termo);
+        const filtrado = bancoImagensCache.filter(item => {
+            const nomeMatch = (item.nome || '').toLowerCase().includes(termo);
+            const tagMatch = termos.some(t => (item.tags || []).includes(t));
+            return nomeMatch || tagMatch;
+        });
+        renderizarGridBancoImagens(filtrado);
+    });
+
+    document.querySelector('[data-secao="banco-imagens"]')?.addEventListener('click', () => escutarBancoImagens());
+
+    // ================================================================
     // TOAST
     // ================================================================
     function toast(msg) {
@@ -195,6 +364,7 @@
         'saques':         ['Solicitações de Saque', 'Gerencie os repasses'],
         'relatorio':      ['Relatório de Presentes', 'Histórico completo com dados de taxa'],
         'listas-prontas': ['Listas Prontas', 'Categorias e itens sugeridos para os clientes'],
+        'banco-imagens':  ['Banco de Imagens', 'Fotos profissionais para sugestão automática no cadastro dos clientes'],
         'comunicados':    ['Comunicados', 'Avisos globais para todos os clientes'],
         'configuracoes':  ['Configurações', 'Parâmetros globais da plataforma']
     };
