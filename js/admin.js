@@ -16,7 +16,7 @@
         window.formatarData = formatarData;
         window.formatarMoeda = formatarMoeda;
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, writeBatch, addDoc, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc, deleteDoc, writeBatch, addDoc, orderBy, serverTimestamp, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -116,18 +116,19 @@
     // um produto no cadastro dele (cadastro.html busca nesta coleção).
     // ================================================================
 
-    // Quebra o nome digitado em palavras-chave: tira acento, deixa
-    // minúsculo, remove pontuação e palavras muito curtas/genéricas.
-    // Ex: "Fogão 4 Bocas Preto" -> ["fogao", "4", "bocas", "preto"]
+    // Quebra o nome (e opcionalmente sinônimos) em palavras-chave: tira
+    // acento, deixa minúsculo, remove pontuação e palavras muito curtas/
+    // genéricas. Ex: "Fogão 4 Bocas Preto" -> ["fogao", "4", "bocas", "preto"]
     const PALAVRAS_IGNORADAS = new Set(['de','da','do','das','dos','com','para','pra','a','o','e','um','uma','uns','umas','em','no','na']);
-    function normalizarTags(nome) {
-        return (nome || '')
+    function normalizarTags(nome, sinonimos = '') {
+        const textoCompleto = [nome, sinonimos.replace(/,/g, ' ')].filter(Boolean).join(' ');
+        const tags = textoCompleto
             .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
             .toLowerCase()
             .replace(/[^a-z0-9\s]/g, ' ')
             .split(/\s+/)
-            .filter(p => p.length >= 2 && !PALAVRAS_IGNORADAS.has(p))
-            .slice(0, 12); // limite razoável de tags por item
+            .filter(p => p.length >= 2 && !PALAVRAS_IGNORADAS.has(p));
+        return [...new Set(tags)].slice(0, 20); // remove duplicatas, limite razoável
     }
 
     let bancoImagensCache = [];
@@ -171,6 +172,7 @@
         urlImagemBancoSelecionada = '';
         const titulo = document.getElementById('modalImagemBancoTitulo');
         const inputNome = document.getElementById('inputImagemBancoNome');
+        const inputSinonimos = document.getElementById('inputImagemBancoSinonimos');
         const preview = document.getElementById('imagemBancoPreview');
         const tagsPreview = document.getElementById('imagemBancoTagsPreview');
         document.getElementById('inputImagemBancoArquivo').value = '';
@@ -179,6 +181,7 @@
             const item = bancoImagensCache.find(i => i.id === id);
             titulo.textContent = '✏️ Editar imagem';
             inputNome.value = item?.nome || '';
+            inputSinonimos.value = item?.sinonimos || '';
             urlImagemBancoSelecionada = item?.imagemUrl || '';
             if (urlImagemBancoSelecionada) { preview.src = urlImagemBancoSelecionada; preview.style.display = 'block'; }
             else { preview.style.display = 'none'; }
@@ -186,6 +189,7 @@
         } else {
             titulo.textContent = '➕ Nova imagem';
             inputNome.value = '';
+            inputSinonimos.value = '';
             preview.style.display = 'none';
             tagsPreview.textContent = '';
         }
@@ -196,11 +200,16 @@
     document.getElementById('btnFecharModalImagemBanco')?.addEventListener('click', () => document.getElementById('modalImagemBanco').classList.remove('ativo'));
     document.getElementById('btnCancelarImagemBanco')?.addEventListener('click', () => document.getElementById('modalImagemBanco').classList.remove('ativo'));
 
-    // Atualiza a prévia das tags em tempo real conforme o admin digita o nome
-    document.getElementById('inputImagemBancoNome')?.addEventListener('input', (e) => {
+    // Atualiza a prévia das tags em tempo real conforme o admin digita o
+    // nome OU os sinônimos.
+    function atualizarPreviewTagsBanco() {
+        const nome = document.getElementById('inputImagemBancoNome')?.value || '';
+        const sinonimos = document.getElementById('inputImagemBancoSinonimos')?.value || '';
         const tagsPreview = document.getElementById('imagemBancoTagsPreview');
-        if (tagsPreview) tagsPreview.textContent = normalizarTags(e.target.value).map(t => '#' + t).join(' ');
-    });
+        if (tagsPreview) tagsPreview.textContent = normalizarTags(nome, sinonimos).map(t => '#' + t).join(' ');
+    }
+    document.getElementById('inputImagemBancoNome')?.addEventListener('input', atualizarPreviewTagsBanco);
+    document.getElementById('inputImagemBancoSinonimos')?.addEventListener('input', atualizarPreviewTagsBanco);
 
     document.getElementById('inputImagemBancoArquivo')?.addEventListener('change', async (e) => {
         const arquivo = e.target.files[0];
@@ -220,6 +229,7 @@
 
     document.getElementById('btnSalvarImagemBanco')?.addEventListener('click', async () => {
         const nome = document.getElementById('inputImagemBancoNome').value.trim();
+        const sinonimos = document.getElementById('inputImagemBancoSinonimos')?.value.trim() || '';
         if (!nome) { toast('⚠️ Informe o nome do produto.'); return; }
         if (!urlImagemBancoSelecionada) { toast('⚠️ Selecione uma imagem.'); return; }
 
@@ -230,7 +240,8 @@
         try {
             const dados = {
                 nome,
-                tags: normalizarTags(nome),
+                sinonimos,
+                tags: normalizarTags(nome, sinonimos),
                 imagemUrl: urlImagemBancoSelecionada,
                 atualizado_em: serverTimestamp(),
             };
@@ -263,6 +274,120 @@
         }
     }
 
+    // ----------------------------------------------------------------
+    // BUSCAS SEM SUGESTÃO — termos que clientes digitaram e não bateu
+    // nada no banco. Ajuda a saber o que vale a pena cadastrar a seguir.
+    // ----------------------------------------------------------------
+    async function escutarBuscasSemResultado() {
+        const el = document.getElementById('listaBuscasSemResultado');
+        if (!el) return;
+        try {
+            const q = query(collection(db, "buscas_banco_imagens_sem_resultado"), orderBy("criado_em", "desc"), limit(200));
+            const snap = await getDocs(q);
+            if (snap.empty) { el.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:16px;">Nenhuma busca sem resultado registrada ainda.</p>'; return; }
+
+            // Agrupa por termo (várias pessoas podem buscar a mesma coisa) e
+            // conta quantas vezes apareceu, pra mostrar o mais pedido primeiro.
+            const porTermo = {};
+            snap.forEach(d => {
+                const dado = d.data();
+                const chave = dado.termo_original || (dado.termos || []).join(' ');
+                if (!chave) return;
+                if (!porTermo[chave]) porTermo[chave] = { termo: chave, qtd: 0, ids: [] };
+                porTermo[chave].qtd++;
+                porTermo[chave].ids.push(d.id);
+            });
+            const ordenado = Object.values(porTermo).sort((a, b) => b.qtd - a.qtd).slice(0, 20);
+
+            el.innerHTML = ordenado.map(item => `
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border1);">
+                    <div style="font-size:13px;color:var(--text);">
+                        "${escapeHTML(item.termo)}"
+                        <span style="font-size:11px;color:var(--text3);margin-left:6px;">${item.qtd}× buscado</span>
+                    </div>
+                    <button class="btn-tabela btn-excluir-cliente" data-ids="${item.ids.join(',')}" style="font-size:11px;">🗑 Descartar</button>
+                </div>
+            `).join('');
+
+            el.querySelectorAll('button[data-ids]').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const ids = btn.dataset.ids.split(',');
+                    try {
+                        const lote = writeBatch(db);
+                        ids.forEach(id => lote.delete(doc(db, "buscas_banco_imagens_sem_resultado", id)));
+                        await lote.commit();
+                        escutarBuscasSemResultado(); // recarrega a lista
+                    } catch (e) {
+                        console.error(e);
+                        toast('❌ Erro ao descartar.');
+                    }
+                });
+            });
+        } catch (e) {
+            console.error("Erro ao carregar buscas sem resultado:", e);
+            el.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:16px;">Erro ao carregar.</p>';
+        }
+    }
+
+    // ----------------------------------------------------------------
+    // IMAGENS ENVIADAS POR CLIENTES — reaproveitar fotos que já existem
+    // em produtos cadastrados, sem precisar baixar e subir de novo.
+    // ----------------------------------------------------------------
+    const URL_PLACEHOLDER_PADRAO = 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+    async function escutarImagensClientes() {
+        const grid = document.getElementById('imagensClientesGrid');
+        if (!grid) return;
+        try {
+            // Não dá pra saber de antemão quantos produtos existem, então
+            // pega um lote razoável dos mais recentes e filtra no navegador.
+            const q = query(collection(db, "presentes"), orderBy("titulo"), limit(300));
+            const snap = await getDocs(q);
+
+            const urlsJaNoBanco = new Set(bancoImagensCache.map(i => i.imagemUrl));
+            const vistos = new Map(); // dedupe por URL, guarda o primeiro nome associado
+
+            snap.forEach(d => {
+                const p = d.data();
+                const url = p.imagem;
+                if (!url || url === URL_PLACEHOLDER_PADRAO) return; // sem imagem própria
+                if (urlsJaNoBanco.has(url)) return; // já está no banco
+                if (!vistos.has(url)) vistos.set(url, p.titulo || '');
+            });
+
+            const lista = Array.from(vistos.entries()).slice(0, 40);
+            if (!lista.length) { grid.innerHTML = '<div class="lp-vazio">Nenhuma imagem nova de cliente pra reaproveitar no momento.</div>'; return; }
+
+            grid.innerHTML = lista.map(([url, nome]) => `
+                <div class="lp-card-item">
+                    <img src="${url}" alt="${escapeHTML(nome)}" loading="lazy">
+                    <div class="lp-card-item-corpo">
+                        <div class="lp-card-item-nome">${escapeHTML(nome || '(sem nome)')}</div>
+                        <div class="lp-card-item-acoes">
+                            <button class="btn-tabela btn-marcar-pago btn-adicionar-imagem-cliente" data-url="${url}" data-nome="${escapeHTML(nome).replace(/"/g, '&quot;')}">➕ Adicionar ao banco</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            grid.querySelectorAll('.btn-adicionar-imagem-cliente').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Abre o modal já pré-preenchido, sem precisar fazer upload —
+                    // a imagem já está hospedada, só falta confirmar/ajustar o nome.
+                    abrirModalImagemBanco(null);
+                    document.getElementById('inputImagemBancoNome').value = btn.dataset.nome || '';
+                    urlImagemBancoSelecionada = btn.dataset.url;
+                    const preview = document.getElementById('imagemBancoPreview');
+                    preview.src = urlImagemBancoSelecionada;
+                    preview.style.display = 'block';
+                    atualizarPreviewTagsBanco();
+                });
+            });
+        } catch (e) {
+            console.error("Erro ao carregar imagens de clientes:", e);
+            grid.innerHTML = '<div class="lp-vazio">Erro ao carregar.</div>';
+        }
+    }
+
     // Busca local simples (o grid já vem inteiro via onSnapshot — coleção
     // pequena o suficiente pra filtrar no navegador sem precisar de índice)
     document.getElementById('inputBuscarBancoImagens')?.addEventListener('input', (e) => {
@@ -277,7 +402,11 @@
         renderizarGridBancoImagens(filtrado);
     });
 
-    document.querySelector('[data-secao="banco-imagens"]')?.addEventListener('click', () => escutarBancoImagens());
+    document.querySelector('[data-secao="banco-imagens"]')?.addEventListener('click', () => {
+        escutarBancoImagens();
+        escutarBuscasSemResultado();
+        escutarImagensClientes();
+    });
 
     // ================================================================
     // TOAST
