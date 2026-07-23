@@ -254,6 +254,9 @@
                 toast('✅ Imagem adicionada ao banco!');
             }
             document.getElementById('modalImagemBanco').classList.remove('ativo');
+            // ✅ Atualiza a lista de "imagens de clientes" — a que acabou de
+            // ser adicionada ao banco já some de lá na hora.
+            escutarImagensClientes();
         } catch (e) {
             console.error(e);
             toast('❌ Erro ao salvar imagem.');
@@ -340,17 +343,24 @@
         try {
             // Não dá pra saber de antemão quantos produtos existem, então
             // pega um lote razoável dos mais recentes e filtra no navegador.
-            const q = query(collection(db, "presentes"), orderBy("titulo"), limit(300));
-            const snap = await getDocs(q);
+            const [snapProdutos, snapIgnoradas] = await Promise.all([
+                getDocs(query(collection(db, "presentes"), orderBy("titulo"), limit(300))),
+                getDocs(collection(db, "imagens_clientes_ignoradas")),
+            ]);
 
             const urlsJaNoBanco = new Set(bancoImagensCache.map(i => i.imagemUrl));
+            // Guarda também o id do documento de "ignorada" pra poder desfazer.
+            const urlsIgnoradas = new Map();
+            snapIgnoradas.forEach(d => urlsIgnoradas.set(d.data().url, d.id));
+
             const vistos = new Map(); // dedupe por URL, guarda o primeiro nome associado
 
-            snap.forEach(d => {
+            snapProdutos.forEach(d => {
                 const p = d.data();
                 const url = p.imagem;
                 if (!url || url === URL_PLACEHOLDER_PADRAO) return; // sem imagem própria
-                if (urlsJaNoBanco.has(url)) return; // já está no banco
+                if (urlsJaNoBanco.has(url)) return; // ✅ já foi vinculada ao banco — some da lista
+                if (urlsIgnoradas.has(url)) return; // você já marcou como "não aproveitar"
                 if (!vistos.has(url)) vistos.set(url, p.titulo || '');
             });
 
@@ -358,12 +368,13 @@
             if (!lista.length) { grid.innerHTML = '<div class="lp-vazio">Nenhuma imagem nova de cliente pra reaproveitar no momento.</div>'; return; }
 
             grid.innerHTML = lista.map(([url, nome]) => `
-                <div class="lp-card-item">
+                <div class="lp-card-item" data-url-cliente="${url}">
                     <img src="${url}" alt="${escapeHTML(nome)}" loading="lazy">
                     <div class="lp-card-item-corpo">
                         <div class="lp-card-item-nome">${escapeHTML(nome || '(sem nome)')}</div>
                         <div class="lp-card-item-acoes">
                             <button class="btn-tabela btn-marcar-pago btn-adicionar-imagem-cliente" data-url="${url}" data-nome="${escapeHTML(nome).replace(/"/g, '&quot;')}">➕ Adicionar ao banco</button>
+                            <button class="btn-tabela btn-excluir-cliente btn-ignorar-imagem-cliente" data-url="${url}" title="Não usar essa imagem — some da lista, mas continua no produto do cliente normalmente">🚫 Ignorar</button>
                         </div>
                     </div>
                 </div>
@@ -380,6 +391,28 @@
                     preview.src = urlImagemBancoSelecionada;
                     preview.style.display = 'block';
                     atualizarPreviewTagsBanco();
+                });
+            });
+
+            grid.querySelectorAll('.btn-ignorar-imagem-cliente').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    // ✅ NOVO: "Ignorar" só tira da lista de sugestão do admin —
+                    // NUNCA mexe no ImgBB nem no produto do cliente, que
+                    // continua com a imagem dele normalmente.
+                    try {
+                        await addDoc(collection(db, "imagens_clientes_ignoradas"), {
+                            url: btn.dataset.url,
+                            ignorado_em: serverTimestamp(),
+                        });
+                        const card = grid.querySelector(`[data-url-cliente="${CSS.escape(btn.dataset.url)}"]`);
+                        card?.remove();
+                        if (!grid.querySelector('.lp-card-item')) {
+                            grid.innerHTML = '<div class="lp-vazio">Nenhuma imagem nova de cliente pra reaproveitar no momento.</div>';
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        toast('❌ Erro ao ignorar imagem.');
+                    }
                 });
             });
         } catch (e) {
@@ -402,10 +435,105 @@
         renderizarGridBancoImagens(filtrado);
     });
 
+    document.getElementById('btnAdicionarPrecoManual')?.addEventListener('click', async () => {
+        const inputNome = document.getElementById('inputPrecoManualNome');
+        const inputValor = document.getElementById('inputPrecoManualValor');
+        const nome = inputNome.value.trim();
+        const valorNumerico = parseFloat((inputValor.value || '').replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
+
+        if (!nome) { toast('⚠️ Informe o nome do produto.'); return; }
+        if (isNaN(valorNumerico) || valorNumerico <= 0) { toast('⚠️ Valor inválido.'); return; }
+
+        try {
+            await addDoc(collection(db, "banco_precos"), {
+                nome,
+                tags: normalizarTags(nome),
+                preco_centavos: Math.round(valorNumerico * 100),
+                criado_em: serverTimestamp(),
+            });
+            toast('✅ Preço de referência adicionado!');
+            inputNome.value = '';
+            inputValor.value = '';
+        } catch (e) {
+            console.error(e);
+            toast('❌ Erro ao adicionar preço.');
+        }
+    });
+
+    // ----------------------------------------------------------------
+    // SUGESTÕES DE PREÇO — preços que clientes digitaram ao cadastrar
+    // produtos. Só entram na média oficial (banco_precos) depois que
+    // você aprova aqui — mesmo controle de qualidade das imagens.
+    // ----------------------------------------------------------------
+    async function escutarSugestoesPreco() {
+        const el = document.getElementById('sugestoesPrecoGrid');
+        if (!el) return;
+        try {
+            const q = query(collection(db, "sugestoes_precos_clientes"), orderBy("criado_em", "desc"), limit(100));
+            const snap = await getDocs(q);
+            if (snap.empty) { el.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:16px;">Nenhuma sugestão de preço pendente.</p>'; return; }
+
+            el.innerHTML = snap.docs.map(d => {
+                const dado = d.data();
+                const valorFmt = ((dado.preco_centavos || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                return `
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border1);">
+                        <div style="font-size:13px;color:var(--text);">
+                            ${escapeHTML(dado.nome || '(sem nome)')}
+                            <span style="font-size:12px;color:#a3e635;margin-left:8px;font-weight:600;">${valorFmt}</span>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn-tabela btn-marcar-pago btn-aprovar-preco" data-id="${d.id}" data-nome="${escapeHTML(dado.nome || '').replace(/"/g, '&quot;')}" data-preco="${dado.preco_centavos || 0}" style="font-size:11px;">✅ Aprovar</button>
+                            <button class="btn-tabela btn-excluir-cliente btn-ignorar-preco" data-id="${d.id}" style="font-size:11px;">🚫 Ignorar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            el.querySelectorAll('.btn-aprovar-preco').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    try {
+                        // Mesma normalização de tags usada nas imagens — assim a
+                        // busca por "todas as palavras batem" funciona igual dos
+                        // dois lados (imagem e preço).
+                        await addDoc(collection(db, "banco_precos"), {
+                            nome: btn.dataset.nome,
+                            tags: normalizarTags(btn.dataset.nome),
+                            preco_centavos: parseInt(btn.dataset.preco, 10) || 0,
+                            criado_em: serverTimestamp(),
+                        });
+                        await deleteDoc(doc(db, "sugestoes_precos_clientes", btn.dataset.id));
+                        toast('✅ Preço aprovado e adicionado ao banco!');
+                        escutarSugestoesPreco();
+                    } catch (e) {
+                        console.error(e);
+                        toast('❌ Erro ao aprovar preço.');
+                    }
+                });
+            });
+
+            el.querySelectorAll('.btn-ignorar-preco').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    try {
+                        await deleteDoc(doc(db, "sugestoes_precos_clientes", btn.dataset.id));
+                        escutarSugestoesPreco();
+                    } catch (e) {
+                        console.error(e);
+                        toast('❌ Erro ao ignorar.');
+                    }
+                });
+            });
+        } catch (e) {
+            console.error("Erro ao carregar sugestões de preço:", e);
+            el.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:16px;">Erro ao carregar.</p>';
+        }
+    }
+
     document.querySelector('[data-secao="banco-imagens"]')?.addEventListener('click', () => {
         escutarBancoImagens();
         escutarBuscasSemResultado();
         escutarImagensClientes();
+        escutarSugestoesPreco();
     });
 
     // ================================================================
