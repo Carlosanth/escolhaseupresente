@@ -461,6 +461,132 @@
     });
 
     // ----------------------------------------------------------------
+    // BANCO DE PREÇOS OFICIAL — tabela com todos os preços aprovados,
+    // com indicação de validade (preços antigos saem da média sozinhos),
+    // exportação e importação em massa via planilha.
+    // ----------------------------------------------------------------
+    // Depois desse tanto de dias, um preço é considerado "vencido": ainda
+    // fica visível na tabela pra você atualizar, mas para de contar na
+    // média sugerida no cadastro (ver mesma constante em cadastro.html).
+    const VALIDADE_PRECO_DIAS = 90;
+
+    let bancoPrecosCache = [];
+    function escutarBancoPrecos() {
+        onSnapshot(collection(db, "banco_precos"), snap => {
+            bancoPrecosCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderizarTabelaBancoPrecos(bancoPrecosCache);
+        }, err => console.error("Erro ao carregar banco de preços:", err));
+    }
+
+    function diasDesde(timestampFirestore) {
+        if (!timestampFirestore?.toMillis) return null;
+        return Math.floor((Date.now() - timestampFirestore.toMillis()) / (1000 * 60 * 60 * 24));
+    }
+
+    function renderizarTabelaBancoPrecos(lista) {
+        const el = document.getElementById('bancoPrecosTabela');
+        if (!el) return;
+        if (!lista.length) { el.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:16px;">Nenhum preço cadastrado ainda.</p>'; return; }
+
+        const ordenado = [...lista].sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
+        el.innerHTML = ordenado.map(item => {
+            const dias = diasDesde(item.criado_em);
+            const vencido = dias !== null && dias > VALIDADE_PRECO_DIAS;
+            const valorFmt = ((item.preco_centavos || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            const idadeTxt = dias === null ? '—' : dias === 0 ? 'hoje' : `${dias}d atrás`;
+            return `
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;border-bottom:1px solid var(--border1);">
+                    <div style="font-size:13px;color:var(--text);flex:1;">${escapeHTML(item.nome || '')}</div>
+                    <div style="font-size:13px;color:var(--text);font-weight:600;width:90px;text-align:right;">${valorFmt}</div>
+                    <div style="font-size:11px;width:110px;text-align:right;color:${vencido ? '#f87171' : 'var(--text3)'};">
+                        ${vencido ? '🔴 vencido · ' : '🟢 '}${idadeTxt}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    document.getElementById('btnExportarPlanilhaPrecos')?.addEventListener('click', () => {
+        const dados = [['nome', 'preco', 'cadastrado_em']].concat(
+            bancoPrecosCache.map(item => [
+                item.nome || '',
+                ((item.preco_centavos || 0) / 100).toFixed(2).replace('.', ','),
+                item.criado_em?.toDate ? item.criado_em.toDate().toLocaleDateString('pt-BR') : '',
+            ])
+        );
+        const ws = XLSX.utils.aoa_to_sheet(dados);
+        ws['!cols'] = [{ wch: 35 }, { wch: 14 }, { wch: 16 }];
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Precos');
+        XLSX.writeFile(wb, `banco-de-precos-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    });
+
+    document.getElementById('inputImportarPlanilhaPrecos')?.addEventListener('change', (e) => {
+        const arquivo = e.target.files[0];
+        const status = document.getElementById('importarPrecosStatus');
+        if (!arquivo) return;
+        status.textContent = 'Lendo planilha...';
+
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+            try {
+                const wb = XLSX.read(ev.target.result, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const linhas = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+                // Pula o cabeçalho (linha 0) — reconhece tanto a planilha
+                // exportada por aqui quanto uma simples "nome, preço" manual.
+                const dados = linhas.slice(1)
+                    .filter(l => l.some(c => String(c).trim() !== ''))
+                    .map(l => ({
+                        nome: String(l[0] || '').trim(),
+                        valor: parsePrecoExcel(l[1]),
+                    }))
+                    .filter(l => l.nome && !isNaN(l.valor) && l.valor > 0);
+
+                if (!dados.length) { status.textContent = '⚠️ Nenhuma linha válida encontrada.'; return; }
+
+                status.textContent = `Importando ${dados.length} preços...`;
+
+                // Casa pelo nome normalizado (mesma comparação usada nas tags) —
+                // se já existe, ATUALIZA o valor e RENOVA a validade (a
+                // planilha é justamente o "preço atualizado" que você pediu);
+                // se não existe, CRIA um item novo.
+                const porNomeNormalizado = new Map(
+                    bancoPrecosCache.map(item => [normalizarTags(item.nome).join(' '), item.id])
+                );
+
+                let atualizados = 0, criados = 0;
+                for (const linha of dados) {
+                    const chave = normalizarTags(linha.nome).join(' ');
+                    const idExistente = porNomeNormalizado.get(chave);
+                    const dadosPreco = {
+                        nome: linha.nome,
+                        tags: normalizarTags(linha.nome),
+                        preco_centavos: Math.round(linha.valor * 100),
+                        criado_em: serverTimestamp(), // renova a validade a cada atualização
+                    };
+                    if (idExistente) {
+                        await setDoc(doc(db, "banco_precos", idExistente), dadosPreco, { merge: true });
+                        atualizados++;
+                    } else {
+                        await addDoc(collection(db, "banco_precos"), dadosPreco);
+                        criados++;
+                    }
+                }
+
+                status.textContent = `✅ ${atualizados} atualizado(s), ${criados} novo(s).`;
+                toast('✅ Planilha de preços importada!');
+                e.target.value = '';
+            } catch (err) {
+                console.error(err);
+                status.textContent = '❌ Erro ao importar a planilha.';
+            }
+        };
+        reader.readAsArrayBuffer(arquivo);
+    });
+
+    // ----------------------------------------------------------------
     // SUGESTÕES DE PREÇO — preços que clientes digitaram ao cadastrar
     // produtos. Só entram na média oficial (banco_precos) depois que
     // você aprova aqui — mesmo controle de qualidade das imagens.
@@ -534,6 +660,7 @@
         escutarBuscasSemResultado();
         escutarImagensClientes();
         escutarSugestoesPreco();
+        escutarBancoPrecos();
     });
 
     // ================================================================
