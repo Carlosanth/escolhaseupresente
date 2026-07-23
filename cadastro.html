@@ -1606,6 +1606,17 @@
         }
 
         let precoMedioSugeridoCentavos = null;
+        // Mesmo prazo usado no admin.js — preço com mais de 90 dias não
+        // entra na média sugerida (evita misturar preço de fevereiro com
+        // o de julho). O item continua no banco, só some da conta até
+        // alguém (admin ou aprovação de nova sugestão) atualizar o valor.
+        const VALIDADE_PRECO_DIAS = 90;
+        function precoAindaValido(item) {
+            if (!item.criado_em?.toMillis) return true; // sem data = não filtra, por segurança
+            const dias = (Date.now() - item.criado_em.toMillis()) / (1000 * 60 * 60 * 24);
+            return dias <= VALIDADE_PRECO_DIAS;
+        }
+
         async function buscarSugestaoPreco(nomeDigitado) {
             const wrap = document.getElementById('sugestaoPrecoBanco');
             const texto = document.getElementById('sugestaoPrecoBancoTexto');
@@ -1616,7 +1627,7 @@
 
             const banco = await garantirBancoPrecosCarregado();
             const encontrados = banco.filter(item =>
-                termos.every(t => (item.tags || []).includes(t))
+                termos.every(t => (item.tags || []).includes(t)) && precoAindaValido(item)
             );
 
             if (!encontrados.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return; }
