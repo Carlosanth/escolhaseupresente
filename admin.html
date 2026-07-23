@@ -407,6 +407,25 @@
                     <div class="lp-vazio">Carregando...</div>
                 </div>
             </div>
+
+            <!-- ✅ NOVO: preços que clientes digitaram ao cadastrar produtos —
+                 vira sugestão pro banco de preços só depois que você aprovar. -->
+            <div class="card-tabela" style="margin-top:24px;">
+                <div class="card-tabela-header">
+                    <h3>💰 Sugestões de preço</h3>
+                    <span style="font-size:11px;color:var(--text3);">Aprove pra entrar na média oficial, ou ignore</span>
+                </div>
+                <!-- Adicionar direto, sem esperar sugestão de cliente — pra
+                     quando você mesmo pesquisar o preço de mercado. -->
+                <div style="display:flex; gap:8px; padding:12px 16px; border-bottom:1px solid var(--border1); flex-wrap:wrap;">
+                    <input type="text" id="inputPrecoManualNome" class="campo-form-admin" placeholder="Nome do produto" style="flex:1; min-width:180px; margin:0;">
+                    <input type="text" id="inputPrecoManualValor" class="campo-form-admin" placeholder="R$ 0,00" style="width:120px; margin:0;">
+                    <button class="btn-lp-primario" id="btnAdicionarPrecoManual">➕ Adicionar direto</button>
+                </div>
+                <div id="sugestoesPrecoGrid" style="padding:8px 0;">
+                    <p style="font-size:13px;color:var(--text3);padding:16px;">Carregando...</p>
+                </div>
+            </div>
         </section>
 
         <section class="secao" id="secao-comunicados">

@@ -284,10 +284,16 @@
                         <input type="text" id="nomeProduto" class="campo-formulario" placeholder="Qual o nome do item?">
                     </div>
                     
-                    <div class="preço" style="display: flex; gap: 10px;">
+                    <div class="preço" style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <div class="teste">
                             <div class="nome">Inserir valor</div>
                             <input type="tel" id="precoProduto" class="campo-formulario" placeholder="R$ 0,00">
+                            <!-- ✅ NOVO: sugestão de preço médio, vinda do banco
+                                 curado pelo admin + preços de outros clientes aprovados. -->
+                            <div id="sugestaoPrecoBanco" style="display:none; margin-top:6px; font-size:12px; color:#a3e635; display:flex; align-items:center; gap:6px;">
+                                <span id="sugestaoPrecoBancoTexto"></span>
+                                <button type="button" id="btnUsarPrecoSugerido" style="background:rgba(163,230,53,0.15); border:1px solid rgba(163,230,53,0.4); color:#a3e635; border-radius:6px; padding:2px 8px; font-size:11px; cursor:pointer;">Usar este valor</button>
+                            </div>
                         </div>
                         <div class="categoria">
                             <div class="nome">Inserir categoria</div>
@@ -694,6 +700,7 @@
             clearTimeout(debounceBuscaBancoImagens);
             debounceBuscaBancoImagens = setTimeout(() => {
                 buscarSugestoesImagemBanco(inputNome.value);
+                buscarSugestaoPreco(inputNome.value);
             }, 400);
         });
 
@@ -1580,9 +1587,79 @@
         }
 
         // ================================================================
-        // LISTAS PRONTAS — categorias e itens vêm do Firestore
-        // (cadastrados pelo admin em listas_prontas/{catId}/itens/{itemId})
+        // BANCO DE PREÇOS DO ADMIN — sugestão de valor médio ao digitar
+        // o nome, calculada com a mesma regra "todas as palavras batem"
+        // usada nas imagens (senão "fogão" sozinho misturaria preço de
+        // fogão de 4 e de 5 bocas na mesma média).
         // ================================================================
+        let bancoPrecosCacheCliente = null;
+        async function garantirBancoPrecosCarregado() {
+            if (bancoPrecosCacheCliente) return bancoPrecosCacheCliente;
+            try {
+                const snap = await getDocs(collection(db, "banco_precos"));
+                bancoPrecosCacheCliente = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            } catch (e) {
+                console.warn("Não foi possível carregar o banco de preços:", e.message);
+                bancoPrecosCacheCliente = [];
+            }
+            return bancoPrecosCacheCliente;
+        }
+
+        let precoMedioSugeridoCentavos = null;
+        async function buscarSugestaoPreco(nomeDigitado) {
+            const wrap = document.getElementById('sugestaoPrecoBanco');
+            const texto = document.getElementById('sugestaoPrecoBancoTexto');
+            if (!wrap || !texto) return;
+
+            const termos = normalizarTagsBanco(nomeDigitado);
+            if (!termos.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return; }
+
+            const banco = await garantirBancoPrecosCarregado();
+            const encontrados = banco.filter(item =>
+                termos.every(t => (item.tags || []).includes(t))
+            );
+
+            if (!encontrados.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return; }
+
+            const valores = encontrados.map(i => i.preco_centavos || 0).filter(v => v > 0);
+            if (!valores.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return; }
+
+            const media = Math.round(valores.reduce((a, b) => a + b, 0) / valores.length);
+            precoMedioSugeridoCentavos = media;
+            const mediaFmt = (media / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            texto.textContent = valores.length === 1
+                ? `💰 Preço de referência: ${mediaFmt}`
+                : `💰 Preço médio: ${mediaFmt} (baseado em ${valores.length} itens parecidos)`;
+            wrap.style.display = 'flex';
+        }
+
+        document.getElementById('btnUsarPrecoSugerido')?.addEventListener('click', () => {
+            if (precoMedioSugeridoCentavos == null) return;
+            const valorFmt = (precoMedioSugeridoCentavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            inputPreco.value = `R$ ${valorFmt}`;
+            // Dispara o listener de formatação que já existe no campo, se houver.
+            inputPreco.dispatchEvent(new Event('input'));
+        });
+
+        // Registra o preço que o cliente digitou como uma SUGESTÃO PENDENTE
+        // pro admin revisar — nunca entra direto no banco oficial. Chamado
+        // depois que o produto já foi salvo com sucesso.
+        async function registrarSugestaoPrecoCliente(nome, precoCentavos) {
+            try {
+                await addDoc(collection(db, "sugestoes_precos_clientes"), {
+                    nome,
+                    preco_centavos: precoCentavos,
+                    usuario_id: usuarioAtualUid || null,
+                    criado_em: serverTimestamp(),
+                });
+            } catch (e) {
+                // Nunca deve travar o cadastro do produto por causa disso.
+                console.warn("Não foi possível registrar sugestão de preço:", e.message);
+            }
+        }
+
+
         let categoriasProntasCache = [];     // [{ id, nome, icone }]
         let itensProntosPorCategoria = {};   // catId -> [{ id, nome, preco_centavos, imagem }]
         let unsubscribesItensProntos = {};
@@ -1915,6 +1992,9 @@
                 }
                 limparFormulario();
                 mostrarToast('Item adicionado com sucesso!', 'sucesso', '✅');
+                // ✅ NOVO: manda o preço digitado como sugestão pendente pro
+                // banco de preços — não afeta o cadastro nem trava nada se falhar.
+                registrarSugestaoPrecoCliente(nome, precoOriginalCentavos);
             } catch (error) {
                 console.error("Erro ao salvar no Firestore:", error);
                 mostrarToast('Erro ao salvar o item. Tente novamente.', 'erro', '❌');
@@ -2551,6 +2631,10 @@
             const sugestoesBanco = document.getElementById('sugestoesImagemBanco');
             if (sugestoesWrap) sugestoesWrap.style.display = 'none';
             if (sugestoesBanco) sugestoesBanco.innerHTML = '';
+            // ✅ NOVO: limpa a sugestão de preço também
+            precoMedioSugeridoCentavos = null;
+            const sugestaoPrecoWrap = document.getElementById('sugestaoPrecoBanco');
+            if (sugestaoPrecoWrap) sugestaoPrecoWrap.style.display = 'none';
         }
 
         // ================================================================
