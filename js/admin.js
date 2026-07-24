@@ -655,6 +655,18 @@
         }
     }
 
+    // ✅ NOVO: comportamento genérico de abrir/fechar os painéis retráteis
+    // do Banco de Imagens — todos começam fechados.
+    document.querySelectorAll('.painel-colapsavel-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const corpo = document.getElementById(header.dataset.alvo);
+            if (!corpo) return;
+            const abrindo = corpo.style.display === 'none';
+            corpo.style.display = abrindo ? 'block' : 'none';
+            header.classList.toggle('aberto', abrindo);
+        });
+    });
+
     document.querySelector('[data-secao="banco-imagens"]')?.addEventListener('click', () => {
         escutarBancoImagens();
         escutarBuscasSemResultado();
