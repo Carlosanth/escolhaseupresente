@@ -611,6 +611,37 @@ select.campo-formulario option {
     color: rgba(255, 255, 255, 0.35);
 }
 
+/* ================================================================
+   PREÇO + CATEGORIA — lado a lado no formulário de cadastro
+   ✅ NOVO: essas classes nunca tiveram regra própria (dependiam do
+   comportamento padrão do flex, que fica imprevisível em telas
+   pequenas). Define uma largura mínima sensata pros dois campos
+   dividirem o espaço igual no desktop, e empilha em coluna cheia
+   no celular — sem espremer nem cortar texto.
+================================================================ */
+.preço {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+.preço > .teste,
+.preço > .categoria {
+    flex: 1 1 160px;
+    min-width: 0; /* evita o input/select forçar o flex item a crescer além da tela */
+}
+
+@media (max-width: 480px) {
+    .preço {
+        flex-direction: column;
+    }
+    .preço > .teste,
+    .preço > .categoria {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+}
+
 .arquivo {
     display: block;
     width: 100%;
