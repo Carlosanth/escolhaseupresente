@@ -284,13 +284,13 @@
                         <input type="text" id="nomeProduto" class="campo-formulario" placeholder="Qual o nome do item?">
                     </div>
                     
-                    <div class="preço" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div class="preço">
                         <div class="teste">
                             <div class="nome">Inserir valor</div>
                             <input type="tel" id="precoProduto" class="campo-formulario" placeholder="R$ 0,00">
                             <!-- ✅ NOVO: sugestão de preço médio, vinda do banco
                                  curado pelo admin + preços de outros clientes aprovados. -->
-                            <div id="sugestaoPrecoBanco" style="display:none; margin-top:6px; font-size:12px; color:#a3e635; display:flex; align-items:center; gap:6px;">
+                            <div id="sugestaoPrecoBanco" style="display:none; margin-top:6px; font-size:12px; color:#a3e635; align-items:center; gap:6px; flex-wrap:wrap;">
                                 <span id="sugestaoPrecoBancoTexto"></span>
                                 <button type="button" id="btnUsarPrecoSugerido" style="background:rgba(163,230,53,0.15); border:1px solid rgba(163,230,53,0.4); color:#a3e635; border-radius:6px; padding:2px 8px; font-size:11px; cursor:pointer;">Usar este valor</button>
                             </div>
