@@ -111,6 +111,28 @@
     }
 
     // ================================================================
+    // CATEGORIAS — mesma coleção global usada no cadastro.html, pra
+    // manter os selects de categoria consistentes com o resto do site.
+    // ================================================================
+    let categoriasGlobaisCache = [];
+    function popularSelectsCategoria() {
+        const selects = [
+            document.getElementById('inputImagemBancoCategoria'),
+            document.getElementById('inputPrecoManualCategoria'),
+        ].filter(Boolean);
+        selects.forEach(sel => {
+            const valorAtual = sel.value;
+            sel.innerHTML = '<option value="">Sem categoria</option>' +
+                categoriasGlobaisCache.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
+            if (categoriasGlobaisCache.includes(valorAtual)) sel.value = valorAtual;
+        });
+    }
+    onSnapshot(collection(db, "categorias"), snap => {
+        categoriasGlobaisCache = snap.docs.map(d => d.data().nome || d.id).filter(Boolean);
+        popularSelectsCategoria();
+    }, err => console.error("Erro ao carregar categorias:", err));
+
+    // ================================================================
     // BANCO DE IMAGENS — fotos profissionais cadastradas só pelo admin,
     // sugeridas automaticamente pro cliente quando ele digita o nome de
     // um produto no cadastro dele (cadastro.html busca nesta coleção).
@@ -173,6 +195,7 @@
         const titulo = document.getElementById('modalImagemBancoTitulo');
         const inputNome = document.getElementById('inputImagemBancoNome');
         const inputSinonimos = document.getElementById('inputImagemBancoSinonimos');
+        const inputCategoria = document.getElementById('inputImagemBancoCategoria');
         const preview = document.getElementById('imagemBancoPreview');
         const tagsPreview = document.getElementById('imagemBancoTagsPreview');
         document.getElementById('inputImagemBancoArquivo').value = '';
@@ -182,6 +205,7 @@
             titulo.textContent = '✏️ Editar imagem';
             inputNome.value = item?.nome || '';
             inputSinonimos.value = item?.sinonimos || '';
+            if (inputCategoria) inputCategoria.value = item?.categoria || '';
             urlImagemBancoSelecionada = item?.imagemUrl || '';
             if (urlImagemBancoSelecionada) { preview.src = urlImagemBancoSelecionada; preview.style.display = 'block'; }
             else { preview.style.display = 'none'; }
@@ -190,6 +214,7 @@
             titulo.textContent = '➕ Nova imagem';
             inputNome.value = '';
             inputSinonimos.value = '';
+            if (inputCategoria) inputCategoria.value = '';
             preview.style.display = 'none';
             tagsPreview.textContent = '';
         }
@@ -230,6 +255,7 @@
     document.getElementById('btnSalvarImagemBanco')?.addEventListener('click', async () => {
         const nome = document.getElementById('inputImagemBancoNome').value.trim();
         const sinonimos = document.getElementById('inputImagemBancoSinonimos')?.value.trim() || '';
+        const categoria = document.getElementById('inputImagemBancoCategoria')?.value || '';
         if (!nome) { toast('⚠️ Informe o nome do produto.'); return; }
         if (!urlImagemBancoSelecionada) { toast('⚠️ Selecione uma imagem.'); return; }
 
@@ -241,6 +267,7 @@
             const dados = {
                 nome,
                 sinonimos,
+                categoria,
                 tags: normalizarTags(nome, sinonimos),
                 imagemUrl: urlImagemBancoSelecionada,
                 atualizado_em: serverTimestamp(),
@@ -438,7 +465,9 @@
     document.getElementById('btnAdicionarPrecoManual')?.addEventListener('click', async () => {
         const inputNome = document.getElementById('inputPrecoManualNome');
         const inputValor = document.getElementById('inputPrecoManualValor');
+        const inputCategoria = document.getElementById('inputPrecoManualCategoria');
         const nome = inputNome.value.trim();
+        const categoria = inputCategoria?.value || '';
         const valorNumerico = parseFloat((inputValor.value || '').replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
 
         if (!nome) { toast('⚠️ Informe o nome do produto.'); return; }
@@ -447,6 +476,7 @@
         try {
             await addDoc(collection(db, "banco_precos"), {
                 nome,
+                categoria,
                 tags: normalizarTags(nome),
                 preco_centavos: Math.round(valorNumerico * 100),
                 criado_em: serverTimestamp(),
@@ -454,6 +484,7 @@
             toast('✅ Preço de referência adicionado!');
             inputNome.value = '';
             inputValor.value = '';
+            if (inputCategoria) inputCategoria.value = '';
         } catch (e) {
             console.error(e);
             toast('❌ Erro ao adicionar preço.');
@@ -602,13 +633,18 @@
             el.innerHTML = snap.docs.map(d => {
                 const dado = d.data();
                 const valorFmt = ((dado.preco_centavos || 0) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                const opcoesCategoria = categoriasGlobaisCache.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
                 return `
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border1);">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border1);flex-wrap:wrap;">
                         <div style="font-size:13px;color:var(--text);">
                             ${escapeHTML(dado.nome || '(sem nome)')}
                             <span style="font-size:12px;color:#a3e635;margin-left:8px;font-weight:600;">${valorFmt}</span>
                         </div>
-                        <div style="display:flex;gap:8px;">
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <select class="select-categoria-sugestao-preco campo-form-admin" style="width:140px; margin:0; font-size:11px; padding:6px 10px;">
+                                <option value="">Sem categoria</option>
+                                ${opcoesCategoria}
+                            </select>
                             <button class="btn-tabela btn-marcar-pago btn-aprovar-preco" data-id="${d.id}" data-nome="${escapeHTML(dado.nome || '').replace(/"/g, '&quot;')}" data-preco="${dado.preco_centavos || 0}" style="font-size:11px;">✅ Aprovar</button>
                             <button class="btn-tabela btn-excluir-cliente btn-ignorar-preco" data-id="${d.id}" style="font-size:11px;">🚫 Ignorar</button>
                         </div>
@@ -619,11 +655,13 @@
             el.querySelectorAll('.btn-aprovar-preco').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     try {
+                        const selectCategoria = btn.parentElement?.querySelector('.select-categoria-sugestao-preco');
                         // Mesma normalização de tags usada nas imagens — assim a
                         // busca por "todas as palavras batem" funciona igual dos
                         // dois lados (imagem e preço).
                         await addDoc(collection(db, "banco_precos"), {
                             nome: btn.dataset.nome,
+                            categoria: selectCategoria?.value || '',
                             tags: normalizarTags(btn.dataset.nome),
                             preco_centavos: parseInt(btn.dataset.preco, 10) || 0,
                             criado_em: serverTimestamp(),
