@@ -281,7 +281,10 @@
                 <div class="boxlabal">
                     <div class="nomeitem">
                         <div class="nome">Inserir nome do item</div>
-                        <input type="text" id="nomeProduto" class="campo-formulario" placeholder="Qual o nome do item?">
+                        <div class="autocomplete-wrap">
+                            <div id="nomeProdutoFantasma" class="campo-formulario autocomplete-fantasma" aria-hidden="true"></div>
+                            <input type="text" id="nomeProduto" class="campo-formulario" placeholder="Qual o nome do item?" autocomplete="off" spellcheck="false">
+                        </div>
                     </div>
                     
                     <div class="preço">
@@ -692,17 +695,111 @@
             }
         });
 
-        // ✅ NOVO: busca sugestões no banco de imagens do admin conforme o
-        // cliente digita o nome do produto (com debounce pra não disparar
-        // uma busca a cada tecla).
+        // ================================================================
+        // AUTOCOMPLETE FANTASMA — sugere nomes já existentes nos bancos
+        // (imagem + preço combinados) enquanto o cliente digita, mostrando
+        // o resto do nome em cinza claro, igual barra de endereço.
+        // ================================================================
+        function normalizarTextoSimples(str) {
+            return (str || '')
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase();
+        }
+
+        function escaparHtmlFantasma(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        const elFantasma = document.getElementById('nomeProdutoFantasma');
+        const wrapAutocomplete = document.querySelector('.autocomplete-wrap');
+
+        function melhorSugestaoAutocomplete(digitado) {
+            if (!digitado) return null;
+            const normDigitado = normalizarTextoSimples(digitado);
+            const candidatos = [
+                ...(bancoImagensCacheCliente || []).map(i => i.nome),
+                ...(bancoPrecosCacheCliente || []).map(i => i.nome),
+            ].filter(Boolean);
+
+            const vistos = new Set();
+            for (const nomeCandidato of candidatos) {
+                const chave = normalizarTextoSimples(nomeCandidato);
+                if (vistos.has(chave)) continue;
+                vistos.add(chave);
+                if (chave.length > normDigitado.length && chave.startsWith(normDigitado)) {
+                    return nomeCandidato;
+                }
+            }
+            return null;
+        }
+
+        function atualizarAutocompleteFantasma() {
+            if (!elFantasma || !inputNome) return;
+            const digitado = inputNome.value;
+            const sugestao = melhorSugestaoAutocomplete(digitado);
+            if (!sugestao) { elFantasma.innerHTML = ''; delete elFantasma.dataset.sugestaoCompleta; return; }
+            const restante = sugestao.slice(digitado.length);
+            elFantasma.innerHTML = `<span class="parte-digitada">${escaparHtmlFantasma(digitado)}</span><span class="parte-sugerida">${escaparHtmlFantasma(restante)}</span>`;
+            elFantasma.dataset.sugestaoCompleta = sugestao;
+        }
+
+        inputNome?.addEventListener('focus', () => wrapAutocomplete?.classList.add('tem-foco'));
+        inputNome?.addEventListener('blur', () => wrapAutocomplete?.classList.remove('tem-foco'));
+
+        // Tab ou seta-direita (com cursor já no fim do texto) aceita a
+        // sugestão inteira, igual navegador.
+        inputNome?.addEventListener('keydown', (e) => {
+            if (!elFantasma?.dataset.sugestaoCompleta) return;
+            if (e.key !== 'Tab' && e.key !== 'ArrowRight') return;
+            if (e.key === 'ArrowRight' && inputNome.selectionStart !== inputNome.value.length) return;
+            e.preventDefault();
+            inputNome.value = elFantasma.dataset.sugestaoCompleta;
+            elFantasma.innerHTML = '';
+            delete elFantasma.dataset.sugestaoCompleta;
+            inputNome.dispatchEvent(new Event('input'));
+        });
+
+        // ================================================================
+        // CATEGORIA INTELIGENTE — se um item parecido (imagem ou preço) já
+        // tem categoria salva, preenche sozinho. Só mexe se o cliente
+        // ainda não tiver escolhido nenhuma categoria manualmente.
+        // ================================================================
+        function aplicarCategoriaSugerida(candidatosImagem, candidatosPreco) {
+            if (!selectCategoria || selectCategoria.value) return;
+            const todos = [...(candidatosImagem || []), ...(candidatosPreco || [])];
+            const comCategoria = todos.find(item =>
+                item.categoria && Array.from(selectCategoria.options).some(opt => opt.value === item.categoria)
+            );
+            if (comCategoria) {
+                selectCategoria.value = comCategoria.categoria;
+                selectCategoria.dispatchEvent(new Event('change'));
+            }
+        }
+
+        // ✅ NOVO: busca sugestões no banco de imagens e de preços do admin
+        // conforme o cliente digita o nome do produto (com debounce pra não
+        // disparar uma busca a cada tecla). O autocomplete fantasma roda na
+        // hora (sem debounce), pra parecer instantâneo.
         let debounceBuscaBancoImagens = null;
         inputNome?.addEventListener('input', () => {
+            atualizarAutocompleteFantasma();
             clearTimeout(debounceBuscaBancoImagens);
-            debounceBuscaBancoImagens = setTimeout(() => {
-                buscarSugestoesImagemBanco(inputNome.value);
-                buscarSugestaoPreco(inputNome.value);
+            debounceBuscaBancoImagens = setTimeout(async () => {
+                const [candidatosImagem, candidatosPreco] = await Promise.all([
+                    buscarSugestoesImagemBanco(inputNome.value),
+                    buscarSugestaoPreco(inputNome.value),
+                ]);
+                aplicarCategoriaSugerida(candidatosImagem, candidatosPreco);
+                // Os bancos podem ter acabado de carregar agora pela primeira
+                // vez — atualiza o fantasma de novo já com eles disponíveis.
+                atualizarAutocompleteFantasma();
             }, 400);
         });
+
+        // Pré-carrega os bancos assim que a página abre, pra o autocomplete
+        // já funcionar desde a primeira letra digitada.
+        garantirBancoImagensCarregado();
+        garantirBancoPrecosCarregado();
 
         const containerRegistros   = document.getElementById('registros');
         const btnSair              = document.getElementById('btnSair');
@@ -1533,10 +1630,10 @@
         async function buscarSugestoesImagemBanco(nomeDigitado) {
             const wrap = document.getElementById('sugestoesImagemBancoWrap');
             const container = document.getElementById('sugestoesImagemBanco');
-            if (!wrap || !container) return;
+            if (!wrap || !container) return [];
 
             const termos = normalizarTagsBanco(nomeDigitado);
-            if (!termos.length) { wrap.style.display = 'none'; container.innerHTML = ''; return; }
+            if (!termos.length) { wrap.style.display = 'none'; container.innerHTML = ''; return []; }
 
             const banco = await garantirBancoImagensCarregado();
 
@@ -1553,7 +1650,7 @@
                 wrap.style.display = 'none';
                 container.innerHTML = '';
                 registrarBuscaSemResultado(termos);
-                return;
+                return [];
             }
 
             wrap.style.display = 'block';
@@ -1584,6 +1681,8 @@
                     }
                 });
             });
+
+            return encontrados;
         }
 
         // ================================================================
@@ -1620,29 +1719,31 @@
         async function buscarSugestaoPreco(nomeDigitado) {
             const wrap = document.getElementById('sugestaoPrecoBanco');
             const texto = document.getElementById('sugestaoPrecoBancoTexto');
-            if (!wrap || !texto) return;
+            if (!wrap || !texto) return [];
 
             const termos = normalizarTagsBanco(nomeDigitado);
-            if (!termos.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return; }
+            if (!termos.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return []; }
 
             const banco = await garantirBancoPrecosCarregado();
             const encontrados = banco.filter(item =>
                 termos.every(t => (item.tags || []).includes(t)) && precoAindaValido(item)
             );
 
-            if (!encontrados.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return; }
+            if (!encontrados.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return []; }
 
             const valores = encontrados.map(i => i.preco_centavos || 0).filter(v => v > 0);
-            if (!valores.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return; }
+            if (!valores.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return []; }
 
             const media = Math.round(valores.reduce((a, b) => a + b, 0) / valores.length);
             precoMedioSugeridoCentavos = media;
             const mediaFmt = (media / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
             texto.textContent = valores.length === 1
-                ? `💰 Preço de referência: ${mediaFmt}`
+                ? `💰 Preço sugerido: ${mediaFmt}`
                 : `💰 Preço médio: ${mediaFmt} (baseado em ${valores.length} itens parecidos)`;
             wrap.style.display = 'flex';
+
+            return encontrados;
         }
 
         document.getElementById('btnUsarPrecoSugerido')?.addEventListener('click', () => {
@@ -1651,6 +1752,8 @@
             inputPreco.value = `R$ ${valorFmt}`;
             // Dispara o listener de formatação que já existe no campo, se houver.
             inputPreco.dispatchEvent(new Event('input'));
+            // ✅ NOVO: some a sugestão depois de usada — já cumpriu o papel dela.
+            document.getElementById('sugestaoPrecoBanco').style.display = 'none';
         });
 
         // Registra o preço que o cliente digitou como uma SUGESTÃO PENDENTE

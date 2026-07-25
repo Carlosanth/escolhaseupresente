@@ -8,7 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#110a1f">
-    <link rel="stylesheet" href="css/admin.css">
     <style>
         /* ✅ NOVO: painéis retráteis do Banco de Imagens */
         .painel-colapsavel {
@@ -473,6 +472,9 @@
                     <div style="display:flex; gap:8px; padding:12px 16px; border-bottom:1px solid var(--border1); flex-wrap:wrap;">
                         <input type="text" id="inputPrecoManualNome" class="campo-form-admin" placeholder="Nome do produto" style="flex:1; min-width:180px; margin:0;">
                         <input type="text" id="inputPrecoManualValor" class="campo-form-admin" placeholder="R$ 0,00" style="width:120px; margin:0;">
+                        <select id="inputPrecoManualCategoria" class="campo-form-admin" style="width:150px; margin:0;">
+                            <option value="">Sem categoria</option>
+                        </select>
                         <button class="btn-lp-primario" id="btnAdicionarPrecoManual">➕ Adicionar direto</button>
                     </div>
                     <div id="sugestoesPrecoGrid" style="padding:8px 0;">
@@ -653,6 +655,10 @@
         <input type="text" id="inputImagemBancoNome" class="campo-form-admin" placeholder="Ex: Fogão 4 bocas preto">
         <span class="label-form-admin">Sinônimos (opcional, separados por vírgula)</span>
         <input type="text" id="inputImagemBancoSinonimos" class="campo-form-admin" placeholder="Ex: cooktop, fogão de embutir">
+        <span class="label-form-admin">Categoria (opcional)</span>
+        <select id="inputImagemBancoCategoria" class="campo-form-admin">
+            <option value="">Sem categoria</option>
+        </select>
         <span class="label-form-admin">Imagem (profissional/alta qualidade)</span>
         <img id="imagemBancoPreview" class="lp-preview-imagem" alt="Pré-visualização">
         <input type="file" id="inputImagemBancoArquivo" class="upload-form-admin" accept="image/*">
