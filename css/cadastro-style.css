@@ -640,6 +640,46 @@ select.campo-formulario option {
     }
 }
 
+/* ================================================================
+   AUTOCOMPLETE FANTASMA — nome do produto
+   ✅ NOVO: o texto "fantasma" (cinza claro) fica num elemento por trás
+   do input de verdade. A parte já digitada fica invisível nesse
+   elemento (só serve pra alinhar o espaço), e o restante da sugestão
+   aparece em cinza depois do cursor — igual barra de endereço do
+   navegador.
+================================================================ */
+.autocomplete-wrap {
+    position: relative;
+}
+.autocomplete-fantasma {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    pointer-events: none;
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: clip;
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    z-index: 1;
+}
+.autocomplete-fantasma .parte-digitada { color: transparent; }
+.autocomplete-fantasma .parte-sugerida { color: rgba(255, 255, 255, 0.28); }
+
+.autocomplete-wrap #nomeProduto {
+    position: relative;
+    z-index: 2;
+    background: transparent;
+}
+.autocomplete-wrap.tem-foco .autocomplete-fantasma {
+    border-color: rgba(167, 139, 250, 0.6);
+    background: rgba(167, 139, 250, 0.07);
+    box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.12);
+}
+
 .arquivo {
     display: block;
     width: 100%;
