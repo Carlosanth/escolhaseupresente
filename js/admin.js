@@ -480,6 +480,110 @@
         }
     }
 
+    // ----------------------------------------------------------------
+    // PREÇOS ENVIADOS POR CLIENTES — mesma ideia da seção de imagens:
+    // reaproveitar o valor que o cliente já digitou no item dele, sem
+    // precisar redigitar um por um. Agrupa por "assinatura" de tags
+    // (mesma regra "todas as palavras batem" usada na sugestão de preço)
+    // pra não sugerir de novo algo que já está no banco.
+    // ----------------------------------------------------------------
+    function assinaturaTags(tags) {
+        return [...tags].sort().join(' ');
+    }
+
+    async function escutarPrecosClientes() {
+        const grid = document.getElementById('precosClientesGrid');
+        if (!grid) return;
+        try {
+            const [snapProdutos, snapIgnorados] = await Promise.all([
+                getDocs(query(collection(db, "presentes"), orderBy("titulo"), limit(300))),
+                getDocs(collection(db, "precos_clientes_ignorados")),
+            ]);
+
+            const assinaturasJaNoBanco = new Set(bancoPrecosCache.map(i => assinaturaTags(i.tags || [])));
+            const assinaturasIgnoradas = new Set(snapIgnorados.docs.map(d => d.data().assinatura));
+
+            const vistos = new Map(); // assinatura -> { nome, precoCentavos }
+
+            snapProdutos.forEach(d => {
+                const p = d.data();
+                const nome = (p.titulo || '').trim();
+                const precoCentavos = parseInt(p.preco_original_centavos, 10);
+                if (!nome || !precoCentavos || precoCentavos <= 0) return;
+                const tags = normalizarTags(nome);
+                if (!tags.length) return;
+                const assinatura = assinaturaTags(tags);
+                if (assinaturasJaNoBanco.has(assinatura)) return; // já tem preço pra isso no banco
+                if (assinaturasIgnoradas.has(assinatura)) return; // você já marcou como "não aproveitar"
+                if (!vistos.has(assinatura)) vistos.set(assinatura, { nome, precoCentavos });
+            });
+
+            const lista = Array.from(vistos.entries()).slice(0, 40);
+            if (!lista.length) { grid.innerHTML = '<div class="lp-vazio">Nenhum preço novo de cliente pra reaproveitar no momento.</div>'; return; }
+
+            grid.innerHTML = lista.map(([assinatura, dado]) => {
+                const valorFmt = (dado.precoCentavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                return `
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border1);flex-wrap:wrap;" data-assinatura-preco="${escapeHTML(assinatura)}">
+                        <div style="font-size:13px;color:var(--text);">
+                            ${escapeHTML(dado.nome)}
+                            <span style="font-size:12px;color:#a3e635;margin-left:8px;font-weight:600;">${valorFmt}</span>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center;">
+                            <button class="btn-tabela btn-marcar-pago btn-aprovar-preco-cliente" data-assinatura="${escapeHTML(assinatura)}" data-nome="${escapeHTML(dado.nome).replace(/"/g, '&quot;')}" data-preco="${dado.precoCentavos}" style="font-size:11px;">✅ Adicionar ao banco</button>
+                            <button class="btn-tabela btn-excluir-cliente btn-ignorar-preco-cliente" data-assinatura="${escapeHTML(assinatura)}" style="font-size:11px;">🚫 Ignorar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const removerCard = (assinatura) => {
+                const card = grid.querySelector(`[data-assinatura-preco="${CSS.escape(assinatura)}"]`);
+                card?.remove();
+                if (!grid.querySelector('[data-assinatura-preco]')) {
+                    grid.innerHTML = '<div class="lp-vazio">Nenhum preço novo de cliente pra reaproveitar no momento.</div>';
+                }
+            };
+
+            grid.querySelectorAll('.btn-aprovar-preco-cliente').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    try {
+                        await addDoc(collection(db, "banco_precos"), {
+                            nome: btn.dataset.nome,
+                            categoria: '',
+                            tags: normalizarTags(btn.dataset.nome),
+                            preco_centavos: parseInt(btn.dataset.preco, 10) || 0,
+                            criado_em: serverTimestamp(),
+                        });
+                        toast('✅ Preço adicionado ao banco!');
+                        removerCard(btn.dataset.assinatura);
+                    } catch (e) {
+                        console.error(e);
+                        toast('❌ Erro ao adicionar preço.');
+                    }
+                });
+            });
+
+            grid.querySelectorAll('.btn-ignorar-preco-cliente').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    try {
+                        await addDoc(collection(db, "precos_clientes_ignorados"), {
+                            assinatura: btn.dataset.assinatura,
+                            ignorado_em: serverTimestamp(),
+                        });
+                        removerCard(btn.dataset.assinatura);
+                    } catch (e) {
+                        console.error(e);
+                        toast('❌ Erro ao ignorar.');
+                    }
+                });
+            });
+        } catch (e) {
+            console.error("Erro ao carregar preços de clientes:", e);
+            grid.innerHTML = '<div class="lp-vazio">Erro ao carregar.</div>';
+        }
+    }
+
     // Busca local simples (o grid já vem inteiro via onSnapshot — coleção
     // pequena o suficiente pra filtrar no navegador sem precisar de índice)
     document.getElementById('inputBuscarBancoImagens')?.addEventListener('input', (e) => {
@@ -582,6 +686,50 @@
             });
         });
     }
+
+    // ✅ NOVO: apagar tudo do banco de preços — não afeta o preço já salvo
+    // em cada item do cliente, só zera a sugestão de custo médio.
+    document.getElementById('btnApagarTudoBancoPrecos')?.addEventListener('click', async () => {
+        const total = bancoPrecosCache.length;
+        if (!total) { toast('Banco de preços já está vazio.'); return; }
+        if (!confirm(`Apagar TODAS as ${total} entradas do banco de preços? Isso não afeta o preço já salvo nos itens dos clientes, só zera a sugestão de custo médio. Não pode ser desfeito.`)) return;
+        if (!confirm('Tem certeza mesmo? Essa ação é irreversível.')) return;
+
+        try {
+            const ids = bancoPrecosCache.map(i => i.id);
+            for (let i = 0; i < ids.length; i += 450) {
+                const lote = writeBatch(db);
+                ids.slice(i, i + 450).forEach(id => lote.delete(doc(db, "banco_precos", id)));
+                await lote.commit();
+            }
+            toast('✅ Banco de preços apagado.');
+        } catch (e) {
+            console.error(e);
+            toast('❌ Erro ao apagar banco de preços.');
+        }
+    });
+
+    // ✅ NOVO: apagar tudo do banco de imagens — não apaga a foto no ImgBB
+    // nem mexe nos itens dos clientes, só remove a sugestão automática.
+    document.getElementById('btnApagarTudoBancoImagens')?.addEventListener('click', async () => {
+        const total = bancoImagensCache.length;
+        if (!total) { toast('Banco de imagens já está vazio.'); return; }
+        if (!confirm(`Apagar TODAS as ${total} entradas do banco de imagens? Isso não apaga as fotos dos itens dos clientes (elas ficam no ImgBB, fora daqui), só remove a sugestão automática. Não pode ser desfeito.`)) return;
+        if (!confirm('Tem certeza mesmo? Essa ação é irreversível.')) return;
+
+        try {
+            const ids = bancoImagensCache.map(i => i.id);
+            for (let i = 0; i < ids.length; i += 450) {
+                const lote = writeBatch(db);
+                ids.slice(i, i + 450).forEach(id => lote.delete(doc(db, "banco_imagens", id)));
+                await lote.commit();
+            }
+            toast('✅ Banco de imagens apagado.');
+        } catch (e) {
+            console.error(e);
+            toast('❌ Erro ao apagar banco de imagens.');
+        }
+    });
 
     document.getElementById('btnExportarPlanilhaPrecos')?.addEventListener('click', () => {
         const dados = [['nome', 'preco', 'cadastrado_em']].concat(
@@ -757,6 +905,7 @@
         escutarImagensClientes();
         escutarSugestoesPreco();
         escutarBancoPrecos();
+        escutarPrecosClientes();
     });
 
     // ================================================================
