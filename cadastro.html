@@ -291,12 +291,6 @@
                         <div class="teste">
                             <div class="nome">Inserir valor</div>
                             <input type="tel" id="precoProduto" class="campo-formulario" placeholder="R$ 0,00">
-                            <!-- ✅ NOVO: sugestão de preço médio, vinda do banco
-                                 curado pelo admin + preços de outros clientes aprovados. -->
-                            <div id="sugestaoPrecoBanco" style="display:none; margin-top:6px; font-size:12px; color:#a3e635; align-items:center; gap:6px; flex-wrap:wrap;">
-                                <span id="sugestaoPrecoBancoTexto"></span>
-                                <button type="button" id="btnUsarPrecoSugerido" style="background:rgba(163,230,53,0.15); border:1px solid rgba(163,230,53,0.4); color:#a3e635; border-radius:6px; padding:2px 8px; font-size:11px; cursor:pointer;">Usar este valor</button>
-                            </div>
                         </div>
                         <div class="categoria">
                             <div class="nome">Inserir categoria</div>
@@ -306,6 +300,15 @@
                             </select>
                             <input type="text" id="categoriaManual" class="campo-formulario" placeholder="Digite a nova categoria aqui" style="display: none;">
                         </div>
+                    </div>
+
+                    <!-- ✅ NOVO: sugestão de custo médio, vinda do banco curado
+                         pelo admin + preços de outros clientes aprovados. Fica
+                         fora das colunas de "Inserir valor"/"categoria" pra
+                         poder usar a largura toda da linha sem quebrar. -->
+                    <div id="sugestaoPrecoBanco" style="display:none; margin-top:6px; font-size:12px; color:#a3e635; align-items:center; gap:6px; flex-wrap:nowrap; width:100%;">
+                        <span id="sugestaoPrecoBancoTexto" style="white-space:nowrap;"></span>
+                        <button type="button" id="btnUsarPrecoSugerido" style="background:rgba(163,230,53,0.15); border:1px solid rgba(163,230,53,0.4); color:#a3e635; border-radius:6px; padding:2px 8px; font-size:11px; cursor:pointer; white-space:nowrap;">Usar este valor</button>
                     </div>
 
                     <!-- BLOCO DE COTAS -->
@@ -1732,15 +1735,23 @@
             if (!encontrados.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return []; }
 
             const valores = encontrados.map(i => i.preco_centavos || 0).filter(v => v > 0);
-            if (!valores.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return []; }
+            // ✅ NOVO: com 1 nota só não é média de nada — não mostra sugestão.
+            if (valores.length < 2) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return []; }
 
-            const media = Math.round(valores.reduce((a, b) => a + b, 0) / valores.length);
+            // ✅ NOVO: com 3+ notas, descarta a menor e a maior antes de tirar
+            // a média — protege contra erro de digitação (ex.: alguém digitou
+            // "11000" em vez de "1100") distorcer o valor sozinho.
+            let valoresParaMedia = valores;
+            if (valores.length >= 3) {
+                const ordenados = [...valores].sort((a, b) => a - b);
+                valoresParaMedia = ordenados.slice(1, -1);
+            }
+
+            const media = Math.round(valoresParaMedia.reduce((a, b) => a + b, 0) / valoresParaMedia.length);
             precoMedioSugeridoCentavos = media;
             const mediaFmt = (media / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-            texto.textContent = valores.length === 1
-                ? `💰 Preço sugerido: ${mediaFmt}`
-                : `💰 Preço médio: ${mediaFmt} (baseado em ${valores.length} itens parecidos)`;
+            texto.textContent = `Custo médio: ${mediaFmt}`;
             wrap.style.display = 'flex';
 
             return encontrados;

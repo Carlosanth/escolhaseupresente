@@ -8,7 +8,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#110a1f">
-    <link rel="stylesheet" href="css/admin.css">
     <style>
         /* ✅ NOVO: painéis retráteis do Banco de Imagens */
         .painel-colapsavel {
@@ -660,6 +659,8 @@
         <select id="inputImagemBancoCategoria" class="campo-form-admin">
             <option value="">Sem categoria</option>
         </select>
+        <span class="label-form-admin">Valor de referência (opcional)</span>
+        <input type="text" id="inputImagemBancoValor" class="campo-form-admin" placeholder="R$ 0,00">
         <span class="label-form-admin">Imagem (profissional/alta qualidade)</span>
         <img id="imagemBancoPreview" class="lp-preview-imagem" alt="Pré-visualização">
         <input type="file" id="inputImagemBancoArquivo" class="upload-form-admin" accept="image/*">
