@@ -224,7 +224,7 @@
     <script type="module">
         import { firebaseConfig } from "./js/firebase-config.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         
@@ -232,6 +232,23 @@
         const app  = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db   = getFirestore(app);
+
+        // ✅ NOVO: se já existe uma sessão salva (ex.: "Mantenha-me conectado"
+        // marcado num acesso anterior), pula a tela de login e manda direto
+        // pro painel — sem isso o setPersistence funcionava, mas nada aqui
+        // conferia se o usuário já estava autenticado ao abrir a página.
+        let jaRedirecionou = false;
+        onAuthStateChanged(auth, async (user) => {
+            if (user && !jaRedirecionou) {
+                jaRedirecionou = true;
+                try {
+                    const perfilDoc = await getDoc(doc(db, "perfis", user.uid));
+                    window.location.href = perfilDoc.exists() ? "cadastro.html" : "onboarding.html";
+                } catch (e) {
+                    console.error("Erro ao verificar sessão existente:", e);
+                }
+            }
+        });
 
         const boxLogin      = document.getElementById('box-login');
         const boxCadastro   = document.getElementById('box-cadastro');
