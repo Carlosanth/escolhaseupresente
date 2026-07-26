@@ -664,6 +664,7 @@ select.campo-formulario option {
     background: transparent;
     border-color: transparent;
     box-shadow: none;
+    line-height: 1.4; /* mesmo valor do input real — evita qualquer diferença de altura/alinhamento entre <div> e <input> */
     z-index: 1;
 }
 .autocomplete-fantasma .parte-digitada { color: transparent; }
@@ -673,6 +674,7 @@ select.campo-formulario option {
     position: relative;
     z-index: 2;
     background: transparent;
+    line-height: 1.4; /* precisa bater exatamente com .autocomplete-fantasma */
 }
 .autocomplete-wrap.tem-foco .autocomplete-fantasma {
     border-color: rgba(167, 139, 250, 0.6);
@@ -2811,7 +2813,8 @@ input[type="text"],
 input[type="number"],
 input[type="email"],
 textarea,
-select {
+select,
+.autocomplete-fantasma {
     font-size: max(16px, 1em); /* evita zoom automático no iOS */
     touch-action: manipulation;
 }
