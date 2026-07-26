@@ -564,9 +564,23 @@
                     <div style="font-size:11px;width:110px;text-align:right;color:${vencido ? '#f87171' : 'var(--text3)'};">
                         ${vencido ? '🔴 vencido · ' : '🟢 '}${idadeTxt}
                     </div>
+                    <button class="btn-tabela btn-excluir-cliente btn-excluir-preco-banco" data-id="${item.id}" data-nome="${escapeHTML(item.nome || '').replace(/"/g, '&quot;')}" style="font-size:11px; margin-left:8px;">🗑️</button>
                 </div>
             `;
         }).join('');
+
+        el.querySelectorAll('.btn-excluir-preco-banco').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (!confirm(`Excluir o preço de "${btn.dataset.nome}" do banco? Isso não afeta itens que já usam esse valor, só some da média futura.`)) return;
+                try {
+                    await deleteDoc(doc(db, "banco_precos", btn.dataset.id));
+                    toast('✅ Preço excluído do banco.');
+                } catch (e) {
+                    console.error(e);
+                    toast('❌ Erro ao excluir preço.');
+                }
+            });
+        });
     }
 
     document.getElementById('btnExportarPlanilhaPrecos')?.addEventListener('click', () => {
