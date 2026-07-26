@@ -49,7 +49,7 @@ html, body {
   --badge-disp-texto:    #34d399;
 
   /* Imagem de fundo boas-vindas */
-  --imagem-fundo:        url('../img/Nos.jpeg');
+  --imagem-fundo:        url('../img/Nos.webp');
 }
 
 /* ==========================================================
@@ -136,7 +136,7 @@ body.tema-claro::before {
   height: 100vh;
   background-image:
     linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
-    var(--imagem-fundo, url('../img/Nos.jpeg'));
+    var(--imagem-fundo, url('../img/Nos.webp'));
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
