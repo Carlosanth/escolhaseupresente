@@ -711,7 +711,7 @@
             .metrica-valor { font-size: 16px; }
             .metrica-label { font-size: 11px; }
             .lp-grid-categorias { grid-template-columns: repeat(2, 1fr) !important; }
-            .lp-grid-itens { grid-template-columns: 1fr !important; }
+            .lp-grid-itens { grid-template-columns: repeat(2, 1fr) !important; }
             .main { padding: 8px; }
             .secao.ativa { max-height: calc(100dvh - 100px); }
         }
