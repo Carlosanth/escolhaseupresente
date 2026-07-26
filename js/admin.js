@@ -196,6 +196,7 @@
         const inputNome = document.getElementById('inputImagemBancoNome');
         const inputSinonimos = document.getElementById('inputImagemBancoSinonimos');
         const inputCategoria = document.getElementById('inputImagemBancoCategoria');
+        const inputValor = document.getElementById('inputImagemBancoValor');
         const preview = document.getElementById('imagemBancoPreview');
         const tagsPreview = document.getElementById('imagemBancoTagsPreview');
         document.getElementById('inputImagemBancoArquivo').value = '';
@@ -210,11 +211,20 @@
             if (urlImagemBancoSelecionada) { preview.src = urlImagemBancoSelecionada; preview.style.display = 'block'; }
             else { preview.style.display = 'none'; }
             tagsPreview.textContent = (item?.tags || []).map(t => '#' + t).join(' ');
+            // ✅ NOVO: se já existe um valor de referência vinculado a essa
+            // imagem (mesmo id, na coleção banco_precos), pré-preenche.
+            const precoVinculado = bancoPrecosCache.find(p => p.id === id);
+            if (inputValor) {
+                inputValor.value = precoVinculado
+                    ? (precoVinculado.preco_centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    : '';
+            }
         } else {
             titulo.textContent = '➕ Nova imagem';
             inputNome.value = '';
             inputSinonimos.value = '';
             if (inputCategoria) inputCategoria.value = '';
+            if (inputValor) inputValor.value = '';
             preview.style.display = 'none';
             tagsPreview.textContent = '';
         }
@@ -256,29 +266,51 @@
         const nome = document.getElementById('inputImagemBancoNome').value.trim();
         const sinonimos = document.getElementById('inputImagemBancoSinonimos')?.value.trim() || '';
         const categoria = document.getElementById('inputImagemBancoCategoria')?.value || '';
+        // ✅ NOVO: valor de referência opcional — aproveita o mesmo cadastro
+        // pra já alimentar o banco de preços, sem precisar abrir outro modal.
+        const valorTexto = document.getElementById('inputImagemBancoValor')?.value.trim() || '';
+        const valorNumerico = valorTexto ? parseFloat(valorTexto.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) : NaN;
         if (!nome) { toast('⚠️ Informe o nome do produto.'); return; }
         if (!urlImagemBancoSelecionada) { toast('⚠️ Selecione uma imagem.'); return; }
+        if (valorTexto && (isNaN(valorNumerico) || valorNumerico <= 0)) { toast('⚠️ Valor de referência inválido.'); return; }
 
         const btn = document.getElementById('btnSalvarImagemBanco');
         btn.disabled = true;
         btn.textContent = 'Salvando...';
 
         try {
+            const tags = normalizarTags(nome, sinonimos);
             const dados = {
                 nome,
                 sinonimos,
                 categoria,
-                tags: normalizarTags(nome, sinonimos),
+                tags,
                 imagemUrl: urlImagemBancoSelecionada,
                 atualizado_em: serverTimestamp(),
             };
+            let idImagem = editandoImagemBancoId;
             if (editandoImagemBancoId) {
                 await setDoc(doc(db, "banco_imagens", editandoImagemBancoId), dados, { merge: true });
                 toast('✅ Imagem atualizada!');
             } else {
                 dados.criado_em = serverTimestamp();
-                await addDoc(collection(db, "banco_imagens"), dados);
+                const ref = await addDoc(collection(db, "banco_imagens"), dados);
+                idImagem = ref.id;
                 toast('✅ Imagem adicionada ao banco!');
+            }
+            // ✅ NOVO: se um valor foi informado, salva/atualiza o preço de
+            // referência vinculado (mesmo id da imagem, na coleção
+            // banco_precos) — assim ele já entra na média sugerida no
+            // cadastro do cliente. Se o campo ficar em branco, não toca
+            // num preço já existente (evita apagar dado sem querer).
+            if (valorTexto && idImagem) {
+                await setDoc(doc(db, "banco_precos", idImagem), {
+                    nome,
+                    categoria,
+                    tags,
+                    preco_centavos: Math.round(valorNumerico * 100),
+                    criado_em: serverTimestamp(),
+                }, { merge: true });
             }
             document.getElementById('modalImagemBanco').classList.remove('ativo');
             // ✅ Atualiza a lista de "imagens de clientes" — a que acabou de
