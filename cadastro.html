@@ -2739,7 +2739,16 @@
         // LIMPAR FORMULÁRIO
         // ================================================================
         function limparFormulario() {
+            // ✅ NOVO: cancela a busca atrasada (debounce) de categoria/imagem/
+            // preço pendente. Sem isso, se o item era cadastrado antes dos
+            // 400ms de espera, a busca antiga ainda terminava depois do reset
+            // e preenchia a categoria sozinha com base no item anterior.
+            clearTimeout(debounceBuscaBancoImagens);
             inputNome.value = '';
+            // ✅ NOVO: limpar o input via código não dispara o evento de
+            // digitação, então o texto "fantasma" do autocomplete (que só
+            // atualiza nesse evento) ficava preso na tela. Limpa direto.
+            if (elFantasma) { elFantasma.innerHTML = ''; delete elFantasma.dataset.sugestaoCompleta; }
             inputPreco.value = '';
             selectCategoria.value = '';
             inputCategoriaManual.value = '';
