@@ -1735,19 +1735,9 @@
             if (!encontrados.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return []; }
 
             const valores = encontrados.map(i => i.preco_centavos || 0).filter(v => v > 0);
-            // ✅ NOVO: com 1 nota só não é média de nada — não mostra sugestão.
-            if (valores.length < 2) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return []; }
+            if (!valores.length) { wrap.style.display = 'none'; precoMedioSugeridoCentavos = null; return []; }
 
-            // ✅ NOVO: com 3+ notas, descarta a menor e a maior antes de tirar
-            // a média — protege contra erro de digitação (ex.: alguém digitou
-            // "11000" em vez de "1100") distorcer o valor sozinho.
-            let valoresParaMedia = valores;
-            if (valores.length >= 3) {
-                const ordenados = [...valores].sort((a, b) => a - b);
-                valoresParaMedia = ordenados.slice(1, -1);
-            }
-
-            const media = Math.round(valoresParaMedia.reduce((a, b) => a + b, 0) / valoresParaMedia.length);
+            const media = Math.round(valores.reduce((a, b) => a + b, 0) / valores.length);
             precoMedioSugeridoCentavos = media;
             const mediaFmt = (media / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
