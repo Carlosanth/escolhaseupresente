@@ -774,10 +774,23 @@
                 item.categoria && Array.from(selectCategoria.options).some(opt => opt.value === item.categoria)
             );
             if (comCategoria) {
+                categoriaMudancaEhAutomatica = true;
                 selectCategoria.value = comCategoria.categoria;
                 selectCategoria.dispatchEvent(new Event('change'));
             }
         }
+
+        // ✅ NOVO: lembra se a categoria atual veio da sugestão automática
+        // (não foi o cliente que escolheu). Se ele mudar na mão, vira
+        // escolha dele e paramos de "vigiar". Se ele apagar o nome do
+        // produto enquanto a categoria ainda for a sugerida, limpa ela
+        // junto — senão fica uma categoria "órfã" sem nome nenhum digitado.
+        let categoriaMudancaEhAutomatica = false;
+        let categoriaFoiAutoSugerida = false;
+        selectCategoria?.addEventListener('change', () => {
+            categoriaFoiAutoSugerida = categoriaMudancaEhAutomatica;
+            categoriaMudancaEhAutomatica = false;
+        });
 
         // ✅ NOVO: busca sugestões no banco de imagens e de preços do admin
         // conforme o cliente digita o nome do produto (com debounce pra não
@@ -786,6 +799,13 @@
         let debounceBuscaBancoImagens = null;
         inputNome?.addEventListener('input', () => {
             atualizarAutocompleteFantasma();
+            // ✅ NOVO: se apagou o nome todo e a categoria ainda é a que foi
+            // sugerida sozinha (não escolhida na mão), limpa ela também —
+            // senão fica uma categoria "sobrando" sem nome nenhum digitado.
+            if (!inputNome.value.trim() && categoriaFoiAutoSugerida && selectCategoria) {
+                selectCategoria.value = '';
+                categoriaFoiAutoSugerida = false;
+            }
             clearTimeout(debounceBuscaBancoImagens);
             debounceBuscaBancoImagens = setTimeout(async () => {
                 const [candidatosImagem, candidatosPreco] = await Promise.all([
@@ -1400,6 +1420,17 @@
             e.target.value = "R$ " + value.replace(".", ",").replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
         });
 
+        // ✅ NOVO: lembra se o valor atual veio da sugestão automática
+        // ("Usar este valor") ou foi o cliente que digitou. Preço aceito da
+        // sugestão não deve virar sugestão de novo — é só o mesmo dado do
+        // banco voltando pro banco, redundante.
+        let precoFoiSugerido = false;
+        let precoMudancaEhAutomatica = false;
+        inputPreco.addEventListener('input', () => {
+            precoFoiSugerido = precoMudancaEhAutomatica;
+            precoMudancaEhAutomatica = false;
+        });
+
         editPreco.addEventListener('input', (e) => {
             let value = e.target.value.replace(/\D/g, "");
             if (!value) { e.target.value = ""; return; }
@@ -1750,6 +1781,7 @@
         document.getElementById('btnUsarPrecoSugerido')?.addEventListener('click', () => {
             if (precoMedioSugeridoCentavos == null) return;
             const valorFmt = (precoMedioSugeridoCentavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            precoMudancaEhAutomatica = true;
             inputPreco.value = `R$ ${valorFmt}`;
             // Dispara o listener de formatação que já existe no campo, se houver.
             inputPreco.dispatchEvent(new Event('input'));
@@ -2108,8 +2140,14 @@
                 limparFormulario();
                 mostrarToast('Item adicionado com sucesso!', 'sucesso', '✅');
                 // ✅ NOVO: manda o preço digitado como sugestão pendente pro
-                // banco de preços — não afeta o cadastro nem trava nada se falhar.
-                registrarSugestaoPrecoCliente(nome, precoOriginalCentavos);
+                // banco de preços — não afeta o cadastro nem trava nada se
+                // falhar. Só manda se o cliente digitou de verdade; se o
+                // valor veio do "Usar este valor", já é dado que existe no
+                // banco, não faz sentido sugerir de volta.
+                if (!precoFoiSugerido) {
+                    registrarSugestaoPrecoCliente(nome, precoOriginalCentavos);
+                }
+                precoFoiSugerido = false;
             } catch (error) {
                 console.error("Erro ao salvar no Firestore:", error);
                 mostrarToast('Erro ao salvar o item. Tente novamente.', 'erro', '❌');
@@ -2741,6 +2779,7 @@
             if (elFantasma) { elFantasma.innerHTML = ''; delete elFantasma.dataset.sugestaoCompleta; }
             inputPreco.value = '';
             selectCategoria.value = '';
+            categoriaFoiAutoSugerida = false;
             inputCategoriaManual.value = '';
             inputCategoriaManual.style.display = 'none';
             if (inputLinkProduto) inputLinkProduto.value = '';
