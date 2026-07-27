@@ -652,8 +652,21 @@
 
     function renderizarTabelaBancoPrecos(lista) {
         const el = document.getElementById('bancoPrecosTabela');
+        const btnApagarSelecionados = document.getElementById('btnApagarSelecionadosBancoPrecos');
         if (!el) return;
-        if (!lista.length) { el.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:16px;">Nenhum preço cadastrado ainda.</p>'; return; }
+        if (!lista.length) {
+            el.innerHTML = '<p style="font-size:13px;color:var(--text3);padding:16px;">Nenhum preço cadastrado ainda.</p>';
+            if (btnApagarSelecionados) { btnApagarSelecionados.disabled = true; btnApagarSelecionados.textContent = '🗑️ Apagar selecionados (0)'; }
+            return;
+        }
+
+        const atualizarBotaoSelecionados = () => {
+            const qtd = el.querySelectorAll('.chk-preco-banco:checked').length;
+            if (btnApagarSelecionados) {
+                btnApagarSelecionados.disabled = qtd === 0;
+                btnApagarSelecionados.textContent = `🗑️ Apagar selecionados (${qtd})`;
+            }
+        };
 
         const ordenado = [...lista].sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
         el.innerHTML = ordenado.map(item => {
@@ -663,6 +676,7 @@
             const idadeTxt = dias === null ? '—' : dias === 0 ? 'hoje' : `${dias}d atrás`;
             return `
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;border-bottom:1px solid var(--border1);">
+                    <input type="checkbox" class="chk-preco-banco" data-id="${item.id}" data-nome="${escapeHTML(item.nome || '').replace(/"/g, '&quot;')}" style="width:16px;height:16px;flex-shrink:0;">
                     <div style="font-size:13px;color:var(--text);flex:1;">${escapeHTML(item.nome || '')}</div>
                     <div style="font-size:13px;color:var(--text);font-weight:600;width:90px;text-align:right;">${valorFmt}</div>
                     <div style="font-size:11px;width:110px;text-align:right;color:${vencido ? '#f87171' : 'var(--text3)'};">
@@ -672,6 +686,11 @@
                 </div>
             `;
         }).join('');
+
+        el.querySelectorAll('.chk-preco-banco').forEach(chk => {
+            chk.addEventListener('change', atualizarBotaoSelecionados);
+        });
+        atualizarBotaoSelecionados();
 
         el.querySelectorAll('.btn-excluir-preco-banco').forEach(btn => {
             btn.addEventListener('click', async () => {
@@ -687,47 +706,27 @@
         });
     }
 
-    // ✅ NOVO: apagar tudo do banco de preços — não afeta o preço já salvo
-    // em cada item do cliente, só zera a sugestão de custo médio.
-    document.getElementById('btnApagarTudoBancoPrecos')?.addEventListener('click', async () => {
-        const total = bancoPrecosCache.length;
-        if (!total) { toast('Banco de preços já está vazio.'); return; }
-        if (!confirm(`Apagar TODAS as ${total} entradas do banco de preços? Isso não afeta o preço já salvo nos itens dos clientes, só zera a sugestão de custo médio. Não pode ser desfeito.`)) return;
-        if (!confirm('Tem certeza mesmo? Essa ação é irreversível.')) return;
+    // ✅ NOVO: apaga só as entradas marcadas com checkbox — não afeta o
+    // preço já salvo em cada item do cliente, só zera a sugestão futura
+    // daquelas entradas específicas.
+    document.getElementById('btnApagarSelecionadosBancoPrecos')?.addEventListener('click', async () => {
+        const el = document.getElementById('bancoPrecosTabela');
+        const marcados = Array.from(el?.querySelectorAll('.chk-preco-banco:checked') || []);
+        if (!marcados.length) return;
+        const nomes = marcados.map(c => c.dataset.nome).join(', ');
+        if (!confirm(`Excluir ${marcados.length} preço(s) selecionado(s) do banco (${nomes})? Isso não afeta itens que já usam esses valores. Não pode ser desfeito.`)) return;
 
         try {
-            const ids = bancoPrecosCache.map(i => i.id);
+            const ids = marcados.map(c => c.dataset.id);
             for (let i = 0; i < ids.length; i += 450) {
                 const lote = writeBatch(db);
                 ids.slice(i, i + 450).forEach(id => lote.delete(doc(db, "banco_precos", id)));
                 await lote.commit();
             }
-            toast('✅ Banco de preços apagado.');
+            toast(`✅ ${ids.length} preço(s) excluído(s).`);
         } catch (e) {
             console.error(e);
-            toast('❌ Erro ao apagar banco de preços.');
-        }
-    });
-
-    // ✅ NOVO: apagar tudo do banco de imagens — não apaga a foto no ImgBB
-    // nem mexe nos itens dos clientes, só remove a sugestão automática.
-    document.getElementById('btnApagarTudoBancoImagens')?.addEventListener('click', async () => {
-        const total = bancoImagensCache.length;
-        if (!total) { toast('Banco de imagens já está vazio.'); return; }
-        if (!confirm(`Apagar TODAS as ${total} entradas do banco de imagens? Isso não apaga as fotos dos itens dos clientes (elas ficam no ImgBB, fora daqui), só remove a sugestão automática. Não pode ser desfeito.`)) return;
-        if (!confirm('Tem certeza mesmo? Essa ação é irreversível.')) return;
-
-        try {
-            const ids = bancoImagensCache.map(i => i.id);
-            for (let i = 0; i < ids.length; i += 450) {
-                const lote = writeBatch(db);
-                ids.slice(i, i + 450).forEach(id => lote.delete(doc(db, "banco_imagens", id)));
-                await lote.commit();
-            }
-            toast('✅ Banco de imagens apagado.');
-        } catch (e) {
-            console.error(e);
-            toast('❌ Erro ao apagar banco de imagens.');
+            toast('❌ Erro ao excluir selecionados.');
         }
     });
 
