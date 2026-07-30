@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Escolha Seu Presente — Liste, Celebre, Receba</title>
+    <meta name="description" content="Monte sua lista de presentes online e receba o valor em dinheiro via PIX. Seus convidados escolhem e pagam com facilidade, sem risco de presentes duplicados.">
+
+    <!-- Open Graph / compartilhamento em redes sociais -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Escolha Seu Presente — Liste, Celebre, Receba">
+    <meta property="og:description" content="Monte sua lista de presentes online e receba o valor em dinheiro via PIX. Seus convidados escolhem e pagam com facilidade, sem risco de presentes duplicados.">
+    <meta property="og:image" content="https://www.escolhaseupresente.com/img/Nos.jpeg">
+    <meta property="og:url" content="https://www.escolhaseupresente.com/">
+    <meta property="og:locale" content="pt_BR">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Escolha Seu Presente — Liste, Celebre, Receba">
+    <meta name="twitter:description" content="Monte sua lista de presentes online e receba o valor em dinheiro via PIX.">
+    <meta name="twitter:image" content="https://www.escolhaseupresente.com/img/Nos.jpeg">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -75,34 +89,44 @@
 
             <div class="diferenciais">
                 <div class="diferencial-item">
-                    <span class="diferencial-icon">💳</span>
+                    <span class="diferencial-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                    </span>
                     <div>
                         <strong>PIX ou cartão</strong>
                         <span>Seus convidados pagam do jeito que preferirem</span>
                     </div>
                 </div>
                 <div class="diferencial-item">
-                    <span class="diferencial-icon">⚡</span>
+                    <span class="diferencial-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                    </span>
                     <div>
                         <strong>Saque em até 48h</strong>
                         <span>O valor cai na sua conta após solicitação</span>
                     </div>
                 </div>
                 <div class="diferencial-item">
-                    <span class="diferencial-icon">🎁</span>
+                    <span class="diferencial-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
+                    </span>
                     <div>
                         <strong>Zero duplicatas</strong>
                         <span>Cada presente é reservado assim que alguém escolhe</span>
                     </div>
                 </div>
                 <div class="diferencial-item">
-                    <span class="diferencial-icon">🔗</span>
+                    <span class="diferencial-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    </span>
                     <div>
                         <strong>Compartilhe com um link</strong>
                         <span>Envie para todos com um clique ou QR Code</span>
                     </div>
                 </div>
             </div>
+
+            <p class="taxa-nota">Cobramos apenas 2,8% sobre os valores recebidos — sem taxa de adesão, sem mensalidade.</p>
         </div>
 
         <div class="form-col">
@@ -127,7 +151,7 @@
                     </div>
                     <div class="field-group">
                         <label for="loginSenha">Senha</label>
-                        <input type="password" id="loginSenha" class="field-input" placeholder="Mínimo 7 caracteres" required autocomplete="current-password">
+                        <input type="password" id="loginSenha" class="field-input" placeholder="Sua senha" required autocomplete="current-password">
                     </div>
                     <div id="erro-login" class="msg-erro"></div>
                     <label class="checkbox-manter-conectado" style="display:flex; align-items:center; gap:8px; font-size:13px; color:rgba(255,255,255,0.7); margin-bottom:14px; cursor:pointer;">
@@ -161,7 +185,8 @@
                     </div>
                     <div class="field-group">
                         <label for="cadastroSenha">Senha</label>
-                        <input type="password" id="cadastroSenha" class="field-input" placeholder="Mínimo 7 caracteres" required autocomplete="new-password">
+                        <input type="password" id="cadastroSenha" class="field-input" placeholder="Crie uma senha" required autocomplete="new-password" minlength="7">
+                        <span class="field-hint">Mínimo de 7 caracteres</span>
                     </div>
                     <div class="field-group field-checkbox">
                         <label class="checkbox-termos">
@@ -202,6 +227,53 @@
         </div>
     </div>
 
+    <section class="como-funciona">
+        <div class="section-inner">
+            <h2 class="section-title">Como funciona</h2>
+            <div class="passos">
+                <div class="passo">
+                    <span class="passo-numero">1</span>
+                    <h3>Crie sua lista</h3>
+                    <p>Adicione os presentes que você quer receber, com foto e valor.</p>
+                </div>
+                <div class="passo">
+                    <span class="passo-numero">2</span>
+                    <h3>Compartilhe o link</h3>
+                    <p>Envie para seus convidados por WhatsApp, e-mail ou QR Code.</p>
+                </div>
+                <div class="passo">
+                    <span class="passo-numero">3</span>
+                    <h3>Receba via PIX</h3>
+                    <p>Cada convidado paga com PIX ou cartão. Solicite o saque e receba em até 48h.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq">
+        <div class="section-inner">
+            <h2 class="section-title">Perguntas frequentes</h2>
+            <div class="faq-lista">
+                <details class="faq-item">
+                    <summary>É seguro receber dinheiro pela plataforma?</summary>
+                    <p>Sim. Os pagamentos dos convidados são processados por um parceiro de pagamentos autorizado, e seus dados ficam protegidos conforme a LGPD.</p>
+                </details>
+                <details class="faq-item">
+                    <summary>Quanto custa usar a plataforma?</summary>
+                    <p>Cobramos apenas 2,8% sobre os valores recebidos, já descontado automaticamente. Não há taxa de adesão nem mensalidade.</p>
+                </details>
+                <details class="faq-item">
+                    <summary>Como o convidado paga o presente?</summary>
+                    <p>Seu convidado escolhe um item da sua lista e paga via PIX ou cartão de crédito, direto pelo link que você compartilhar.</p>
+                </details>
+                <details class="faq-item">
+                    <summary>Quanto tempo demora para eu receber o dinheiro?</summary>
+                    <p>Depois de solicitar o saque, o valor cai na sua conta em até 48 horas.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
     <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-brand">✦ Escolha Seu Presente</div>
@@ -215,7 +287,7 @@
             </div>
             <div class="footer-social">
                 <a href="https://www.instagram.com/escolhaseupresente?utm_source=qr&igsh=MWdmbmZ1Y3hoNTlyeQ%3D%3D" target="_blank" rel="noopener noreferrer">Instagram</a>
-                <a href="[LINK_TIKTOK]" target="_blank" rel="noopener noreferrer">TikTok</a>
+                <!-- TikTok: adicionar link aqui quando a página estiver criada -->
             </div>
             <div class="footer-copy">© 2026 Escolha Seu Presente. Todos os direitos reservados.</div>
         </div>

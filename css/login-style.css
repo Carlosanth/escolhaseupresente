@@ -168,10 +168,19 @@ body {
 }
 
 .diferencial-icon {
-    font-size: 22px;
-    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
     flex-shrink: 0;
     margin-top: 2px;
+    color: #c4b5fd;
+}
+
+.diferencial-icon svg {
+    width: 100%;
+    height: 100%;
 }
 
 .diferencial-item div {
@@ -191,6 +200,17 @@ body {
     font-weight: 300;
     color: rgba(255, 255, 255, 0.6);
     line-height: 1.4;
+}
+
+.taxa-nota {
+    margin-top: 18px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.45);
+    text-align: left;
+}
+
+@media (max-width: 860px) {
+    .taxa-nota { text-align: center; }
 }
 
 /* ===================================================
@@ -305,6 +325,12 @@ body {
     border-color: rgba(167, 139, 250, 0.7);
     background: rgba(167, 139, 250, 0.08);
     box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+}
+
+.field-hint {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    padding-left: 4px;
 }
 
 /* ===================================================
@@ -535,11 +561,143 @@ body {
 
 
 
-
-
-
-
 }
+/* ================================================================
+   SEÇÃO — COMO FUNCIONA
+================================================================ */
+.section-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 32px;
+}
+
+.section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 3.5vw, 38px);
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.como-funciona {
+    position: relative;
+    z-index: 1;
+    padding: 24px 0 64px;
+}
+
+.passos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.passo {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+}
+
+.passo-numero {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 14px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.passo h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.passo p {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+@media (max-width: 860px) {
+    .passos {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ================================================================
+   SEÇÃO — PERGUNTAS FREQUENTES
+================================================================ */
+.faq {
+    position: relative;
+    z-index: 1;
+    padding: 0 0 56px;
+}
+
+.faq-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.faq-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 4px 20px;
+}
+
+.faq-item summary {
+    padding: 16px 0;
+    font-size: 15px;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.faq-item summary::-webkit-details-marker { display: none; }
+
+.faq-item summary::after {
+    content: '+';
+    font-size: 20px;
+    color: #a78bfa;
+    margin-left: 12px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+
+.faq-item[open] summary::after {
+    transform: rotate(45deg);
+}
+
+.faq-item p {
+    padding-bottom: 18px;
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.65);
+}
+
 /* ================================================================
    RODAPÉ DO SITE — links legais, contato e redes sociais
 ================================================================ */
