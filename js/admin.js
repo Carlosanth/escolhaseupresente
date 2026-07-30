@@ -1676,6 +1676,7 @@
 
             toast(`✅ ${itensValidos.length} item(ns) importado(s) para o cliente!`);
             document.getElementById('modalImportarLP').classList.remove('ativo');
+            carregarDadosPainel();
         } catch (e) {
             console.error(e);
             toast('❌ Erro ao importar itens.');
@@ -1931,6 +1932,7 @@
 
             await batch.commit();
             toast(`✅ Cliente "${email}" excluído (${produtosSnap.size} item(ns), ${saquesSnap.size} saque(s)). Lembre-se: a CONTA DE LOGIN (Firebase Authentication) não é apagada automaticamente — remova-a manualmente no Firebase Console se necessário.`);
+            carregarDadosPainel();
         } catch(e) {
             console.error(e);
             toast('❌ Erro ao excluir cliente: ' + (e.message || e.code || 'desconhecido'));
@@ -1941,11 +1943,11 @@
     // INICIAR PAINEL — escuta em tempo real
     // ================================================================
     function iniciarPainel() {
-        escutarProdutos();
+        carregarDadosPainel();
         escutarSaques();
-        escutarConfiguracoes();
-        escutarPerfis();
         escutarListasProntas();
+
+        document.getElementById('btnAtualizarPainel')?.addEventListener('click', () => carregarDadosPainel(true));
 
         // Re-renderiza a tabela de clientes ao digitar na busca ou trocar o ano
         document.getElementById('buscaClientes')?.addEventListener('input', atualizarTabelaClientes);
@@ -1957,60 +1959,71 @@
     let todasConfiguracoes = {}; // uid -> { email, taxa_quem_paga, ... }
     let todosOsPerfis = {};      // uid -> { email, criado_em, nome, ... } — fonte real da data de cadastro
 
-    function escutarConfiguracoes() {
-        onSnapshot(collection(db, "configuracoes"), (snap) => {
-            todasConfiguracoes = {};
-            snap.docs.forEach(d => {
-                todasConfiguracoes[d.id] = { id: d.id, ...d.data() };
-                if (d.data().email) todosOsUsuarios[d.id] = d.data().email;
-            });
-            atualizarTabelaClientes();
-            // Se o modal "Importar via Excel" estiver com a busca de cliente
-            // aberta (ex: dados ainda carregando), atualiza a lista na hora.
-            if (buscaClienteLPAberta) {
-                renderizarResultadosClienteLP(document.getElementById('inputBuscaClienteLP').value.trim().toLowerCase());
-            }
+    // ------------------------------------------------------------------
+    // "presentes", "configuracoes" e "perfis" cresceram pra virar coleções
+    // com dados de TODOS os clientes/listas da plataforma, sem filtro.
+    // Antes ficavam em onSnapshot (tempo real): qualquer escrita em
+    // qualquer lista, de qualquer cliente, disparava releitura da
+    // coleção inteira em toda sessão aberta do painel. Trocado por
+    // leitura única (getDocs) no carregamento + botão "Atualizar dados".
+    // "saques" e "listas_prontas" continuam em tempo real (baixo volume
+    // e/ou precisam de atenção imediata).
+    // ------------------------------------------------------------------
+
+    async function carregarConfiguracoes() {
+        const snap = await getDocs(collection(db, "configuracoes"));
+        todasConfiguracoes = {};
+        snap.docs.forEach(d => {
+            todasConfiguracoes[d.id] = { id: d.id, ...d.data() };
+            if (d.data().email) todosOsUsuarios[d.id] = d.data().email;
         });
     }
 
-    function escutarPerfis() {
-        onSnapshot(collection(db, "perfis"), (snap) => {
-            todosOsPerfis = {};
-            snap.docs.forEach(d => {
-                todosOsPerfis[d.id] = { id: d.id, ...d.data() };
-                if (d.data().email) todosOsUsuarios[d.id] = d.data().email;
-            });
-            atualizarFiltroAnos();
-            atualizarTabelaClientes();
-            if (buscaClienteLPAberta) {
-                renderizarResultadosClienteLP(document.getElementById('inputBuscaClienteLP').value.trim().toLowerCase());
-            }
+    async function carregarPerfis() {
+        const snap = await getDocs(collection(db, "perfis"));
+        todosOsPerfis = {};
+        snap.docs.forEach(d => {
+            todosOsPerfis[d.id] = { id: d.id, ...d.data() };
+            if (d.data().email) todosOsUsuarios[d.id] = d.data().email;
         });
+        atualizarFiltroAnos();
     }
 
-    function escutarProdutos() {
-        onSnapshot(collection(db, "presentes"), async (snap) => {
-            todosOsProdutos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    async function carregarProdutos() {
+        const snap = await getDocs(collection(db, "presentes"));
+        todosOsProdutos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-            // Coletar UIDs únicos
-            const uids = [...new Set(todosOsProdutos.map(p => p.usuario_id).filter(Boolean))];
+        // Coletar UIDs únicos
+        const uids = [...new Set(todosOsProdutos.map(p => p.usuario_id).filter(Boolean))];
 
-            // Carregar e-mails dos usuários (via configuracoes ou auth — aqui usamos configuracoes)
-            for (const uid of uids) {
-                if (!todosOsUsuarios[uid]) {
-                    try {
-                        const configSnap = await getDoc(doc(db, "configuracoes", uid));
-                        todosOsUsuarios[uid] = configSnap.exists()
-                            ? (configSnap.data().email || uid.slice(0, 8) + '...')
-                            : uid.slice(0, 8) + '...';
-                    } catch { todosOsUsuarios[uid] = uid.slice(0, 8) + '...'; }
-                }
+        // Carregar e-mails dos usuários (via configuracoes ou auth — aqui usamos configuracoes)
+        for (const uid of uids) {
+            if (!todosOsUsuarios[uid]) {
+                try {
+                    const configSnap = await getDoc(doc(db, "configuracoes", uid));
+                    todosOsUsuarios[uid] = configSnap.exists()
+                        ? (configSnap.data().email || uid.slice(0, 8) + '...')
+                        : uid.slice(0, 8) + '...';
+                } catch { todosOsUsuarios[uid] = uid.slice(0, 8) + '...'; }
             }
+        }
+    }
+
+    async function carregarDadosPainel(mostrarToast = false) {
+        try {
+            await Promise.all([carregarProdutos(), carregarConfiguracoes(), carregarPerfis()]);
 
             atualizarVisaoGeral();
             atualizarTabelaClientes();
             atualizarRelatorio();
-        });
+            if (buscaClienteLPAberta) {
+                renderizarResultadosClienteLP(document.getElementById('inputBuscaClienteLP').value.trim().toLowerCase());
+            }
+            if (mostrarToast) toast('✅ Dados atualizados');
+        } catch (e) {
+            console.error(e);
+            toast('❌ Erro ao atualizar dados: ' + (e.message || e.code || 'desconhecido'));
+        }
     }
 
     let todosOsSaques = [];
