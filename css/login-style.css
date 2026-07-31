@@ -659,6 +659,7 @@ body {
     font-size: clamp(12px, 0.95vw, 13px);
     font-weight: 500;
     cursor: pointer;
+    margin-bottom: 10px;
     transition: background 0.2s, border-color 0.2s;
 }
 
@@ -668,6 +669,38 @@ body {
 }
 
 .btn-google:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-apple {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: clamp(11px, 1vw, 13px);
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 11px;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(12px, 0.95vw, 13px);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-apple:hover {
+    background: #1a1a1a;
+    border-color: rgba(255, 255, 255, 0.26);
+}
+
+.btn-apple:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.apple-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
 
 .google-icon {
     display: flex;
