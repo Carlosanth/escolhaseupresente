@@ -162,7 +162,13 @@
                                 <label for="loginSenha">Senha</label>
                                 <button type="button" class="link-inline" onclick="alternarRecuperar(true)">Esqueceu?</button>
                             </div>
-                            <input type="password" id="loginSenha" class="field-input" placeholder="••••••••" required autocomplete="current-password">
+                            <div class="password-field">
+                                <input type="password" id="loginSenha" class="field-input" placeholder="••••••••" required autocomplete="current-password">
+                                <button type="button" class="toggle-senha" data-target="loginSenha" aria-label="Mostrar senha">
+                                    <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.61 21.61 0 0 1 5.06-6.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-3.22 4.44M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                                </button>
+                            </div>
                         </div>
                         <div id="erro-login" class="msg-erro"></div>
                         <label class="checkbox-manter-conectado">
@@ -204,7 +210,13 @@
                         </div>
                         <div class="field-group">
                             <label for="cadastroSenha">Senha</label>
-                            <input type="password" id="cadastroSenha" class="field-input" placeholder="Crie uma senha" required autocomplete="new-password" minlength="7">
+                            <div class="password-field">
+                                <input type="password" id="cadastroSenha" class="field-input" placeholder="Crie uma senha" required autocomplete="new-password" minlength="7">
+                                <button type="button" class="toggle-senha" data-target="cadastroSenha" aria-label="Mostrar senha">
+                                    <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                    <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.61 21.61 0 0 1 5.06-6.06M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-3.22 4.44M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                                </button>
+                            </div>
                             <span class="field-hint">Mínimo de 7 caracteres</span>
                         </div>
                         <div class="field-group field-checkbox">
@@ -382,6 +394,17 @@
         mobileBackdrop.addEventListener('click', fecharFormMobile);
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') fecharFormMobile();
+        });
+
+        // ── Mostrar/ocultar senha ───────────────────────────────
+        document.querySelectorAll('.toggle-senha').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const input = document.getElementById(btn.dataset.target);
+                const visivel = input.type === 'text';
+                input.type = visivel ? 'password' : 'text';
+                btn.classList.toggle('visivel', !visivel);
+                btn.setAttribute('aria-label', visivel ? 'Mostrar senha' : 'Ocultar senha');
+            });
         });
 
         function limparErros() {

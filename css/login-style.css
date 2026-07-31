@@ -21,6 +21,17 @@ body {
 
 .hidden { display: none !important; }
 
+/* Foco visível para navegação por teclado (Tab) */
+:focus-visible {
+    outline: 2px solid #a78bfa;
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+.field-input:focus-visible {
+    outline: none; /* já tem o próprio destaque via :focus (borda + glow) */
+}
+
 /* ===================================================
    CARROSSEL DE FUNDO — mais transparente, com zoom sutil
 =================================================== */
@@ -491,6 +502,48 @@ body {
     background: rgba(167, 139, 250, 0.08);
     box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
 }
+
+/* Campo de senha com botão mostrar/ocultar */
+.password-field {
+    position: relative;
+}
+
+.password-field .field-input {
+    padding-right: 44px;
+}
+
+.toggle-senha {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+}
+
+.toggle-senha:hover {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.toggle-senha svg {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+}
+
+.toggle-senha .icon-eye-off { display: none; }
+.toggle-senha.visivel .icon-eye { display: none; }
+.toggle-senha.visivel .icon-eye-off { display: block; }
 
 .field-hint {
     font-size: 11px;
