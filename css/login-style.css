@@ -14,6 +14,11 @@ html, body {
     background: #0a0814;
 }
 
+/* Escala geral da página — equivalente a 120% de zoom do navegador */
+html {
+    zoom: 1.2;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     color: #fff;
@@ -255,7 +260,7 @@ body {
     color: rgba(255, 255, 255, 0.35);
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1032px) {
     .social-proof {
         flex-direction: column;
         text-align: center;
@@ -772,7 +777,7 @@ body {
    RESPONSIVO
 =================================================== */
 
-@media (max-width: 860px) {
+@media (max-width: 1032px) {
     .navbar-mobile {
         display: flex;
         align-items: center;
@@ -876,7 +881,7 @@ body {
     }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 624px) {
     .hero-title { font-size: 32px; }
 
     .auth-card {
@@ -1019,7 +1024,7 @@ body {
     margin-top: 4px;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
     .site-footer { padding: 24px 20px 28px; }
     .footer-inner { gap: 8px 16px; }
 }
