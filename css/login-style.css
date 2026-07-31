@@ -14,11 +14,6 @@ html, body {
     background: #0a0814;
 }
 
-/* Escala geral da página — equivalente a 120% de zoom do navegador */
-html {
-    zoom: 1.2;
-}
-
 body {
     font-family: 'Inter', sans-serif;
     color: #fff;
@@ -76,7 +71,7 @@ body {
 }
 
 .carousel-track img {
-    height: 160px;
+    height: clamp(120px, 12vw, 170px);
     border-radius: 16px;
     object-fit: cover;
     opacity: 0.45;
@@ -103,6 +98,9 @@ body {
 
 /* ===================================================
    LAYOUT DE DUAS COLUNAS
+   Os valores abaixo usam clamp(mínimo, preferencial-em-vw, máximo)
+   pra crescer/encolher de forma fluida com a largura da tela,
+   em vez de um tamanho fixo em px ou de zoom.
 =================================================== */
 .page-layout {
     position: relative;
@@ -110,10 +108,10 @@ body {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    gap: 70px;
+    gap: clamp(40px, 6vw, 90px);
     min-height: 100vh;
-    padding: 64px 32px;
-    max-width: 1120px;
+    padding: clamp(32px, 6vw, 80px) clamp(20px, 4vw, 40px);
+    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -122,26 +120,26 @@ body {
 =================================================== */
 .hero-col {
     flex: 1;
-    max-width: 480px;
+    max-width: clamp(360px, 42vw, 580px);
     padding-top: 6px;
 }
 
 .brand-mark {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    font-size: 15px;
+    gap: clamp(8px, 0.8vw, 12px);
+    font-size: clamp(14px, 1.15vw, 18px);
     font-weight: 700;
     color: #fff;
-    margin-bottom: 40px;
+    margin-bottom: clamp(24px, 3.2vw, 48px);
 }
 
 .brand-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: clamp(26px, 2.2vw, 34px);
+    height: clamp(26px, 2.2vw, 34px);
     flex-shrink: 0;
     border-radius: 9px;
     background: linear-gradient(135deg, #7c3aed, #4f46e5);
@@ -149,35 +147,35 @@ body {
 }
 
 .brand-icon svg {
-    width: 16px;
-    height: 16px;
+    width: clamp(13px, 1.05vw, 16px);
+    height: clamp(13px, 1.05vw, 16px);
 }
 
 .hero-title {
     font-family: 'Inter', sans-serif;
-    font-size: clamp(34px, 4.4vw, 46px);
+    font-size: clamp(32px, 4.6vw, 52px);
     font-weight: 800;
     line-height: 1.18;
     color: #ffffff;
     letter-spacing: -0.02em;
-    margin-bottom: 18px;
-    max-width: 420px;
+    margin-bottom: clamp(14px, 1.6vw, 20px);
+    max-width: clamp(320px, 38vw, 470px);
 }
 
 .hero-subtitle {
-    font-size: 16px;
+    font-size: clamp(14px, 1.15vw, 17px);
     font-weight: 300;
     line-height: 1.7;
     color: rgba(255, 255, 255, 0.58);
-    margin-bottom: 36px;
-    max-width: 400px;
+    margin-bottom: clamp(24px, 3vw, 38px);
+    max-width: clamp(300px, 32vw, 430px);
 }
 
 /* Passos em linha, com divisórias */
 .steps-row {
     display: flex;
-    gap: 24px;
-    margin-bottom: 28px;
+    gap: clamp(16px, 2vw, 28px);
+    margin-bottom: clamp(20px, 2.4vw, 30px);
 }
 
 .step-item {
@@ -185,7 +183,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding-right: 24px;
+    padding-right: clamp(16px, 2vw, 28px);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -195,7 +193,7 @@ body {
 }
 
 .step-numero {
-    font-size: 12px;
+    font-size: clamp(11px, 0.9vw, 13px);
     font-weight: 700;
     color: #a78bfa;
     letter-spacing: 0.05em;
@@ -203,13 +201,13 @@ body {
 }
 
 .step-item strong {
-    font-size: 14px;
+    font-size: clamp(13px, 1.05vw, 15px);
     font-weight: 700;
     color: #fff;
 }
 
 .step-item span {
-    font-size: 12px;
+    font-size: clamp(11px, 0.9vw, 13px);
     font-weight: 300;
     line-height: 1.5;
     color: rgba(255, 255, 255, 0.5);
@@ -218,14 +216,14 @@ body {
 .hero-divider {
     height: 1px;
     background: rgba(255, 255, 255, 0.1);
-    margin-bottom: 24px;
+    margin-bottom: clamp(18px, 2vw, 26px);
 }
 
 /* Prova social — layout horizontal */
 .social-proof {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: clamp(12px, 1.4vw, 18px);
 }
 
 .avatar-stack {
@@ -234,8 +232,8 @@ body {
 }
 
 .avatar {
-    width: 32px;
-    height: 32px;
+    width: clamp(28px, 2.4vw, 34px);
+    height: clamp(28px, 2.4vw, 34px);
     border-radius: 50%;
     border: 2px solid #0a0814;
     margin-left: -10px;
@@ -244,7 +242,7 @@ body {
 .avatar:first-child { margin-left: 0; }
 
 .social-quote p {
-    font-size: 13px;
+    font-size: clamp(12px, 0.95vw, 14px);
     font-style: italic;
     color: rgba(255, 255, 255, 0.6);
     line-height: 1.5;
@@ -252,7 +250,7 @@ body {
 }
 
 .social-quote cite {
-    font-size: 10px;
+    font-size: clamp(9px, 0.75vw, 11px);
     font-style: normal;
     font-weight: 600;
     letter-spacing: 0.06em;
@@ -260,7 +258,7 @@ body {
     color: rgba(255, 255, 255, 0.35);
 }
 
-@media (max-width: 1032px) {
+@media (max-width: 860px) {
     .social-proof {
         flex-direction: column;
         text-align: center;
@@ -307,7 +305,7 @@ body {
 .form-col {
     flex-shrink: 0;
     width: 100%;
-    max-width: 380px;
+    max-width: clamp(360px, 30vw, 440px);
     position: relative;
 }
 
@@ -328,7 +326,7 @@ body {
     background: rgba(24, 16, 46, 0.75);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 22px;
-    padding: 24px 26px 28px;
+    padding: clamp(22px, 2vw, 30px) clamp(22px, 2.2vw, 32px) clamp(26px, 2.4vw, 34px);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     box-shadow:
@@ -349,20 +347,20 @@ body {
     display: flex;
     gap: 4px;
     padding: 4px;
-    margin-bottom: 22px;
+    margin-bottom: clamp(18px, 1.8vw, 24px);
     background: rgba(255, 255, 255, 0.04);
     border-radius: 12px;
 }
 
 .auth-tab {
     flex: 1;
-    padding: 9px;
+    padding: clamp(8px, 0.8vw, 10px);
     background: transparent;
     border: none;
     border-radius: 9px;
     color: rgba(255, 255, 255, 0.45);
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
+    font-size: clamp(12px, 0.95vw, 14px);
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
@@ -380,7 +378,7 @@ body {
 .auth-tab-panel {}
 
 .card-eyebrow {
-    font-size: 12px;
+    font-size: clamp(11px, 0.85vw, 12px);
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -390,14 +388,14 @@ body {
 
 .card-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 28px;
+    font-size: clamp(24px, 2.2vw, 30px);
     font-weight: 700;
     color: #fff;
-    margin-bottom: 20px;
+    margin-bottom: clamp(16px, 1.6vw, 22px);
 }
 
 .card-description {
-    font-size: 13px;
+    font-size: clamp(12px, 0.95vw, 13px);
     color: rgba(255, 255, 255, 0.55);
     line-height: 1.6;
     margin-bottom: 18px;
@@ -408,15 +406,15 @@ body {
 .trust-badges {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 18px;
-    margin-top: 16px;
+    gap: 8px clamp(14px, 1.4vw, 18px);
+    margin-top: clamp(14px, 1.4vw, 18px);
 }
 
 .trust-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    font-size: 11px;
+    font-size: clamp(10px, 0.82vw, 12px);
     font-weight: 500;
     color: rgba(255, 255, 255, 0.5);
 }
@@ -433,8 +431,8 @@ body {
 .dot-gray   { background: rgba(255, 255, 255, 0.4); }
 
 .card-legal {
-    margin-top: 16px;
-    font-size: 10px;
+    margin-top: clamp(14px, 1.4vw, 18px);
+    font-size: clamp(9px, 0.72vw, 10.5px);
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.32);
     text-align: center;
@@ -454,11 +452,11 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin-bottom: 14px;
+    margin-bottom: clamp(12px, 1.2vw, 15px);
 }
 
 .field-group label {
-    font-size: 11px;
+    font-size: clamp(10px, 0.78vw, 11px);
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -476,7 +474,7 @@ body {
     background: none;
     border: none;
     padding: 0;
-    font-size: 12px;
+    font-size: clamp(11px, 0.85vw, 12px);
     font-weight: 500;
     color: #a78bfa;
     cursor: pointer;
@@ -487,12 +485,12 @@ body {
 
 .field-input {
     width: 100%;
-    padding: 12px 16px;
+    padding: clamp(11px, 1vw, 14px) clamp(14px, 1.2vw, 18px);
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 11px;
     color: #fff;
-    font-size: 14px;
+    font-size: clamp(13px, 1vw, 15px);
     font-family: 'Inter', sans-serif;
     outline: none;
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
@@ -551,7 +549,7 @@ body {
 .toggle-senha.visivel .icon-eye-off { display: block; }
 
 .field-hint {
-    font-size: 11px;
+    font-size: clamp(10px, 0.78vw, 11px);
     color: rgba(255, 255, 255, 0.38);
     padding-left: 2px;
 }
@@ -584,9 +582,9 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 12px;
+    font-size: clamp(11px, 0.85vw, 12px);
     color: rgba(255, 255, 255, 0.55);
-    margin-bottom: 14px;
+    margin-bottom: clamp(12px, 1.2vw, 15px);
     cursor: pointer;
 }
 
@@ -603,13 +601,13 @@ body {
 .btn-primary {
     display: block;
     width: 100%;
-    padding: 13px;
+    padding: clamp(12px, 1.1vw, 14px);
     background: linear-gradient(135deg, #7c3aed, #4f46e5);
     border: none;
     border-radius: 11px;
     color: #fff;
     font-family: 'Inter', sans-serif;
-    font-size: 14px;
+    font-size: clamp(13px, 1vw, 15px);
     font-weight: 600;
     cursor: pointer;
     letter-spacing: 0.01em;
@@ -629,13 +627,13 @@ body {
 .btn-secondary {
     display: block;
     width: 100%;
-    padding: 12px;
+    padding: clamp(11px, 1vw, 13px);
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 11px;
     color: rgba(255, 255, 255, 0.8);
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
+    font-size: clamp(12px, 0.95vw, 13px);
     font-weight: 500;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
@@ -652,13 +650,13 @@ body {
     justify-content: center;
     gap: 10px;
     width: 100%;
-    padding: 12px;
+    padding: clamp(11px, 1vw, 13px);
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 11px;
     color: rgba(255, 255, 255, 0.85);
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
+    font-size: clamp(12px, 0.95vw, 13px);
     font-weight: 500;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
@@ -777,7 +775,7 @@ body {
    RESPONSIVO
 =================================================== */
 
-@media (max-width: 1032px) {
+@media (max-width: 860px) {
     .navbar-mobile {
         display: flex;
         align-items: center;
@@ -881,14 +879,10 @@ body {
     }
 }
 
-@media (max-width: 624px) {
-    .hero-title { font-size: 32px; }
-
+@media (max-width: 520px) {
     .auth-card {
         padding: 20px 20px 24px;
     }
-
-    .card-title { font-size: 26px; }
 
     .trust-badges { justify-content: center; }
 }
@@ -1024,7 +1018,7 @@ body {
     margin-top: 4px;
 }
 
-@media (max-width: 576px) {
+@media (max-width: 480px) {
     .site-footer { padding: 24px 20px 28px; }
     .footer-inner { gap: 8px 16px; }
 }
