@@ -20,9 +20,9 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#110a1f">
+    <meta name="theme-color" content="#0a0814">
     <link rel="stylesheet" href="css/login-style.css">
 </head>
 <body>
@@ -73,184 +73,180 @@
         <div class="carousel-overlay"></div>
     </div>
 
+    <header class="navbar-mobile">
+        <div class="navbar-mobile-brand">
+            <span class="brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"></rect><path d="M12 8v13"></path><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"></path><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8z"></path><path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8z"></path></svg>
+            </span>
+            Escolha Seu Presente
+        </div>
+        <div class="navbar-mobile-actions">
+            <button type="button" class="btn-nav-ghost" id="navEntrarMobile">Entrar</button>
+            <button type="button" class="btn-nav-primary" id="navCadastroMobile">Criar conta</button>
+        </div>
+    </header>
+
+    <div class="mobile-auth-backdrop" id="mobileAuthBackdrop"></div>
+
     <div class="page-layout">
 
         <div class="hero-col">
-            <div class="brand-mark">✦ Escolha Seu Presente</div>
+            <div class="brand-mark">
+                <span class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4"></rect><path d="M12 8v13"></path><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"></path><path d="M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8z"></path><path d="M16.5 8a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8z"></path></svg>
+                </span>
+                Escolha Seu Presente
+            </div>
 
-            <h1 class="hero-title">
-                Celebre com<br>
-                <em>quem você ama</em>
-            </h1>
+            <h1 class="hero-title">Celebre com quem você ama.</h1>
 
             <p class="hero-subtitle">
-                Monte sua lista de presentes e receba o valor em dinheiro. Seus convidados escolhem, pagam com facilidade — e você não corre o risco de ganhar presentes duplicados.
+                Crie sua lista de presentes personalizada e receba o saldo diretamente via PIX para usar como quiser.
             </p>
 
-            <div class="diferenciais">
-                <div class="diferencial-item">
-                    <span class="diferencial-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-                    </span>
-                    <div>
-                        <strong>PIX ou cartão</strong>
-                        <span>Seus convidados pagam do jeito que preferirem</span>
-                    </div>
+            <div class="steps-row">
+                <div class="step-item">
+                    <span class="step-numero">01</span>
+                    <strong>Monte sua lista</strong>
+                    <span>Escolha os presentes que você quer receber.</span>
                 </div>
-                <div class="diferencial-item">
-                    <span class="diferencial-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                    </span>
-                    <div>
-                        <strong>Saque em até 48h</strong>
-                        <span>O valor cai na sua conta após solicitação</span>
-                    </div>
+                <div class="step-item">
+                    <span class="step-numero">02</span>
+                    <strong>Compartilhe</strong>
+                    <span>Envie o link personalizado para seus convidados.</span>
                 </div>
-                <div class="diferencial-item">
-                    <span class="diferencial-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
-                    </span>
-                    <div>
-                        <strong>Zero duplicatas</strong>
-                        <span>Cada presente é reservado assim que alguém escolhe</span>
-                    </div>
-                </div>
-                <div class="diferencial-item">
-                    <span class="diferencial-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                    </span>
-                    <div>
-                        <strong>Compartilhe com um link</strong>
-                        <span>Envie para todos com um clique ou QR Code</span>
-                    </div>
+                <div class="step-item">
+                    <span class="step-numero">03</span>
+                    <strong>Receba via PIX</strong>
+                    <span>O valor cai na conta sem burocracia.</span>
                 </div>
             </div>
 
-            <p class="taxa-nota">Cobramos apenas 2,8% sobre os valores recebidos — sem taxa de adesão, sem mensalidade.</p>
+            <div class="hero-divider"></div>
+
+            <!--
+                PROVA SOCIAL — placeholder.
+                Substitua o depoimento por um real antes de publicar.
+                Não inventar números de usuários: propaganda enganosa.
+            -->
+            <div class="social-proof">
+                <div class="avatar-stack" aria-hidden="true">
+                    <span class="avatar" style="background:#7c3aed"></span>
+                    <span class="avatar" style="background:#4f46e5"></span>
+                    <span class="avatar" style="background:#818cf8"></span>
+                </div>
+                <blockquote class="social-quote">
+                    <p>"Espaço reservado para um depoimento real de quem já usou a plataforma."</p>
+                    <cite>— Substituir por um cliente de verdade</cite>
+                </blockquote>
+            </div>
         </div>
 
         <div class="form-col">
 
-            <div id="mobile-menu" class="auth-card">
-                <p class="card-eyebrow">BEM-VINDO DE VOLTA</p>
-                <h2 class="card-title">Acessar conta</h2>
-                <div class="mobile-menu-buttons">
-                    <button type="button" class="btn-primary" onclick="abrirFormulario('login')">Entrar</button>
-                    <button type="button" class="btn-secondary" onclick="abrirFormulario('cadastro')">Criar conta gratuita</button>
+            <div class="auth-card">
+                <button type="button" class="mobile-auth-close" id="mobileAuthClose" aria-label="Fechar">✕</button>
+                <div class="auth-tabs">
+                    <button type="button" class="auth-tab active" id="tabEntrar">Entrar</button>
+                    <button type="button" class="auth-tab" id="tabCadastro">Criar conta</button>
+                </div>
+
+                <div id="box-login" class="auth-tab-panel">
+                    <form onsubmit="event.preventDefault();">
+                        <div class="field-group">
+                            <label for="loginEmail">E-mail</label>
+                            <input type="email" id="loginEmail" class="field-input" placeholder="nome@exemplo.com.br" required autocomplete="username">
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label-row">
+                                <label for="loginSenha">Senha</label>
+                                <button type="button" class="link-inline" onclick="alternarRecuperar(true)">Esqueceu?</button>
+                            </div>
+                            <input type="password" id="loginSenha" class="field-input" placeholder="••••••••" required autocomplete="current-password">
+                        </div>
+                        <div id="erro-login" class="msg-erro"></div>
+                        <label class="checkbox-manter-conectado">
+                            <input type="checkbox" id="chkManterConectado" checked>
+                            Mantenha-me conectado
+                        </label>
+                        <button type="button" id="btnEntrar" class="btn-primary">Entrar</button>
+                    </form>
+
+                    <div class="card-divider"><span>ou continue com</span></div>
+                    <button type="button" class="btn-google" id="btnGoogle">
+                        <span class="google-icon">
+                            <svg viewBox="0 0 48 48" width="18" height="18"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.1 29.5 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.1 29.5 4 24 4c-7.7 0-14.3 4.4-17.7 10.7z"/><path fill="#4CAF50" d="M24 44c5.4 0 10.3-2.1 14-5.5l-6.5-5.5c-2.1 1.5-4.7 2.4-7.5 2.4-5.3 0-9.7-3.3-11.3-8l-6.6 5.1C9.6 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.5 5.5C39.9 37 44 31.5 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+                        </span>
+                        Google
+                    </button>
+
+                    <div class="trust-badges">
+                        <span class="trust-badge"><span class="dot dot-green"></span>PIX oficial</span>
+                        <span class="trust-badge"><span class="dot dot-purple"></span>Dados criptografados</span>
+                        <span class="trust-badge"><span class="dot dot-gray"></span>Sem taxa oculta</span>
+                    </div>
+
+                    <p class="card-legal">
+                        Ao entrar, você concorda com nossos <a href="/termos.html" target="_blank">Termos de Uso</a> e <a href="/privacidade.html" target="_blank">Política de Privacidade</a>.<br>
+                        Operações financeiras processadas com segurança bancária.
+                    </p>
+                </div>
+
+                <div id="box-cadastro" class="auth-tab-panel hidden">
+                    <form onsubmit="event.preventDefault();">
+                        <div class="field-group">
+                            <label for="cadastroNome">Nome completo</label>
+                            <input type="text" id="cadastroNome" class="field-input" placeholder="Seu nome completo" required autocomplete="name">
+                        </div>
+                        <div class="field-group">
+                            <label for="cadastroEmail">E-mail</label>
+                            <input type="email" id="cadastroEmail" class="field-input" placeholder="nome@exemplo.com.br" required autocomplete="username">
+                        </div>
+                        <div class="field-group">
+                            <label for="cadastroSenha">Senha</label>
+                            <input type="password" id="cadastroSenha" class="field-input" placeholder="Crie uma senha" required autocomplete="new-password" minlength="7">
+                            <span class="field-hint">Mínimo de 7 caracteres</span>
+                        </div>
+                        <div class="field-group field-checkbox">
+                            <label class="checkbox-termos">
+                                <input type="checkbox" id="cadastroAceiteTermos" required>
+                                <span>Li e concordo com os <a href="/termos.html" target="_blank">Termos de Uso</a> e a <a href="/privacidade.html" target="_blank">Política de Privacidade</a>.</span>
+                            </label>
+                        </div>
+                        <div id="erro-cadastro" class="msg-erro"></div>
+                        <button type="button" id="btnCadastrarEfetivo" class="btn-primary" disabled>Criar conta</button>
+                    </form>
+                </div>
+
+                <div id="box-recuperar" class="auth-tab-panel hidden">
+                    <p class="card-eyebrow">Sem problemas</p>
+                    <h2 class="card-title">Recuperar senha</h2>
+                    <p class="card-description">
+                        Digite seu e-mail e enviaremos um link para redefinir sua senha.
+                    </p>
+                    <form onsubmit="event.preventDefault();">
+                        <div class="field-group">
+                            <label for="recuperarEmail">E-mail cadastrado</label>
+                            <input type="email" id="recuperarEmail" class="field-input" placeholder="nome@exemplo.com.br" required>
+                        </div>
+                        <div id="erro-recuperar" class="msg-erro"></div>
+                        <button type="button" id="btnEnviarRecuperar" class="btn-primary">Enviar link</button>
+                    </form>
+                    <div class="card-divider"><span>lembrou a senha?</span></div>
+                    <button type="button" class="btn-secondary" onclick="alternarRecuperar(false)">
+                        Voltar para o login
+                    </button>
                 </div>
             </div>
-
-            <div id="box-login" class="auth-card">
-                <p class="card-eyebrow">Bem-vindo de volta</p>
-                <h2 class="card-title">Acessar conta</h2>
-
-                <form onsubmit="event.preventDefault();">
-                    <div class="field-group">
-                        <label for="loginEmail">E-mail</label>
-                        <input type="email" id="loginEmail" class="field-input" placeholder="seu@email.com.br" required autocomplete="username">
-                    </div>
-                    <div class="field-group">
-                        <label for="loginSenha">Senha</label>
-                        <input type="password" id="loginSenha" class="field-input" placeholder="Sua senha" required autocomplete="current-password">
-                    </div>
-                    <div id="erro-login" class="msg-erro"></div>
-                    <label class="checkbox-manter-conectado" style="display:flex; align-items:center; gap:8px; font-size:13px; color:rgba(255,255,255,0.7); margin-bottom:14px; cursor:pointer;">
-                        <input type="checkbox" id="chkManterConectado" checked style="width:auto; margin:0;">
-                        Mantenha-me conectado
-                    </label>
-                    <button type="button" id="btnEntrar" class="btn-primary">Entrar</button>
-                    <button type="button" class="btn-link" onclick="alternarRecuperar(true)">
-                        Esqueceu sua senha?
-                    </button>
-                </form>
-
-                <div class="card-divider"><span>Não tem uma conta?</span></div>
-                <button type="button" class="btn-secondary" onclick="alternarTelas()">
-                    Criar conta gratuita
-                </button>
-            </div>
-
-            <div id="box-cadastro" class="auth-card hidden">
-                <p class="card-eyebrow">Comece agora</p>
-                <h2 class="card-title">Criar conta</h2>
-
-                <form onsubmit="event.preventDefault();">
-                    <div class="field-group">
-                        <label for="cadastroNome">Nome completo</label>
-                        <input type="text" id="cadastroNome" class="field-input" placeholder="Seu nome completo" required autocomplete="name">
-                    </div>
-                    <div class="field-group">
-                        <label for="cadastroEmail">E-mail</label>
-                        <input type="email" id="cadastroEmail" class="field-input" placeholder="seu@email.com.br" required autocomplete="username">
-                    </div>
-                    <div class="field-group">
-                        <label for="cadastroSenha">Senha</label>
-                        <input type="password" id="cadastroSenha" class="field-input" placeholder="Crie uma senha" required autocomplete="new-password" minlength="7">
-                        <span class="field-hint">Mínimo de 7 caracteres</span>
-                    </div>
-                    <div class="field-group field-checkbox">
-                        <label class="checkbox-termos">
-                            <input type="checkbox" id="cadastroAceiteTermos" required>
-                            <span>Li e concordo com os <a href="/termos.html" target="_blank">Termos de Uso</a> e a <a href="/privacidade.html" target="_blank">Política de Privacidade</a>.</span>
-                        </label>
-                    </div>
-                    <div id="erro-cadastro" class="msg-erro"></div>
-                    <button type="button" id="btnCadastrarEfetivo" class="btn-primary" disabled>Criar conta</button>
-                </form>
-
-                <div class="card-divider"><span>Já tem uma conta?</span></div>
-                <button type="button" class="btn-secondary" onclick="alternarTelas()">
-                    Voltar para o login
-                </button>
-            </div>
-
-            <div id="box-recuperar" class="auth-card hidden">
-                <p class="card-eyebrow">Sem problemas</p>
-                <h2 class="card-title">Recuperar senha</h2>
-                <p class="card-description">
-                    Digite seu e-mail e enviaremos um link para redefinir sua senha.
-                </p>
-                <form onsubmit="event.preventDefault();">
-                    <div class="field-group">
-                        <label for="recuperarEmail">E-mail cadastrado</label>
-                        <input type="email" id="recuperarEmail" class="field-input" placeholder="seu@email.com.br" required>
-                    </div>
-                    <div id="erro-recuperar" class="msg-erro"></div>
-                    <button type="button" id="btnEnviarRecuperar" class="btn-primary">Enviar link</button>
-                </form>
-                <div class="card-divider"><span>Lembrou a senha?</span></div>
-                <button type="button" class="btn-secondary" onclick="alternarRecuperar(false)">
-                    Voltar para o login
-                </button>
-            </div>
-
         </div>
     </div>
 
-    <section class="como-funciona">
-        <div class="section-inner">
-            <h2 class="section-title">Como funciona</h2>
-            <div class="passos">
-                <div class="passo">
-                    <span class="passo-numero">1</span>
-                    <h3>Crie sua lista</h3>
-                    <p>Adicione os presentes que você quer receber, com foto e valor.</p>
-                </div>
-                <div class="passo">
-                    <span class="passo-numero">2</span>
-                    <h3>Compartilhe o link</h3>
-                    <p>Envie para seus convidados por WhatsApp, e-mail ou QR Code.</p>
-                </div>
-                <div class="passo">
-                    <span class="passo-numero">3</span>
-                    <h3>Receba via PIX</h3>
-                    <p>Cada convidado paga com PIX ou cartão. Solicite o saque e receba em até 48h.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <a href="#faq" class="scroll-indicator" aria-label="Rolar para ver mais">
+        <span>Perguntas frequentes</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </a>
 
-    <section class="faq">
+    <section class="faq" id="faq">
         <div class="section-inner">
             <h2 class="section-title">Perguntas frequentes</h2>
             <div class="faq-lista">
@@ -296,14 +292,18 @@
     <script type="module">
         import { firebaseConfig } from "./js/firebase-config.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile, setPersistence, browserLocalPersistence, browserSessionPersistence, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import {
+            getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+            sendPasswordResetEmail, updateProfile, setPersistence,
+            browserLocalPersistence, browserSessionPersistence, onAuthStateChanged,
+            GoogleAuthProvider, signInWithPopup
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        
 
         const app  = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db   = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
 
         // ✅ NOVO: se já existe uma sessão salva (ex.: "Mantenha-me conectado"
         // marcado num acesso anterior), pula a tela de login e manda direto
@@ -328,37 +328,61 @@
         const erroLogin     = document.getElementById('erro-login');
         const erroCadastro  = document.getElementById('erro-cadastro');
         const erroRecuperar = document.getElementById('erro-recuperar');
+        const tabEntrar     = document.getElementById('tabEntrar');
+        const tabCadastro   = document.getElementById('tabCadastro');
 
-        // ── Navegação entre telas ──────────────────────────────
-        
-        window.abrirFormulario = (tipo) => {
-            document.body.classList.add('form-opened');
+        // ── Navegação entre telas (abas Entrar / Criar conta) ──
+        function mostrarTela(tipo) {
             boxLogin.classList.add('hidden');
             boxCadastro.classList.add('hidden');
             boxRecuperar.classList.add('hidden');
-            document.getElementById('mobile-menu').style.display = 'none';
+            tabEntrar.classList.remove('active');
+            tabCadastro.classList.remove('active');
 
             if (tipo === 'login') {
                 boxLogin.classList.remove('hidden');
+                tabEntrar.classList.add('active');
             } else if (tipo === 'cadastro') {
                 boxCadastro.classList.remove('hidden');
+                tabCadastro.classList.add('active');
+            } else if (tipo === 'recuperar') {
+                boxRecuperar.classList.remove('hidden');
             }
             limparErros();
-        };
+        }
 
-        window.alternarTelas = () => {
-            boxLogin.classList.toggle('hidden');
-            boxCadastro.classList.toggle('hidden');
-            boxRecuperar.classList.add('hidden');
-            limparErros();
-        };
+        tabEntrar.addEventListener('click', () => mostrarTela('login'));
+        tabCadastro.addEventListener('click', () => mostrarTela('cadastro'));
 
         window.alternarRecuperar = (mostrar) => {
-            boxLogin.classList.toggle('hidden', mostrar);
-            boxCadastro.classList.add('hidden');
-            boxRecuperar.classList.toggle('hidden', !mostrar);
-            limparErros();
+            mostrarTela(mostrar ? 'recuperar' : 'login');
         };
+
+        // ── Popover de login no modo responsivo ────────────────
+        // Só entra em ação abaixo de 860px (ver CSS .navbar-mobile).
+        // No desktop os botões ficam ocultos e isso não tem efeito.
+        const formCol         = document.querySelector('.form-col');
+        const mobileBackdrop  = document.getElementById('mobileAuthBackdrop');
+        const mobileAuthClose = document.getElementById('mobileAuthClose');
+
+        function abrirFormMobile(tipo) {
+            mostrarTela(tipo);
+            formCol.classList.add('mobile-open');
+            mobileBackdrop.classList.add('open');
+        }
+
+        function fecharFormMobile() {
+            formCol.classList.remove('mobile-open');
+            mobileBackdrop.classList.remove('open');
+        }
+
+        document.getElementById('navEntrarMobile').addEventListener('click', () => abrirFormMobile('login'));
+        document.getElementById('navCadastroMobile').addEventListener('click', () => abrirFormMobile('cadastro'));
+        mobileAuthClose.addEventListener('click', fecharFormMobile);
+        mobileBackdrop.addEventListener('click', fecharFormMobile);
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') fecharFormMobile();
+        });
 
         function limparErros() {
             [erroLogin, erroCadastro, erroRecuperar].forEach(el => {
@@ -373,12 +397,11 @@
             divErro.className = 'msg-erro visivel';
             card.classList.add('card-erro');
             card.animate([
-                { transform: 'translateX(-7px)' },
-                { transform: 'translateX(7px)' },
-                { transform: 'translateX(-5px)' },
-                { transform: 'translateX(5px)' },
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(-6px)' },
+                { transform: 'translateX(6px)' },
                 { transform: 'translateX(0)' }
-            ], { duration: 400, easing: 'ease-out' });
+            ], { duration: 240, easing: 'ease-in-out' });
         }
 
         function mostrarSucesso(divErro, msg) {
@@ -386,18 +409,22 @@
             divErro.className = 'msg-erro sucesso visivel';
         }
 
-        // ── Mapeia códigos de erro do Firebase para mensagens amigáveis ──
-        function mensagemErroLogin(code) {
-            switch (code) {
-                case 'auth/user-not-found':
-                case 'auth/wrong-password':
+        function mensagemErroLogin(codigo) {
+            switch (codigo) {
                 case 'auth/invalid-credential':
+                case 'auth/wrong-password':
+                case 'auth/user-not-found':
+                    return 'E-mail ou senha incorretos.';
                 case 'auth/invalid-email':
-                    return 'E-mail ou senha incorretos. Verifique os dados e tente novamente.';
+                    return 'E-mail inválido.';
                 case 'auth/user-disabled':
                     return 'Esta conta foi desativada. Entre em contato com o suporte.';
                 case 'auth/too-many-requests':
                     return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+                case 'auth/operation-not-allowed':
+                    return 'Login com Google ainda não está habilitado. Tente com e-mail e senha.';
+                case 'auth/popup-closed-by-user':
+                    return 'Janela fechada antes de concluir o login.';
                 default:
                     return 'Erro ao entrar. Verifique seus dados e tente novamente.';
             }
@@ -441,6 +468,27 @@
                 console.error("Erro no login:", error.code, error.message);
                 mostrarErro(erroLogin, boxLogin, mensagemErroLogin(error.code));
                 btn.textContent = 'Entrar';
+                btn.disabled = false;
+            }
+        });
+
+        // ── Login com Google ───────────────────────────────────
+        // ⚠️ Requer habilitar "Google" em Firebase Console → Authentication
+        // → Sign-in method, senão retorna auth/operation-not-allowed.
+        document.getElementById('btnGoogle').addEventListener('click', async () => {
+            const btn = document.getElementById('btnGoogle');
+            btn.disabled = true;
+            limparErros();
+            try {
+                const cred = await signInWithPopup(auth, googleProvider);
+                const perfilDoc = await getDoc(doc(db, "perfis", cred.user.uid));
+                window.location.href = perfilDoc.exists() ? "cadastro.html" : "onboarding.html";
+            } catch (error) {
+                console.error("Erro no login com Google:", error.code, error.message);
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    mostrarErro(erroLogin, boxLogin, mensagemErroLogin(error.code));
+                }
+            } finally {
                 btn.disabled = false;
             }
         });
@@ -506,13 +554,13 @@
         document.getElementById('btnEnviarRecuperar').addEventListener('click', async () => {
             const email = document.getElementById('recuperarEmail').value.trim().toLowerCase();
             const btn   = document.getElementById('btnEnviarRecuperar');
- 
+
             if (!email) { mostrarErro(erroRecuperar, boxRecuperar, 'Informe seu e-mail.'); return; }
- 
+
             btn.textContent = 'Enviando...';
             btn.disabled = true;
             limparErros();
- 
+
             try {
                 await sendPasswordResetEmail(auth, email);
                 mostrarSucesso(erroRecuperar, '✅ Link enviado! Verifique sua caixa de entrada.');
@@ -525,7 +573,7 @@
             }
         });
     </script>
- 
+
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
