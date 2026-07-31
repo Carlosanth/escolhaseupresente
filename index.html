@@ -371,14 +371,22 @@
         };
 
         // ── Popover de login no modo responsivo ────────────────
-        // Só entra em ação abaixo de 860px (ver CSS .navbar-mobile).
+        // Só entra em ação abaixo do breakpoint mobile (ver CSS .navbar-mobile).
         // No desktop os botões ficam ocultos e isso não tem efeito.
-        const formCol         = document.querySelector('.form-col');
-        const mobileBackdrop  = document.getElementById('mobileAuthBackdrop');
-        const mobileAuthClose = document.getElementById('mobileAuthClose');
+        const formCol             = document.querySelector('.form-col');
+        const mobileBackdrop      = document.getElementById('mobileAuthBackdrop');
+        const mobileAuthClose     = document.getElementById('mobileAuthClose');
+        const formColParentOrig   = formCol.parentNode;
+        const formColNextSibOrig  = formCol.nextSibling;
 
         function abrirFormMobile(tipo) {
             mostrarTela(tipo);
+            // ✅ CORREÇÃO: .page-layout cria seu próprio contexto de empilhamento
+            // (position:relative + z-index), então um z-index alto no popover
+            // não bastava — o backdrop (fora do .page-layout) sempre ficava por
+            // cima, e todo clique no formulário na verdade fechava o popover.
+            // Mover o popover pro <body> enquanto está aberto resolve isso.
+            document.body.appendChild(formCol);
             formCol.classList.add('mobile-open');
             mobileBackdrop.classList.add('open');
         }
@@ -386,6 +394,15 @@
         function fecharFormMobile() {
             formCol.classList.remove('mobile-open');
             mobileBackdrop.classList.remove('open');
+            // Devolve o popover pro lugar original após a animação de saída,
+            // pra não quebrar o layout de duas colunas no desktop.
+            setTimeout(() => {
+                if (formColNextSibOrig) {
+                    formColParentOrig.insertBefore(formCol, formColNextSibOrig);
+                } else {
+                    formColParentOrig.appendChild(formCol);
+                }
+            }, 200);
         }
 
         document.getElementById('navEntrarMobile').addEventListener('click', () => abrirFormMobile('login'));
