@@ -138,8 +138,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: clamp(26px, 2.2vw, 34px);
-    height: clamp(26px, 2.2vw, 34px);
+    width: clamp(30px, 2.2vw, 34px);
+    height: clamp(30px, 2.2vw, 34px);
     flex-shrink: 0;
     border-radius: 9px;
     background: linear-gradient(135deg, #7c3aed, #4f46e5);
@@ -147,8 +147,8 @@ body {
 }
 
 .brand-icon svg {
-    width: clamp(13px, 1.05vw, 16px);
-    height: clamp(13px, 1.05vw, 16px);
+    width: clamp(20px, 1.05vw, 16px);
+    height: clamp(20px, 1.05vw, 16px);
 }
 
 .hero-title {
@@ -262,6 +262,7 @@ body {
     .social-proof {
         flex-direction: column;
         text-align: center;
+        display: none;
     }
 }
 
@@ -745,7 +746,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
     color: #fff;
 }
@@ -758,10 +759,10 @@ body {
 
 .btn-nav-ghost,
 .btn-nav-primary {
-    padding: 8px 14px;
+    padding: 10px 14px;
     border-radius: 9px;
     font-family: 'Inter', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
@@ -818,7 +819,7 @@ body {
         left: 0;
         right: 0;
         z-index: 80;
-        padding: 14px 20px;
+        padding: 18px 13px;
         background: rgba(10, 8, 20, 0.78);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
@@ -831,6 +832,7 @@ body {
         justify-content: flex-start;
         padding: 96px 20px 48px;
         gap: 32px;
+        min-height: 50vh;
     }
 
     .hero-col {
@@ -849,14 +851,13 @@ body {
     }
 
     .steps-row {
-        flex-direction: column;
+        flex-direction: row;
         gap: 16px;
     }
 
     .step-item {
-        border-right: none;
         padding-right: 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
         padding-bottom: 16px;
         text-align: left;
     }
