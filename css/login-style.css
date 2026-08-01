@@ -175,7 +175,7 @@ body {
 .steps-row {
     display: flex;
     gap: clamp(16px, 2vw, 28px);
-    margin-bottom: clamp(20px, 2.4vw, 30px);
+    margin-bottom: clamp(40px, 2.4vw, 30px);
 }
 
 .step-item {
@@ -186,6 +186,14 @@ body {
     padding-right: clamp(16px, 2vw, 28px);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
+
+.step-item1 {
+    /* No desktop, o wrapper "some" e deixa os itens 02 e 03
+       participarem diretamente do flex row do .steps-row,
+       ficando lado a lado com o item 01. */
+    display: contents;
+}
+
 
 .step-item:last-child {
     border-right: none;
@@ -830,7 +838,7 @@ body {
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
-        padding: 96px 20px 48px;
+        padding: 120px 20px 48px;
         gap: 32px;
         min-height: 50vh;
     }
@@ -910,7 +918,49 @@ body {
     .mobile-auth-close:hover {
         background: rgba(255, 255, 255, 0.15);
         color: #fff;
+        
     }
+
+    .step-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .step-item:last-child {
+        border-right: none;
+        padding-right: 0;
+    }
+
+    .step-item1 {
+        display: flex;
+        gap: 11px;
+    }
+
+    .step-item {
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 16px;
+        border: solid 1px rgb(255 255 255 / 16%);
+        border-radius: 10px;
+        padding: 11px;
+    }
+
+    /* No estilo card do mobile, o último item (03) também precisa
+       da borda completa — as regras :last-child acima eram do
+       layout antigo de divisórias e removiam borda direita/inferior. */
+    .step-item:last-child {
+        border-right: 1px solid rgb(255 255 255 / 16%);
+        border-bottom: 1px solid rgb(255 255 255 / 16%);
+        padding-right: 11px;
+        padding-bottom: 11px;
+    }
+
+    .steps-row {
+        flex-direction: column;
+        gap: 16px;
+        display: flex;
+    }
+ 
+ 
 }
 
 @media (max-width: 520px) {
