@@ -232,6 +232,7 @@ body {
     display: flex;
     align-items: center;
     gap: clamp(12px, 1.4vw, 18px);
+    display: none;
 }
 
 .avatar-stack {
