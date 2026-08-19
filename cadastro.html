@@ -592,6 +592,17 @@
         const LIMITE_ITENS = 1000;
         let TAXA_PERCENTUAL = 2.8; // valor real carregado do admin_config/global // futuramente virá do painel admin
 
+        // Precisam ser declaradas aqui em cima (e não perto das funções
+        // garantirBancoImagensCarregado/garantirBancoPrecosCarregado, lá
+        // embaixo) porque essas funções são CHAMADAS logo no início do
+        // carregamento da página (pré-carga do autocomplete). Como são
+        // "let", ficam em "temporal dead zone" até a linha da declaração
+        // ser executada — se a declaração só acontecesse mais abaixo no
+        // arquivo, a chamada antecipada explodia com "Cannot access
+        // 'bancoImagensCacheCliente' before initialization".
+        let bancoImagensCacheCliente = null; // carregado uma vez, filtrado localmente a cada tecla
+        let bancoPrecosCacheCliente = null;
+
         let usuarioAtualUid = null;
         let avisoSemValorJaMostrado = false;
         let unsubscribeProdutos = null;
@@ -1628,7 +1639,6 @@
                 .filter(p => p.length >= 2 && !PALAVRAS_IGNORADAS_BANCO.has(p));
         }
 
-        let bancoImagensCacheCliente = null; // carregado uma vez, filtrado localmente a cada tecla
         async function garantirBancoImagensCarregado() {
             if (bancoImagensCacheCliente) return bancoImagensCacheCliente;
             try {
@@ -1725,7 +1735,6 @@
         // usada nas imagens (senão "fogão" sozinho misturaria preço de
         // fogão de 4 e de 5 bocas na mesma média).
         // ================================================================
-        let bancoPrecosCacheCliente = null;
         async function garantirBancoPrecosCarregado() {
             if (bancoPrecosCacheCliente) return bancoPrecosCacheCliente;
             try {
