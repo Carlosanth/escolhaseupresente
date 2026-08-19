@@ -571,7 +571,12 @@
             }
         });
 
-        btnAppleEl.addEventListener('click', async () => {
+        // ✅ CORRIGIDO: o botão do Apple foi removido do HTML (login via
+        // Apple exige conta paga no Apple Developer Program), mas o
+        // addEventListener continuava tentando grudar em um elemento que
+        // não existe mais — "Cannot read properties of null" toda vez que
+        // a página carregava. Só liga o listener se o botão existir.
+        btnAppleEl?.addEventListener('click', async () => {
             btnAppleEl.disabled = true;
             limparErros();
             try {
