@@ -397,6 +397,7 @@
                     <h3 id="lpItensCategoriaNome">Categoria</h3>
                     <div style="display:flex; gap:10px;">
                         <button class="btn-lp-secundario" id="btnImportarExcelCategoriaLP">📊 Importar Excel</button>
+                        <button class="btn-lp-secundario" id="btnEscolherDoBancoLP">🖼️ Escolher do Banco de Imagens</button>
                         <button class="btn-lp-primario" id="btnNovoItemLP">➕ Novo item</button>
                     </div>
                 </div>
@@ -660,6 +661,41 @@
         <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
             <button class="btn-tabela" id="btnCancelarItemLP" style="background:var(--surface2); color:var(--text2);">Cancelar</button>
             <button class="btn-tabela btn-marcar-pago" id="btnSalvarItemLP">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL SELECIONAR DO BANCO DE IMAGENS (PARA LISTA PRONTA) -->
+<div class="modal-admin" id="modalSelecionarBancoLP">
+    <div class="modal-admin-content" style="max-width:720px;">
+        <div class="modal-admin-header">
+            <h3>🖼️ Escolher do Banco de Imagens</h3>
+            <button class="btn-fechar-modal" id="btnFecharModalSelecionarBancoLP">✕</button>
+        </div>
+        <input type="text" id="inputBuscarSelecionarBancoLP" class="campo-form-admin" placeholder="🔍 Buscar por nome ou tag..." style="margin-bottom:12px;">
+        <div id="contadorSelecaoBancoLP" style="font-size:12px; color:var(--text2); margin-bottom:10px;">0 selecionadas</div>
+        <div class="lp-grid-itens" id="gridSelecionarBancoLP" style="max-height:50vh; overflow-y:auto;"></div>
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+            <button class="btn-tabela" id="btnCancelarSelecionarBancoLP" style="background:var(--surface2); color:var(--text2);">Cancelar</button>
+            <button class="btn-tabela btn-marcar-pago" id="btnConfirmarSelecaoBancoLP">Adicionar selecionadas</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL REVISAR ITENS SELECIONADOS DO BANCO (PARA LISTA PRONTA) -->
+<div class="modal-admin" id="modalRevisarSelecaoBancoLP">
+    <div class="modal-admin-content" style="max-width:560px;">
+        <div class="modal-admin-header">
+            <h3>✏️ Revisar antes de salvar</h3>
+            <button class="btn-fechar-modal" id="btnFecharModalRevisarSelecaoBancoLP">✕</button>
+        </div>
+        <p style="font-size:12px; color:var(--text2); margin:0 0 12px;">
+            Ajuste nome e valor de cada item, se precisar. A imagem é a que veio do banco.
+        </p>
+        <div id="listaRevisarSelecaoBancoLP" style="max-height:55vh; overflow-y:auto; display:flex; flex-direction:column; gap:10px;"></div>
+        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+            <button class="btn-tabela" id="btnVoltarRevisarSelecaoBancoLP" style="background:var(--surface2); color:var(--text2);">← Voltar à seleção</button>
+            <button class="btn-tabela btn-marcar-pago" id="btnSalvarRevisaoSelecaoBancoLP">Salvar todos</button>
         </div>
     </div>
 </div>
