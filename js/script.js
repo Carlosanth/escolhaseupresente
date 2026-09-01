@@ -305,6 +305,13 @@
         snapshot.forEach((doc) => {
           const produto = doc.data();
           const id      = doc.id;
+
+          // Item sem valor definido (preço 0 ou vazio) não aparece pro
+          // convidado — ele não pode presentear algo sem preço, e mostrar
+          // "R$ 0,00" confunde. O item continua existindo/editável no
+          // painel do dono da lista, só fica escondido aqui até ter valor.
+          if (!(parseInt(produto.preco_centavos || 0) > 0)) return;
+
           todosProdutosCache.push({ id, ...produto });
 
           if (produto.categoria && produto.categoria.trim()) {
