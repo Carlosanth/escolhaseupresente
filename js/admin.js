@@ -73,7 +73,7 @@
                     tempCanvas.getContext('2d').drawImage(img, 0, 0, w, h);
                     ctx.drawImage(tempCanvas, offsetX, offsetY, lado, lado, 0, 0, lado, lado);
 
-                    canvas.toBlob((blob) => resolve(blob), 'image/jpeg', qualidade);
+                    canvas.toBlob((blob) => resolve(blob), 'image/webp', qualidade);
                 };
                 img.src = e.target.result;
             };
