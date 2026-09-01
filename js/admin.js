@@ -189,6 +189,155 @@
         });
     }
 
+    // ===== ESCOLHER DO BANCO DE IMAGENS (PARA LISTAS PRONTAS) =====
+    // Fluxo: abre grade de seleção múltipla do banco_imagens -> revisão em
+    // lote (nome/valor editáveis) -> salva todos como itens da categoria
+    // de lista pronta que estava aberta, no mesmo formato que o "Novo item".
+    let idsSelecionadosBancoLP = new Set();
+
+    function abrirModalSelecionarBancoLP() {
+        if (!categoriaLPAberta) return;
+        idsSelecionadosBancoLP = new Set();
+        document.getElementById('inputBuscarSelecionarBancoLP').value = '';
+        renderizarGridSelecionarBancoLP(bancoImagensCache);
+        document.getElementById('modalSelecionarBancoLP').classList.add('ativo');
+    }
+
+    function renderizarGridSelecionarBancoLP(lista) {
+        const grid = document.getElementById('gridSelecionarBancoLP');
+        if (!grid) return;
+        if (!lista.length) { grid.innerHTML = '<div class="lp-vazio">Nenhuma imagem cadastrada ainda.</div>'; return; }
+        grid.innerHTML = lista.map(item => `
+            <div class="lp-card-item selecionavel${idsSelecionadosBancoLP.has(item.id) ? ' selecionado' : ''}" data-item-id="${item.id}">
+                ${idsSelecionadosBancoLP.has(item.id) ? '<div class="lp-card-item-check">✓</div>' : ''}
+                <img src="${item.imagemUrl}" alt="${escapeHTML(item.nome || '')}" loading="lazy">
+                <div class="lp-card-item-corpo">
+                    <div class="lp-card-item-nome">${escapeHTML(item.nome || '')}</div>
+                </div>
+            </div>
+        `).join('');
+        grid.querySelectorAll('.lp-card-item').forEach(card => {
+            card.addEventListener('click', () => {
+                const id = card.dataset.itemId;
+                if (idsSelecionadosBancoLP.has(id)) idsSelecionadosBancoLP.delete(id);
+                else idsSelecionadosBancoLP.add(id);
+                renderizarGridSelecionarBancoLP(lista);
+                atualizarContadorSelecaoBancoLP();
+            });
+        });
+        atualizarContadorSelecaoBancoLP();
+    }
+
+    function atualizarContadorSelecaoBancoLP() {
+        const contador = document.getElementById('contadorSelecaoBancoLP');
+        if (contador) contador.textContent = `${idsSelecionadosBancoLP.size} selecionada${idsSelecionadosBancoLP.size === 1 ? '' : 's'}`;
+    }
+
+    document.getElementById('btnEscolherDoBancoLP')?.addEventListener('click', abrirModalSelecionarBancoLP);
+    document.getElementById('btnFecharModalSelecionarBancoLP')?.addEventListener('click', () => document.getElementById('modalSelecionarBancoLP').classList.remove('ativo'));
+    document.getElementById('btnCancelarSelecionarBancoLP')?.addEventListener('click', () => document.getElementById('modalSelecionarBancoLP').classList.remove('ativo'));
+
+    document.getElementById('inputBuscarSelecionarBancoLP')?.addEventListener('input', (e) => {
+        const termo = e.target.value.trim().toLowerCase();
+        if (!termo) { renderizarGridSelecionarBancoLP(bancoImagensCache); return; }
+        const filtrado = bancoImagensCache.filter(item => {
+            const alvo = [item.nome, item.sinonimos, ...(item.tags || [])].join(' ').toLowerCase();
+            return alvo.includes(termo);
+        });
+        renderizarGridSelecionarBancoLP(filtrado);
+    });
+
+    document.getElementById('btnConfirmarSelecaoBancoLP')?.addEventListener('click', () => {
+        if (idsSelecionadosBancoLP.size === 0) { toast('⚠️ Selecione ao menos uma imagem.'); return; }
+        document.getElementById('modalSelecionarBancoLP').classList.remove('ativo');
+        abrirModalRevisarSelecaoBancoLP();
+    });
+
+    function abrirModalRevisarSelecaoBancoLP() {
+        const container = document.getElementById('listaRevisarSelecaoBancoLP');
+        const itens = bancoImagensCache.filter(i => idsSelecionadosBancoLP.has(i.id));
+        container.innerHTML = itens.map(item => {
+            const precoVinculado = bancoPrecosCache.find(p => p.id === item.id);
+            const valorInicial = precoVinculado
+                ? (precoVinculado.preco_centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                : '';
+            return `
+            <div class="lp-card-item" style="display:flex; flex-direction:row; align-items:center; gap:12px; padding:10px;" data-id="${item.id}">
+                <img src="${item.imagemUrl}" alt="${escapeHTML(item.nome || '')}" style="width:56px; height:56px; border-radius:8px; object-fit:cover; flex-shrink:0;">
+                <div style="flex:1; display:flex; flex-direction:column; gap:6px;">
+                    <input type="text" class="campo-form-admin input-revisar-nome" value="${escapeHTML(item.nome || '').replace(/"/g, '&quot;')}" placeholder="Nome do item" style="margin:0;">
+                    <input type="tel" class="campo-form-admin input-revisar-valor" value="${valorInicial}" placeholder="R$ 0,00 (opcional)" style="margin:0;">
+                </div>
+                <button type="button" class="btn-tabela btn-excluir-cliente btn-remover-revisao" title="Remover da leva" style="flex-shrink:0;">✕</button>
+            </div>`;
+        }).join('');
+
+        container.querySelectorAll('.btn-remover-revisao').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const card = btn.closest('[data-id]');
+                const id = card.dataset.id;
+                idsSelecionadosBancoLP.delete(id);
+                card.remove();
+                if (idsSelecionadosBancoLP.size === 0) {
+                    document.getElementById('modalRevisarSelecaoBancoLP').classList.remove('ativo');
+                }
+            });
+        });
+
+        document.getElementById('modalRevisarSelecaoBancoLP').classList.add('ativo');
+    }
+
+    document.getElementById('btnFecharModalRevisarSelecaoBancoLP')?.addEventListener('click', () => document.getElementById('modalRevisarSelecaoBancoLP').classList.remove('ativo'));
+    document.getElementById('btnVoltarRevisarSelecaoBancoLP')?.addEventListener('click', () => {
+        document.getElementById('modalRevisarSelecaoBancoLP').classList.remove('ativo');
+        document.getElementById('modalSelecionarBancoLP').classList.add('ativo');
+    });
+
+    document.getElementById('btnSalvarRevisaoSelecaoBancoLP')?.addEventListener('click', async () => {
+        if (!categoriaLPAberta) return;
+        const linhas = Array.from(document.querySelectorAll('#listaRevisarSelecaoBancoLP [data-id]'));
+        if (!linhas.length) { toast('⚠️ Nada pra salvar.'); return; }
+
+        const btn = document.getElementById('btnSalvarRevisaoSelecaoBancoLP');
+        btn.disabled = true;
+        btn.textContent = 'Salvando...';
+
+        try {
+            for (const linha of linhas) {
+                const id = linha.dataset.id;
+                const itemBanco = bancoImagensCache.find(i => i.id === id);
+                if (!itemBanco) continue;
+
+                const nome = linha.querySelector('.input-revisar-nome').value.trim();
+                if (!nome) continue; // pula silenciosamente itens sem nome
+
+                const valorTexto = linha.querySelector('.input-revisar-valor').value.trim();
+                let precoNumerico = 0;
+                if (valorTexto) {
+                    const v = parseFloat(valorTexto.replace('R$', '').replace(/\./g, '').replace(',', '.').trim());
+                    if (!isNaN(v)) precoNumerico = v;
+                }
+
+                const dados = {
+                    nome,
+                    preco_centavos: Math.round(precoNumerico * 100).toString(),
+                    imagem: itemBanco.imagemUrl,
+                };
+                const itemId = nome.replace(/[\/#\$\.\[\]]/g, "").trim().toLowerCase().replace(/\s+/g, '-') + '-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+                await setDoc(doc(db, "listas_prontas", categoriaLPAberta, "itens", itemId), dados);
+            }
+            toast(`✅ ${linhas.length} item(ns) adicionado(s) à lista!`);
+            document.getElementById('modalRevisarSelecaoBancoLP').classList.remove('ativo');
+            idsSelecionadosBancoLP = new Set();
+        } catch (e) {
+            console.error(e);
+            toast('❌ Erro ao salvar itens.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Salvar todos';
+        }
+    });
+
     function abrirModalImagemBanco(id = null) {
         editandoImagemBancoId = id;
         urlImagemBancoSelecionada = '';
