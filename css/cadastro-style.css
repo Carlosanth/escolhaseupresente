@@ -1860,12 +1860,11 @@ não é clicável. */
     position: fixed;
     top: 0;
     right: -420px;
-    z-index: 101;
+    z-index: 1001;
     height: 100vh;
     width: min(400px, 100vw);
     transition: right 0.5s ease-in-out;
     overflow: hidden;
-    z-index: 500;
 }
 
 .area-listas.ativo { right: 0; }
@@ -1972,7 +1971,7 @@ não é clicável. */
     position: fixed;
     top: 0;
     right: -420px;
-    z-index: 102;
+    z-index: 1002;
     height: 100vh;
     width: min(400px, 100vw);
     transition: right 0.5s ease-in-out;
@@ -2059,13 +2058,19 @@ não é clicável. */
 .item-pronto-linha {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: var(--radius-md2);
-    padding: 10px 12px;
+    padding: 14px 16px;
     cursor: pointer;
     transition: background 0.2s, border-color 0.2s;
+}
+
+.item-pronto-linha img {
+    width: 56px !important;
+    height: 56px !important;
+    border-radius: 12px !important;
 }
 
 .item-pronto-linha:hover {
@@ -2078,8 +2083,8 @@ não é clicável. */
 }
 
 .item-pronto-check {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     border-radius: var(--radius-sm);
     border: 2px solid rgba(255,255,255,0.25);
     flex-shrink: 0;
@@ -2110,7 +2115,7 @@ não é clicável. */
 }
 
 .item-pronto-nome {
-    font-size: 13.5px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--branco);
     overflow: hidden;
@@ -2119,7 +2124,7 @@ não é clicável. */
 }
 
 .item-pronto-preco {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--roxo-claro);
 }
 
