@@ -608,6 +608,10 @@
         let unsubscribeProdutos = null;
         let unsubscribeCategorias = null;
         let unsubscribeSaques = null;
+        // Imagem padrão usada sempre que um item/tema não tem foto própria.
+        // Centralizada aqui — troca o link uma vez só em vez de nas 10+ cópias
+        // espalhadas pelo arquivo.
+        const IMAGEM_PADRAO_URL = 'https://pub-265bd1c5133e487d92d274861682bde1.r2.dev/Logo%20caso%20o%20cliente%20n%C3%A3o%20cadastre%20imagem%20no%20item/Logo%20ESP.webp';
         let imagemSelecionadaParaO_Banco = "";
         let urlImagemBancoSugeridaSelecionada = ""; // imagem escolhida do banco de imagens do admin (banco_imagens)
         let totalItensAtual = 0;
@@ -1299,7 +1303,7 @@
                         const precoFmt   = centavos
                             ? (centavos/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
                             : (p.preco || 'A definir');
-                        const img = p.imagem_url || p.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+                        const img = p.imagem_url || p.imagem || IMAGEM_PADRAO_URL;
                         const esgotadoClass = disponivel ? '' : 'item-esgotado';
                         const botao = disponivel
                             ? `<button class="botao primario botao-presentear" disabled>😊 Presentear 😊</button>`
@@ -1308,7 +1312,7 @@
                         <main class="conteudo ${esgotadoClass}">
                           <section class="cartao-produto">
                             <div class="imagem-produto">
-                              <img src="${img}" alt="" loading="lazy" onerror="this.src='https://i.ibb.co/YBZJdZ2N/icon-192.jpg'">
+                              <img src="${img}" alt="" loading="lazy" onerror="this.src='${IMAGEM_PADRAO_URL}'">
                             </div>
                             <div class="detalhes-produto">
                               <div class="titulo-produto">${p.titulo || 'Produto'}</div>
@@ -1620,7 +1624,7 @@
                 else throw new Error("Sem URL");
             } catch (error) {
                 console.error("Erro no upload:", error);
-                return 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+                return IMAGEM_PADRAO_URL;
             }
         }
 
@@ -1906,7 +1910,7 @@
                 const centavos = parseInt(item.preco_centavos || 0);
                 const semValor = !centavos || centavos <= 0;
                 const precoFmt = (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                const imgSrc = item.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+                const imgSrc = item.imagem || IMAGEM_PADRAO_URL;
                 const linha = document.createElement('div');
                 linha.className = 'item-pronto-linha';
                 linha.dataset.id = item.id;
@@ -2031,7 +2035,7 @@
                     await setDoc(doc(db, "presentes", produtoId), {
                         categoria:               nomeCategoria,
                         disponivel:              true,
-                        imagem:                  item.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg',
+                        imagem:                  item.imagem || IMAGEM_PADRAO_URL,
                         preco:                   precoParaWebhook,
                         preco_original_centavos: precoOriginalCentavos.toString(),
                         preco_centavos:          precoCentavosWebhook.toString(),
@@ -2091,7 +2095,7 @@
             btnAdicionar.value = "Salvando...";
             btnAdicionar.disabled = true;
 
-            let urlImagemFinal = 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+            let urlImagemFinal = IMAGEM_PADRAO_URL;
             if (fotoArquivo) {
                 // Upload manual do cliente tem prioridade sobre a sugestão do banco.
                 const blob = await redimensionarImagem(fotoArquivo);
@@ -2378,7 +2382,7 @@
             novaBaseDiv.classList.add('base');
 
             const tituloExibicao    = produto.titulo    || "Sem nome";
-            const imagemExibicao    = produto.imagem    || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+            const imagemExibicao    = produto.imagem    || IMAGEM_PADRAO_URL;
             const categoriaExibicao = produto.categoria || "Sem Categoria";
             const textoStatus = produto.disponivel !== false ? "Disponível" : "Indisponível";
             const corStatus   = produto.disponivel !== false ? "#28a745" : "#6c757d";
@@ -2398,7 +2402,7 @@
 
             novaBaseDiv.innerHTML = `
                 <div class="base-card">
-                    <img src="" alt="" loading="lazy" onerror="this.onerror=null;this.src='https://i.ibb.co/YBZJdZ2N/icon-192.jpg'">
+                    <img src="" alt="" loading="lazy" onerror="this.onerror=null;this.src='${IMAGEM_PADRAO_URL}'">
                     <div class="T-Produtos">
                         <strong class="item-titulo-txt"></strong>
                         ${semValorDefinido
@@ -2519,7 +2523,7 @@
         // ================================================================
         function abrirModalDetalheItem(produto) {
             const tituloExibicao    = produto.titulo    || "Sem nome";
-            const imagemExibicao    = produto.imagem    || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+            const imagemExibicao    = produto.imagem    || IMAGEM_PADRAO_URL;
             const categoriaExibicao = produto.categoria || "Sem Categoria";
 
             const originalCentavos = parseInt(produto.preco_original_centavos || produto.preco_centavos || 0);
@@ -2633,7 +2637,7 @@
         // ================================================================
         function abrirModalEditar(produto, documentoId) {
             editandoId = documentoId;
-            editandoImagemAtual = produto.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+            editandoImagemAtual = produto.imagem || IMAGEM_PADRAO_URL;
 
             editNome.value      = produto.titulo    || '';
             // ✅ CORRIGIDO: usar sempre o preço ORIGINAL (sem taxa), nunca o
