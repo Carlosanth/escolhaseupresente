@@ -18,6 +18,8 @@
 
 
   let produtoAtualId       = "";
+  // Imagem padrão pra item sem foto própria — mesmo link usado no cadastro.html.
+  const IMAGEM_PADRAO_URL  = 'https://pub-265bd1c5133e487d92d274861682bde1.r2.dev/Logo%20caso%20o%20cliente%20n%C3%A3o%20cadastre%20imagem%20no%20item/Logo%20ESP.webp';
   let produtoAtualTitulo   = "";
   let produtoAtualCotas    = 0;   // cotas_total do produto (0 = sem cotas)
   let cotasEscolhidas      = 0;   // quantas cotas o convidado escolheu
@@ -334,9 +336,9 @@
           const imgDiv = document.createElement('div');
           imgDiv.className = 'imagem-produto';
           const img = document.createElement('img');
-          img.src = produto.imagem || 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg';
+          img.src = produto.imagem || IMAGEM_PADRAO_URL;
           img.alt = produto.titulo || 'Produto';
-          img.onerror = () => { img.src = 'https://i.ibb.co/YBZJdZ2N/icon-192.jpg'; };
+          img.onerror = () => { img.src = IMAGEM_PADRAO_URL; };
           imgDiv.appendChild(img);
 
           const detalhes = document.createElement('div');

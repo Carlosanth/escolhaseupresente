@@ -41,6 +41,10 @@
 
     let taxaGlobal = 2.8;
 
+    // Imagem padrão pra item sem foto própria — mesmo link usado no
+    // cadastro.html e no script.js, pra ficar uma única imagem em todo o site.
+    const IMAGEM_PADRAO_URL = 'https://pub-265bd1c5133e487d92d274861682bde1.r2.dev/Logo%20caso%20o%20cliente%20n%C3%A3o%20cadastre%20imagem%20no%20item/Logo%20ESP.webp';
+
     // ================================================================
     // IMAGEM — redimensionar (quadrada) e subir pro ImgBB
     // ================================================================
@@ -122,7 +126,7 @@
             throw new Error(data.erro || "Falha no upload da imagem");
         } catch (error) {
             console.error("Erro no upload da imagem:", error);
-            return 'https://i.ibb.co/FqHbGwfs/189697.png';
+            return IMAGEM_PADRAO_URL;
         }
     }
 
