@@ -387,6 +387,17 @@
                     </div>
                 </div>
 
+                <!-- STATUS MERCADO PAGO -->
+                <div class="taxa-bloco" id="mpStatusBloco" style="display:none;">
+                    <div class="taxa-info">
+                        <span class="taxa-titulo" id="mpStatusTitulo">Conecte sua conta Mercado Pago</span>
+                        <span class="taxa-subtitulo" id="mpStatusSubtitulo">É assim que você recebe o dinheiro dos seus convidados.</span>
+                    </div>
+                    <div class="taxa-toggle-wrap">
+                        <button type="button" class="btn-taxa" id="btnConectarMP">Conectar Mercado Pago</button>
+                    </div>
+                </div>
+
                 <!-- INTERRUPTOR DE TAXA -->
                 <div class="taxa-bloco" id="taxaBloco" style="display:none;">
                     <div class="taxa-info">
@@ -1495,6 +1506,7 @@
                 await carregarValorMinimoSaque();
                 await carregarCpfDoPerfil();
                 await carregarModoDisplay();
+                verificarStatusMercadoPago();
                 escutarProdutosDoBanco();
                 escutarMeusSaques();
                 escutarAvisosGlobais();
@@ -2944,6 +2956,70 @@
                 }
             } catch(e) { console.error("Erro ao carregar CPF do perfil:", e); }
         }
+
+        // ================================================================
+        // STATUS MERCADO PAGO (conectar conta / split de pagamento)
+        // ================================================================
+        // Ajuste esta URL pro seu projeto (região southamerica-east1)
+        const CONECTAR_MP_URL = "https://southamerica-east1-escolhaseupresente-35d3d.cloudfunctions.net/conectarMercadoPago";
+
+        async function verificarStatusMercadoPago() {
+            if (!usuarioAtualUid) return;
+
+            const bloco     = document.getElementById('mpStatusBloco');
+            const titulo    = document.getElementById('mpStatusTitulo');
+            const subtitulo = document.getElementById('mpStatusSubtitulo');
+            const botao     = document.getElementById('btnConectarMP');
+            if (!bloco) return;
+
+            // Mensagem de retorno do OAuth (?mp_conectado=ok|erro|expirado)
+            const params = new URLSearchParams(window.location.search);
+            const retorno = params.get('mp_conectado');
+
+            let jaConectado = false;
+            try {
+                const snap = await getDoc(doc(db, "perfis", usuarioAtualUid));
+                jaConectado = snap.exists() && !!snap.data().mp_access_token;
+            } catch (e) {
+                console.error("Erro ao checar status do Mercado Pago:", e);
+            }
+
+            bloco.style.display = 'flex';
+
+            if (retorno === 'erro') {
+                titulo.textContent = '❌ Não foi possível conectar';
+                subtitulo.textContent = 'Tente novamente.';
+            } else if (retorno === 'expirado') {
+                titulo.textContent = '⚠️ O link expirou';
+                subtitulo.textContent = 'Clique em conectar de novo.';
+            } else if (jaConectado) {
+                titulo.textContent = '✅ Mercado Pago conectado';
+                subtitulo.textContent = 'Você já pode receber pagamentos dos seus convidados.';
+            } else {
+                titulo.textContent = 'Conecte sua conta Mercado Pago';
+                subtitulo.textContent = 'É assim que você recebe o dinheiro dos seus convidados.';
+            }
+
+            if (jaConectado && !retorno) {
+                botao.style.display = 'none';
+            } else {
+                botao.textContent = jaConectado ? 'Reconectar' : 'Conectar Mercado Pago';
+                botao.style.display = 'inline-block';
+            }
+
+            // Limpa o ?mp_conectado= da URL pra não ficar reaparecendo em refresh
+            if (retorno) {
+                params.delete('mp_conectado');
+                const novaUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+                window.history.replaceState({}, '', novaUrl);
+            }
+        }
+
+        document.getElementById('btnConectarMP')?.addEventListener('click', async () => {
+            if (!auth.currentUser) return;
+            const idToken = await auth.currentUser.getIdToken();
+            window.location.href = `${CONECTAR_MP_URL}?idToken=${encodeURIComponent(idToken)}`;
+        });
 
         // ================================================================
         // ESCUTAR SAQUES DO USUÁRIO (para descontar do saldo quando pagos)
