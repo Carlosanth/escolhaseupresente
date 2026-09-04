@@ -390,8 +390,8 @@
                 <!-- STATUS MERCADO PAGO -->
                 <div class="taxa-bloco" id="mpStatusBloco" style="display:none;">
                     <div class="taxa-info">
-                        <span class="taxa-titulo" id="mpStatusTitulo">Conecte sua conta Mercado Pago</span>
-                        <span class="taxa-subtitulo" id="mpStatusSubtitulo">É assim que você recebe o dinheiro dos seus convidados.</span>
+                        <span class="taxa-titulo" id="mpStatusTitulo">Conecte sua conta Mercado Pago (opcional)</span>
+                        <span class="taxa-subtitulo" id="mpStatusSubtitulo">Sem conectar, o valor fica guardado aqui e você recebe via PIX depois de solicitar o saque. Conectando o Mercado Pago, o repasse é automático e direto na sua conta.</span>
                     </div>
                     <div class="taxa-toggle-wrap">
                         <button type="button" class="btn-taxa" id="btnConectarMP">Conectar Mercado Pago</button>
@@ -2960,8 +2960,8 @@
         // ================================================================
         // STATUS MERCADO PAGO (conectar conta / split de pagamento)
         // ================================================================
-        // Ajuste esta URL pro seu projeto (região southamerica-east1)
-        const CONECTAR_MP_URL = "https://southamerica-east1-escolhaseupresente-35d3d.cloudfunctions.net/conectarMercadoPago";
+        // URL real da function v2 (Cloud Run) — confirme no console do Firebase se mudar
+        const CONECTAR_MP_URL = "https://conectarmercadopago-374767023277.southamerica-east1.run.app";
 
         async function verificarStatusMercadoPago() {
             if (!usuarioAtualUid) return;
@@ -2994,10 +2994,10 @@
                 subtitulo.textContent = 'Clique em conectar de novo.';
             } else if (jaConectado) {
                 titulo.textContent = '✅ Mercado Pago conectado';
-                subtitulo.textContent = 'Você já pode receber pagamentos dos seus convidados.';
+                subtitulo.textContent = 'O dinheiro dos seus convidados cai direto na sua conta Mercado Pago.';
             } else {
-                titulo.textContent = 'Conecte sua conta Mercado Pago';
-                subtitulo.textContent = 'É assim que você recebe o dinheiro dos seus convidados.';
+                titulo.textContent = 'Conecte sua conta Mercado Pago (opcional)';
+                subtitulo.textContent = 'Sem conectar, o valor fica guardado aqui e você recebe via PIX depois de solicitar o saque. Conectando o Mercado Pago, o repasse é automático e direto na sua conta.';
             }
 
             if (jaConectado && !retorno) {
