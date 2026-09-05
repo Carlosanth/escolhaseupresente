@@ -62,6 +62,28 @@
     ].join(', ');
   }
 
+  // Converte HSL de volta pra "r, g, b" — necessário pro modo claro, onde a
+  // cor final (--acento) tem hue/sat/lum ajustados em relação à cor escolhida
+  // originalmente, então não dá pra reaproveitar o RGB do hex original.
+  function hslParaRGB(h, s, l) {
+    s /= 100; l /= 100;
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+    const m = l - c / 2;
+    let r1, g1, b1;
+    if      (h < 60)  { r1 = c; g1 = x; b1 = 0; }
+    else if (h < 120) { r1 = x; g1 = c; b1 = 0; }
+    else if (h < 180) { r1 = 0; g1 = c; b1 = x; }
+    else if (h < 240) { r1 = 0; g1 = x; b1 = c; }
+    else if (h < 300) { r1 = x; g1 = 0; b1 = c; }
+    else              { r1 = c; g1 = 0; b1 = x; }
+    return [
+      Math.round((r1 + m) * 255),
+      Math.round((g1 + m) * 255),
+      Math.round((b1 + m) * 255)
+    ].join(', ');
+  }
+
   function aplicarTema(hex, modoForcado) {
     if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return;
 
@@ -81,7 +103,7 @@
       const lAcento = Math.min(l, 45);
 
       root.style.setProperty('--acento',     `hsl(${hAcento}, ${sAcento}%, ${lAcento}%)`);
-      root.style.setProperty('--acento-rgb', `${Math.round(255 * lAcento/100)}, ${Math.round(255 * lAcento/100)}, 255`);
+      root.style.setProperty('--acento-rgb', hslParaRGB(hAcento, sAcento, lAcento));
       root.style.setProperty('--fundo-base', `hsl(${hAcento}, ${Math.round(sAcento * 0.08)}%, 96%)`);
       root.style.setProperty('--fundo-glow-1', `hsla(${hAcento}, ${sAcento}%, 60%, 0.08)`);
       root.style.setProperty('--fundo-glow-2', `hsla(${hAcento - 15}, ${sAcento}%, 55%, 0.06)`);
