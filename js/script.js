@@ -75,7 +75,10 @@
     if (modoClaro) {
       const hAcento = s < 10 ? 240 : h;
       const sAcento = s < 10 ? 60  : Math.min(sAdj + 20, 90);
-      const lAcento = 45;
+      // Antes era fixo em 45 (ignorava a cor escolhida). Agora respeita tons
+      // mais escuros (l < 45) e só limita tons muito claros a um teto de 45,
+      // pra manter contraste legível em fundo branco.
+      const lAcento = Math.min(l, 45);
 
       root.style.setProperty('--acento',     `hsl(${hAcento}, ${sAcento}%, ${lAcento}%)`);
       root.style.setProperty('--acento-rgb', `${Math.round(255 * lAcento/100)}, ${Math.round(255 * lAcento/100)}, 255`);
