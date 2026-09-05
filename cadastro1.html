@@ -1214,6 +1214,21 @@
             const previewFecharBtn = document.getElementById('previewIframeFechar');
             const previewCorpo     = document.getElementById('previewCorpo');
 
+            // Converte HSL de volta pra "r, g, b" — necessário no modo claro,
+            // onde a cor final tem hue/sat/lum ajustados em relação à cor
+            // escolhida originalmente.
+            function hslParaRGB(h, s, l) {
+                s /= 100; l /= 100;
+                const c = (1 - Math.abs(2*l - 1)) * s;
+                const x = c * (1 - Math.abs((h/60) % 2 - 1));
+                const m = l - c/2;
+                let r1,g1,b1;
+                if (h<60) {r1=c;g1=x;b1=0;} else if (h<120) {r1=x;g1=c;b1=0;}
+                else if (h<180) {r1=0;g1=c;b1=x;} else if (h<240) {r1=0;g1=x;b1=c;}
+                else if (h<300) {r1=x;g1=0;b1=c;} else {r1=c;g1=0;b1=x;}
+                return `${Math.round((r1+m)*255)}, ${Math.round((g1+m)*255)}, ${Math.round((b1+m)*255)}`;
+            }
+
             // Aplica variáveis CSS de tema no elemento raiz do overlay
             function aplicarTemaNoPreview(hex, modoClaro) {
                 if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return;
@@ -1234,7 +1249,7 @@
                 if (modoClaro) {
                     const hA=s<10?240:h, sA=s<10?60:Math.min(sAdj+20,90), lA=Math.min(l,45);
                     set('--acento',`hsl(${hA},${sA}%,${lA}%)`);
-                    set('--acento-rgb',`${Math.round(255*lA/100)},${Math.round(255*lA/100)},255`);
+                    set('--acento-rgb',hslParaRGB(hA,sA,lA));
                     set('--fundo-base',`hsl(${hA},${Math.round(sA*0.08)}%,96%)`);
                     set('--fundo-glow-1',`hsla(${hA},${sA}%,60%,0.08)`);
                     set('--fundo-glow-2',`hsla(${hA-15},${sA}%,55%,0.06)`);
