@@ -398,6 +398,19 @@
                     </div>
                 </div>
 
+                <!-- STATUS ASAAS (TESTE) -->
+                <div class="taxa-bloco" id="asaasStatusBloco" style="display:flex; flex-direction:column; gap:8px;">
+                    <div class="taxa-info">
+                        <span class="taxa-titulo">Conectar Asaas (teste)</span>
+                        <span class="taxa-subtitulo">Cole aqui o Wallet ID da sua conta Asaas (pode ser de sandbox, pra teste) pra receber os pagamentos.</span>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <input type="text" id="asaas-wallet-input" placeholder="Cole seu Wallet ID aqui" style="flex:1; padding:8px; box-sizing:border-box;" />
+                        <button type="button" class="btn-taxa" id="btnSalvarAsaas">Salvar</button>
+                    </div>
+                    <span id="asaas-status-mensagem" style="font-weight:bold;"></span>
+                </div>
+
                 <!-- INTERRUPTOR DE TAXA -->
                 <div class="taxa-bloco" id="taxaBloco" style="display:none;">
                     <div class="taxa-info">
@@ -1540,6 +1553,7 @@
                 await carregarCpfDoPerfil();
                 await carregarModoDisplay();
                 verificarStatusMercadoPago();
+                verificarStatusAsaas();
                 escutarProdutosDoBanco();
                 escutarMeusSaques();
                 escutarAvisosGlobais();
@@ -3047,6 +3061,45 @@
                 window.history.replaceState({}, '', novaUrl);
             }
         }
+
+        // ================================================================
+        // STATUS ASAAS (TESTE) — campo simples de Wallet ID, sem OAuth
+        // ================================================================
+        async function verificarStatusAsaas() {
+            if (!usuarioAtualUid) return;
+            const input = document.getElementById('asaas-wallet-input');
+            const mensagem = document.getElementById('asaas-status-mensagem');
+            if (!input) return;
+
+            try {
+                const snap = await getDoc(doc(db, "perfis", usuarioAtualUid));
+                if (snap.exists() && snap.data().asaas_wallet_id) {
+                    input.value = snap.data().asaas_wallet_id;
+                    mensagem.textContent = "✅ Wallet ID salvo — esse usuário já usa Asaas.";
+                }
+            } catch (e) {
+                console.error("Erro ao carregar wallet id:", e);
+            }
+        }
+
+        document.getElementById('btnSalvarAsaas')?.addEventListener('click', async () => {
+            if (!usuarioAtualUid) return;
+            const input = document.getElementById('asaas-wallet-input');
+            const mensagem = document.getElementById('asaas-status-mensagem');
+            const valor = input.value.trim();
+            if (!valor) {
+                mensagem.textContent = "⚠️ Cole o Wallet ID antes de salvar.";
+                return;
+            }
+            try {
+                await setDoc(doc(db, "perfis", usuarioAtualUid), { asaas_wallet_id: valor }, { merge: true });
+                mensagem.textContent = "✅ Salvo! Esse usuário já vai usar o Asaas nas próximas compras.";
+            } catch (e) {
+                console.error("Erro ao salvar wallet id:", e);
+                mensagem.textContent = "❌ Erro ao salvar. Tente de novo.";
+            }
+        });
+
 
         document.getElementById('btnConectarMP')?.addEventListener('click', async () => {
             if (!auth.currentUser) return;
