@@ -4,6 +4,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Lista de Presentes</title>
+
+    <!-- Open Graph / prévia de link (WhatsApp, Facebook, etc.) —
+         valores genéricos fixos (Opção 1). O Cloudflare Worker
+         escolhaseupresente-og reescreve esses valores na hora pra
+         robôs de prévia, trocando pelo título/foto de cada evento
+         específico. Pra qualquer outro visitante (ou se o Worker
+         falhar por algum motivo), esses valores genéricos abaixo
+         continuam funcionando normalmente como rede de segurança. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Escolha Seu Presente" />
+    <meta property="og:description" content="Veja a lista de presentes e escolha o seu com carinho!" />
+    <meta property="og:image" content="https://img.escolhaseupresente.com/Logo%20caso%20o%20cliente%20n%C3%A3o%20cadastre%20imagem%20no%20item/Logo%20ESP.webp" />
+    <meta property="og:url" content="https://escolhaseupresente.com/lista.html" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Escolha Seu Presente" />
+    <meta name="twitter:description" content="Veja a lista de presentes e escolha o seu com carinho!" />
+    <meta name="twitter:image" content="https://img.escolhaseupresente.com/Logo%20caso%20o%20cliente%20n%C3%A3o%20cadastre%20imagem%20no%20item/Logo%20ESP.webp" />
+
     <link rel="stylesheet" href="css/Style.css" />
   </head>
   <body>
