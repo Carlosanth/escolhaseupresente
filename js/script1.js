@@ -30,6 +30,9 @@
   let produtoAtualTaxaPercentual        = 0;
   let produtoAtualTaxaQuemPaga          = "dono";
   let nomeConvidadoAtual   = ""; // guardado após confirmar nome, usado ao escolher método
+  // ✅ NOVO: base de preço (sem markup) da fração de cotas escolhida, usada
+  // pelo mesmo calcularOpcoesDePagamento do fluxo normal.
+  let valorBaseCotaEscolhidaCentavos = 0;
 
   // ============================================================
   // 🎨 SISTEMA DE TEMA INTELIGENTE
@@ -414,6 +417,11 @@
               btnCotas.dataset.cotasDisp     = cotasDisp;
               btnCotas.dataset.precoCentavos = produto.preco_centavos || '0';
               btnCotas.dataset.cotasOcupadas = JSON.stringify(cotasOcupadas);
+              // ✅ NOVO: mesmos dados do botão normal, pra "Presentear tudo"
+              // e "Contribuir com cota" também terem preço por método
+              btnCotas.dataset.precoOriginalCentavos = produto.preco_original_centavos || produto.preco_centavos || '0';
+              btnCotas.dataset.taxaPercentual        = produto.taxa_percentual || '0';
+              btnCotas.dataset.taxaQuemPaga          = produto.taxa_quem_paga || 'dono';
               btnCotas.textContent = '🎁 Presentear';
               acoes.appendChild(btnCotas);
 
@@ -503,6 +511,10 @@
             const precoCentavos = parseInt(this.dataset.precoCentavos || 0);
             let cotasOcupadas   = [];
             try { cotasOcupadas = JSON.parse(this.dataset.cotasOcupadas || '[]'); } catch(e) {}
+            // ✅ NOVO
+            produtoAtualPrecoOriginalCentavos = parseInt(this.dataset.precoOriginalCentavos || '0');
+            produtoAtualTaxaPercentual        = parseFloat(this.dataset.taxaPercentual || '0');
+            produtoAtualTaxaQuemPaga          = this.dataset.taxaQuemPaga || 'dono';
             abrirModalEscolha(produtoAtualTitulo, produtoAtualCotas, dispAtual, precoCentavos, cotasOcupadas);
           });
         });
@@ -731,6 +743,10 @@
         modoFluxo = "cota";
         cotasEscolhidas = selecionadas.size;
         cotasNumerosEscolhidos = Array.from(selecionadas).sort((a, b) => a - b);
+        // ✅ NOVO: base de preço (sem markup) proporcional às cotas escolhidas —
+        // mesma unidade que produtoAtualPrecoOriginalCentavos usa no fluxo normal.
+        const precoOriginalPorCotaCentavos = Math.round(produtoAtualPrecoOriginalCentavos / produtoAtualCotas);
+        valorBaseCotaEscolhidaCentavos = precoOriginalPorCotaCentavos * cotasEscolhidas;
         fechar();
         abrirModalNome();
       });
@@ -829,19 +845,18 @@
       if (!nome) { alert("Digite seu nome para continuar."); return; }
       fecharModalNome();
 
-      if (modoFluxo === "presentear") {
-        // ✅ NOVO: mostra opções de pagamento em vez de ir direto pro checkout
-        nomeConvidadoAtual = nome;
-        const opcoes = calcularOpcoesDePagamento({
-          precoOriginalCentavos: produtoAtualPrecoOriginalCentavos,
-          taxaPercentualPlataforma: produtoAtualTaxaPercentual,
-          taxaQuemPaga: produtoAtualTaxaQuemPaga
-        });
-        abrirModalMetodoPagamento(opcoes);
-      } else {
-        // Cota: comportamento 100% igual ao de hoje, sem mudança
-        await finalizarCompra(nome);
-      }
+      // ✅ NOVO: os dois fluxos (presentear e cota) mostram o modal de
+      // método de pagamento — só muda a base de preço usada no cálculo.
+      nomeConvidadoAtual = nome;
+      const precoBaseCentavos = modoFluxo === "cota"
+        ? valorBaseCotaEscolhidaCentavos
+        : produtoAtualPrecoOriginalCentavos;
+      const opcoes = calcularOpcoesDePagamento({
+        precoOriginalCentavos: precoBaseCentavos,
+        taxaPercentualPlataforma: produtoAtualTaxaPercentual,
+        taxaQuemPaga: produtoAtualTaxaQuemPaga
+      });
+      abrirModalMetodoPagamento(opcoes);
     }
 
     document.getElementById('btn-confirmar-modal')?.addEventListener('click', confirmarNome);
