@@ -404,11 +404,11 @@
                         <span class="taxa-titulo">Conectar Asaas (teste)</span>
                         <span class="taxa-subtitulo">Cole aqui o Wallet ID da sua conta Asaas (pode ser de sandbox, pra teste) pra receber os pagamentos.</span>
                     </div>
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <input type="text" id="asaas-wallet-input" placeholder="Cole seu Wallet ID aqui" style="flex:1; padding:8px; box-sizing:border-box;" />
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+                        <input type="text" id="asaas-wallet-input" class="campo-formulario" placeholder="Cole seu Wallet ID aqui" autocomplete="off" spellcheck="false" style="flex:1 1 200px; min-width:0; width:100%; box-sizing:border-box; color:#fff;" />
                         <button type="button" class="btn-taxa" id="btnSalvarAsaas">Salvar</button>
                     </div>
-                    <span id="asaas-status-mensagem" style="font-weight:bold;"></span>
+                    <span id="asaas-status-mensagem" style="font-weight:bold; color:#fff; word-break:break-word;"></span>
                 </div>
 
                 <!-- INTERRUPTOR DE TAXA -->
@@ -3075,7 +3075,7 @@
                 const snap = await getDoc(doc(db, "perfis", usuarioAtualUid));
                 if (snap.exists() && snap.data().asaas_wallet_id) {
                     input.value = snap.data().asaas_wallet_id;
-                    mensagem.textContent = "✅ Wallet ID salvo — esse usuário já usa Asaas.";
+                    mensagem.textContent = "Wallet ID salvo — esse usuário já usa Asaas.";
                 }
             } catch (e) {
                 console.error("Erro ao carregar wallet id:", e);
@@ -3093,7 +3093,7 @@
             }
             try {
                 await setDoc(doc(db, "perfis", usuarioAtualUid), { asaas_wallet_id: valor }, { merge: true });
-                mensagem.textContent = "✅ Salvo! Esse usuário já vai usar o Asaas nas próximas compras.";
+                mensagem.textContent = "Salvo! Esse usuário já vai usar o Asaas nas próximas compras.";
             } catch (e) {
                 console.error("Erro ao salvar wallet id:", e);
                 mensagem.textContent = "❌ Erro ao salvar. Tente de novo.";
