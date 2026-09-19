@@ -399,16 +399,16 @@
                 </div>
 
                 <!-- STATUS ASAAS (TESTE) -->
-                <div class="taxa-bloco" id="asaasStatusBloco" style="display:flex; flex-direction:column; gap:8px;">
+                <div class="taxa-bloco" id="asaasStatusBloco" style="display:flex; flex-direction:column; gap:8px; width:100% !important; max-width:100% !important; box-sizing:border-box !important; overflow-wrap:break-word;">
                     <div class="taxa-info">
                         <span class="taxa-titulo">Conectar Asaas (teste)</span>
                         <span class="taxa-subtitulo">Cole aqui o Wallet ID da sua conta Asaas (pode ser de sandbox, pra teste) pra receber os pagamentos.</span>
                     </div>
-                    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
-                        <input type="text" id="asaas-wallet-input" class="campo-formulario" placeholder="Cole seu Wallet ID aqui" autocomplete="off" spellcheck="false" style="flex:1 1 200px; min-width:0; width:100%; box-sizing:border-box; color:#fff;" />
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; width:100% !important; max-width:100% !important;">
+                        <input type="text" id="asaas-wallet-input" class="campo-formulario" placeholder="Cole seu Wallet ID aqui" autocomplete="off" spellcheck="false" style="flex:1 1 auto !important; min-width:0 !important; width:100% !important; max-width:100% !important; box-sizing:border-box !important; color:#fff !important;" />
                         <button type="button" class="btn-taxa" id="btnSalvarAsaas">Salvar</button>
                     </div>
-                    <span id="asaas-status-mensagem" style="font-weight:bold; color:#fff; word-break:break-word;"></span>
+                    <span id="asaas-status-mensagem" style="font-weight:bold; color:#fff !important; word-break:break-word; overflow-wrap:break-word; max-width:100% !important; display:block;"></span>
                 </div>
 
                 <!-- INTERRUPTOR DE TAXA -->
