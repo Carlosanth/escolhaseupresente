@@ -55,6 +55,34 @@ html, body {
 /* ==========================================================
    ☀️ MODO CLARO — ativado via JS quando cor clara é escolhida
    ========================================================== */
+
+/* Textos dos cards no modo claro */
+body.tema-claro .titulo-produto          { color: #111 !important; }
+body.tema-claro .rotulo-preco            { color: rgba(0,0,0,0.42) !important; }
+body.tema-claro .preco                   { color: var(--preco-texto) !important; }
+body.tema-claro .cartao-produto          { box-shadow: 0 8px 32px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.9) !important; }
+body.tema-claro .cartao-produto:hover    { box-shadow: 0 16px 40px rgba(0,0,0,0.14) !important; }
+body.tema-claro .btn-layout              { color: rgba(0,0,0,0.65) !important; background: rgba(255,255,255,0.8) !important; border-color: rgba(0,0,0,0.12) !important; }
+body.tema-claro .btn-layout:hover        { color: #111 !important; }
+body.tema-claro .modal-conteudo          { background: rgba(255,255,255,0.97) !important; border-color: rgba(0,0,0,0.10) !important; box-shadow: 0 24px 60px rgba(0,0,0,0.18) !important; }
+body.tema-claro .modal-conteudo p        { color: rgba(0,0,0,0.55) !important; }
+body.tema-claro #nome-convidado          { background: rgba(0,0,0,0.04) !important; border-color: rgba(0,0,0,0.14) !important; color: #111 !important; }
+body.tema-claro #nome-convidado::placeholder { color: rgba(0,0,0,0.30) !important; }
+body.tema-claro .toast                   { background: rgba(255,255,255,0.97) !important; color: #111 !important; }
+
+/* ✅ NOVO: o overlay "Só um instante..." (redirecionando pro pagamento)
+   tinha o texto sempre branco (#fff), sem override pro tema claro —
+   igual o fundo dele (.overlay-redirecionando-conteudo) também fica
+   claro, o texto branco ficava invisível. Mesmo padrão do .modal-conteudo
+   acima. */
+body.tema-claro .overlay-redirecionando-conteudo { background: rgba(255,255,255,0.97) !important; border-color: rgba(0,0,0,0.10) !important; box-shadow: 0 24px 60px rgba(0,0,0,0.18) !important; }
+body.tema-claro .overlay-titulo          { color: #111 !important; }
+body.tema-claro .overlay-subtitulo       { color: rgba(0,0,0,0.55) !important; }
+
+/* Item esgotado no modo claro */
+body.tema-claro .item-esgotado .titulo-produto { color: rgba(0,0,0,0.25) !important; }
+body.tema-claro .item-esgotado .preco          { color: rgba(0,0,0,0.20) !important; }
+
 /* ==========================================================
    🌑 BODY — navy com glows
    ========================================================== */
