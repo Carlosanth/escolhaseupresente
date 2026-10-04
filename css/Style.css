@@ -837,20 +837,6 @@ body.tema-claro .cd-sep { color: rgba(0,0,0,0.25); }
   box-shadow: 0 0 12px rgba(var(--acento-rgb), 0.20);
 }
 
-/* Chip "Disponíveis" — destaque verde, igual ao badge de disponível */
-.chip-disponiveis {
-  border-color: var(--badge-disp-borda);
-  color: var(--badge-disp-texto);
-}
-.chip-disponiveis.ativo {
-  background: var(--badge-disp-bg);
-  border-color: var(--badge-disp-texto);
-  color: var(--badge-disp-texto);
-  box-shadow: 0 0 12px rgba(52, 211, 153, 0.25);
-}
-body.tema-claro .chip-disponiveis { color: #059669; border-color: rgba(5,150,105,0.35); }
-body.tema-claro .chip-disponiveis.ativo { background: rgba(5,150,105,0.12); border-color: #059669; color: #059669; }
-
 /* Modo claro */
 body.tema-claro .chip-categoria {
   background: rgba(255,255,255,0.80);
@@ -865,6 +851,48 @@ body.tema-claro .chip-categoria.ativo {
   background: rgba(var(--acento-rgb), 0.12);
   border-color: rgba(var(--acento-rgb), 0.40);
   color: var(--acento);
+}
+
+/* ==========================================================
+   Chip "Disponíveis" — verdinho (claro) / verde neon (escuro)
+   Vem DEPOIS das regras de chip acima pra não ser sobrescrito
+   ========================================================== */
+.chip-categoria.chip-disponiveis {
+  background: rgba(57, 255, 136, 0.10);
+  border-color: rgba(57, 255, 136, 0.55);
+  color: #39ff88;
+  text-shadow: 0 0 8px rgba(57, 255, 136, 0.55);
+  box-shadow: 0 0 10px rgba(57, 255, 136, 0.18);
+}
+.chip-categoria.chip-disponiveis:hover {
+  background: rgba(57, 255, 136, 0.18);
+  border-color: #39ff88;
+  color: #7dffb3;
+}
+.chip-categoria.chip-disponiveis.ativo {
+  background: rgba(57, 255, 136, 0.24);
+  border-color: #39ff88;
+  color: #39ff88;
+  box-shadow: 0 0 16px rgba(57, 255, 136, 0.55);
+}
+
+body.tema-claro .chip-categoria.chip-disponiveis {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(5, 150, 105, 0.40);
+  color: #059669;
+  text-shadow: none;
+  box-shadow: none;
+}
+body.tema-claro .chip-categoria.chip-disponiveis:hover {
+  background: rgba(16, 185, 129, 0.20);
+  border-color: #059669;
+  color: #047857;
+}
+body.tema-claro .chip-categoria.chip-disponiveis.ativo {
+  background: rgba(16, 185, 129, 0.24);
+  border-color: #059669;
+  color: #047857;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.30);
 }
 
 @media (max-width: 450px) {
