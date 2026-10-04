@@ -124,6 +124,8 @@
       root.style.setProperty('--texto-rotulo', 'rgba(0,0,0,0.40)');
       document.body.classList.add('tema-claro');
       document.body.classList.remove('tema-escuro');
+      root.style.colorScheme = 'light';
+      definirThemeColor(`hsl(${hAcento}, ${Math.round(sAcento * 0.08)}%, 96%)`);
 
     } else {
       const lAcento = Math.min(Math.max(l, 58), 72);
@@ -151,7 +153,20 @@
       root.style.setProperty('--texto-rotulo', 'rgba(255,255,255,0.40)');
       document.body.classList.add('tema-escuro');
       document.body.classList.remove('tema-claro');
+      root.style.colorScheme = 'dark';
+      definirThemeColor(`hsl(${h}, ${Math.round(sAdj * 0.45)}%, 7%)`);
     }
+  }
+
+  // Atualiza a cor da barra do navegador (Safari/Chrome mobile) junto com o tema
+  function definirThemeColor(cor) {
+    let meta = document.querySelector('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      document.head.appendChild(meta);
+    }
+    meta.content = cor;
   }
 
   // ============================================================
@@ -276,6 +291,17 @@
       });
       wrap.appendChild(chipTodos);
 
+      // Chip "Disponíveis" — mostra só o que ainda não foi presenteado
+      const chipDisp = document.createElement('button');
+      chipDisp.className = 'chip-categoria chip-disponiveis' + (categoriaAtiva === 'disponiveis' ? ' ativo' : '');
+      chipDisp.textContent = 'Disponíveis';
+      chipDisp.addEventListener('click', () => {
+        categoriaAtiva = 'disponiveis';
+        aplicarFiltro();
+        atualizarChips();
+      });
+      wrap.appendChild(chipDisp);
+
       // Chips por categoria
       categorias.forEach(cat => {
         const chip = document.createElement('button');
@@ -293,9 +319,10 @@
     function atualizarChips() {
       document.querySelectorAll('.chip-categoria').forEach(chip => {
         const cat = chip.textContent;
-        chip.classList.toggle('ativo',
-          cat === 'Todos' ? categoriaAtiva === 'todos' : categoriaAtiva === cat
-        );
+        const ativo = chip.classList.contains('chip-disponiveis')
+          ? categoriaAtiva === 'disponiveis'
+          : (cat === 'Todos' ? categoriaAtiva === 'todos' : categoriaAtiva === cat);
+        chip.classList.toggle('ativo', ativo);
       });
     }
 
@@ -304,6 +331,8 @@
       cards.forEach(card => {
         if (categoriaAtiva === 'todos') {
           card.style.display = '';
+        } else if (categoriaAtiva === 'disponiveis') {
+          card.style.display = card.dataset.disponivel === 'true' ? '' : 'none';
         } else {
           card.style.display = card.dataset.categoria === categoriaAtiva ? '' : 'none';
         }
@@ -393,6 +422,8 @@
           const cotasDisp      = Math.max(0, cotasTotal - cotasOcupadas.length);
           const temCotas       = cotasTotal >= 2;
           const cotasAcabaram  = temCotas && cotasDisp <= 0;
+          // usado pelo filtro "Disponíveis": ainda dá pra presentear?
+          wrap.dataset.disponivel = (produto.disponivel && !cotasAcabaram) ? 'true' : 'false';
           wrap.dataset.temCota = temCotas ? 'true' : 'false';
 
           const precoCentavos = parseInt(produto.preco_centavos || 0);
