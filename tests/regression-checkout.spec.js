@@ -11,7 +11,7 @@
  * IMPORTANTE — o que este teste PODE e NÃO PODE verificar:
  * O frontend (lista.html/finalizarCompra) só é responsável por
  * RESERVAR o produto/cota e redirecionar o convidado pro link de
- * pagamento (InfinitePay via Make.com). Ele não sabe, e não tem como
+ * pagamento (InfinitePay). Ele não sabe, e não tem como
  * saber, se o convidado vai realmente pagar — isso só é confirmado
  * depois, de forma assíncrona, pela Cloud Function confirmarPagamento
  * recebendo o webhook do provedor de pagamento (pode levar minutos,
@@ -36,7 +36,7 @@ const BASE_URL = process.env.STAGING_URL || 'http://localhost:8080';
 // ID de uma lista de presentes de teste, criada previamente no ambiente de staging.
 const LISTA_TESTE_ID = process.env.LISTA_TESTE_ID || 'lista-de-teste';
 // Padrão da URL de pagamento pra onde o site redireciona (ajuste conforme
-// o domínio real que o Make.com/InfinitePay usa nos links gerados).
+// o domínio real que o InfinitePay usa nos links gerados).
 const PADRAO_URL_PAGAMENTO = /infinitepay|checkout/i;
 
 test.describe('Fluxo crítico: escolher e reservar presente', () => {
