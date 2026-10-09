@@ -789,8 +789,8 @@
 
     async function finalizarCompra(nomeConvidado) {
       // ✅ NOVO: mostra a telinha de transição já aqui — a chamada pra
-      // Cloud Function (que ainda chama o Make, que ainda chama o
-      // InfinitePay) pode levar alguns segundos antes do redirecionamento.
+      // Cloud Function (que cria o link de pagamento no InfinitePay) pode
+      // levar alguns segundos antes do redirecionamento.
       mostrarOverlayRedirecionando();
       try {
         const payload = { produtoId: produtoAtualId, nomeConvidado };
